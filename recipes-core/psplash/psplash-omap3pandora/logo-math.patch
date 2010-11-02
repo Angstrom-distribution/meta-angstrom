@@ -1,0 +1,23 @@
+upstream: http://bugzilla.openedhand.com/show_bug.cgi?id=801
+comment:
+Do better math when showing logo vs progressbar.
+---
+ psplash.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/psplash.c b/psplash.c
+index 54a65cf..7a52e05 100644
+--- a/psplash.c
++++ b/psplash.c
+@@ -269,7 +269,7 @@ main (int argc, char** argv)
+   /* Draw the OH logo  */
+   psplash_fb_draw_image (fb, 
+ 			 (fb->width  - POKY_IMG_WIDTH)/2, 
+-			 (fb->height - POKY_IMG_HEIGHT)/2, 
++			 ((fb->height * 5) / 6 - POKY_IMG_HEIGHT)/2, 
+ 			 POKY_IMG_WIDTH,
+ 			 POKY_IMG_HEIGHT,
+ 			 POKY_IMG_BYTES_PER_PIXEL,
+-- 
+1.6.3.3
+
