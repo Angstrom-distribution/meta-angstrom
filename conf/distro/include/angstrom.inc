@@ -10,6 +10,7 @@ DISTRO_NAME = "Angstrom"
 BUILDNAME = "Angstrom ${DISTRO_VERSION}"
 
 TARGET_VENDOR = "-angstrom"
+SDK_VENDOR = "-angstromsdk"
 
 SOC_FAMILY ?= "Unknown"
 
