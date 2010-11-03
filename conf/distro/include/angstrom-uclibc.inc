@@ -29,3 +29,10 @@ TARGET_LINK_HASH_STYLE = "${@['-Wl,--hash-style=gnu',''][bb.data.getVar('TARGET_
 
 CXXFLAGS += "-fvisibility-inlines-hidden"
 
+LIBC_DEPENDENCIES = "\
+    uclibc \
+    uclibc-dbg \
+    uclibc-dev \
+    uclibc-thread-db \
+    "
+

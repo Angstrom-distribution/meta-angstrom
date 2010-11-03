@@ -27,3 +27,16 @@ TARGET_LINK_HASH_STYLE = "${@['-Wl,--hash-style=gnu',''][bb.data.getVar('TARGET_
 
 CXXFLAGS += "-fvisibility-inlines-hidden"
 
+LIBC_DEPENDENCIES = "libsegfault \
+             eglibc \
+             eglibc-dbg \
+             eglibc-dev \
+             eglibc-utils \
+             eglibc-thread-db \
+             eglibc-localedata-i18n \
+             eglibc-gconv-ibm850 \
+             eglibc-gconv-cp1252 \
+             eglibc-gconv-iso8859-1 \
+             eglibc-gconv-iso8859-15 \
+             locale-base-en-gb "
+
