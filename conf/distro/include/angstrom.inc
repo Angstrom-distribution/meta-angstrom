@@ -215,5 +215,5 @@ DISTRO_FEATURES += ' ${@["", "thumb-interwork"][bb.data.getVar('THUMB_INTERWORK'
 # Setup our hash policy
 BB_SIGNATURE_HANDLER = "basic"
 BB_HASHTASK_WHITELIST = "(.*-cross$|.*-native$|.*-cross-initial$|.*-cross-intermediate$)"
-BB_HASHBASE_WHITELIST = "TMPDIR FILE PATH"
+BB_HASHBASE_WHITELIST = "TMPDIR FILE PATH PWD"
 
