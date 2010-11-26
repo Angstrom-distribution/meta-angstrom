@@ -1,6 +1,6 @@
 #Angstrom bootstrap image
 
-IMAGE_PREPROCESS_COMMAND = "create_etc_timestamp"
+IMAGE_PREPROCESS_COMMAND = "rootfs_update_timestamp"
 
 ANGSTROM_EXTRA_INSTALL ?= ""
 
