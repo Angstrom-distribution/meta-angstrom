@@ -215,9 +215,3 @@ DISTRO_FEATURES += "tk"
 # Add thumb-interwork to feature list if selected machine supports it.
 DISTRO_FEATURES += ' ${@["", "thumb-interwork"][bb.data.getVar('THUMB_INTERWORK', d, 1) == "yes"]}'
 
-# Setup our hash policy
-BB_SIGNATURE_HANDLER = "basic"
-BB_HASHTASK_WHITELIST = "(.*-cross$|.*-native$|.*-cross-initial$|.*-cross-intermediate$|^virtual:native:.*|^virtual:nativesdk:.*)"
-BB_HASHBASE_WHITELIST = "TMPDIR FILE PATH PWD BB_TASKHASH BBPATH DL_DIR SSTATE_DIR THISDIR FILESEXTRAPATHS FILE_DIRNAME HOME LOGNAME SHELL TERM USER"
-patch_do_patch[vardepsexclude] = "DATE SRCDATE"
-
