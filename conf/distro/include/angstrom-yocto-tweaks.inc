@@ -1,5 +1,8 @@
 # This include is to import changes from OE that are hard to overlay into yocto
 
+# bitbake.conf stuff:
+
+TARGET_LDFLAGS += "${TARGET_LINK_HASH_STYLE}"
 
 # Image.bbclass stuff:
 
