@@ -11,7 +11,7 @@ DEPENDS = "task-base \
            ${ZZAPSPLASH} \
 	   "
 
-IMAGE_INSTALL = "task-base \
+IMAGE_INSTALL += "task-base \
 	    ${ANGSTROM_EXTRA_INSTALL} \
 	    ${SPLASH} \
 	    ${ZZAPSPLASH} \
