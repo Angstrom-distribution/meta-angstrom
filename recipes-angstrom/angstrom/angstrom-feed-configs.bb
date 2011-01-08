@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://${POKYBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3
 RRECOMMENDS_${PN} += "opkg"
 
 #PV = "${DISTRO_VERSION}"
-PR = "r11"
+PR = "r12"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 FEED_BASEPATH ?= "unstable/feed/"
@@ -14,14 +14,6 @@ IWMMXT_FEED = "${@base_contains('MACHINE_FEATURES', 'iwmmxt', 'iwmmxt', '',d)}"
 
 do_compile() {
 	mkdir -p ${S}/${sysconfdir}/opkg
-
-	rm ${S}/${sysconfdir}/opkg/arch.conf || true
-	ipkgarchs="${PACKAGE_ARCHS}"
-	priority=1
-	for arch in $ipkgarchs; do 
-		echo "arch $arch $priority" >> ${S}/${sysconfdir}/opkg/arch.conf
-		priority=$(expr $priority + 5)
-	done
 
 	for feed in base debug perl python gstreamer ; do
 		  echo "src/gz ${feed} ${ANGSTROM_URI}/${FEED_BASEPATH}${FEED_ARCH}/${feed}" > ${S}/${sysconfdir}/opkg/${feed}-feed.conf
@@ -57,7 +49,6 @@ FILES_${PN} = "${sysconfdir}/opkg/base-feed.conf \
 					${sysconfdir}/opkg/noarch-feed.conf \
 					${sysconfdir}/opkg/iwmmxt-feed.conf \
 					${sysconfdir}/opkg/sdk-feed.conf \
-					${sysconfdir}/opkg/arch.conf \
 					"
 
 CONFFILES_${PN} += "${sysconfdir}/opkg/base-feed.conf \
@@ -68,7 +59,6 @@ CONFFILES_${PN} += "${sysconfdir}/opkg/base-feed.conf \
 					${sysconfdir}/opkg/${MACHINE_ARCH}-feed.conf \
 					${sysconfdir}/opkg/noarch-feed.conf \
 					${sysconfdir}/opkg/sdk-feed.conf \
-					${sysconfdir}/opkg/arch.conf \
 					"
 
 python populate_packages_prepend () {
