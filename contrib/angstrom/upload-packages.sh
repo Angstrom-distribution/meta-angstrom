@@ -8,7 +8,7 @@
 REMOTEM=angstrom@linuxtogo.org
 
 # Feed dir we want to upload to
-REMOTED=website/feeds/next/ipk/$(basename $PWD)
+REMOTED=website/feeds/yocto/ipk/$(basename $PWD)
 
 # create upload dir
 mkdir -p upload-queue || true

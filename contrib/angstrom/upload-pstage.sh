@@ -8,7 +8,7 @@
 REMOTEM=angstrom@linuxtogo.org
 
 # Feed dir we want to upload to
-REMOTED=website/feeds/next/ipk/$(basename $PWD | sed s:angstrom::g)/packaged-staging/
+REMOTED=website/feeds/yocto/ipk/$(basename $PWD | sed s:angstrom::g)/packaged-staging/
 
 # create upload dir
 mkdir -p upload-queue || true

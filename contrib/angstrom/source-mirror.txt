@@ -1,6 +1,6 @@
 #To populate the source mirror the autobuilder uses the following command:
 
-rsync ~/OE/downloads/ angstrom@linuxtogo.org:~/website/next/sources/ -aPvz \
+rsync ~/OE/downloads/ angstrom@linuxtogo.org:~/website/yocto/sources/ -aPvz \
 	--exclude "*.md5" \
 	--exclude "svn" \
 	--exclude "hg" \
