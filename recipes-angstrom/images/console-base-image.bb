@@ -18,7 +18,8 @@ IMAGE_INSTALL += "task-base \
 	    ${ANGSTROM_EXTRA_INSTALL} \
 	    ${SPLASH} \
 	    ${ZZAPSPLASH} \
-	    "
+	    task-boot \
+       "
 
 IMAGE_LINGUAS = ""
 
