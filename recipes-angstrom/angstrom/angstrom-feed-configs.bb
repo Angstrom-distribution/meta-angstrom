@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://${POKYBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3
 RRECOMMENDS_${PN} += "opkg"
 
 #PV = "${DISTRO_VERSION}"
-PR = "r12"
+PR = "r13"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 FEED_BASEPATH ?= "unstable/feed/"
