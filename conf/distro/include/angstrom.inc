@@ -32,6 +32,19 @@ PSTAGE_EXTRAPATH = "${LIBC}"
 
 CACHE = "${TMPDIR}/cache/${LIBC}/${MACHINE}"
 DEPLOY_DIR = "${TMPDIR}/deploy/${LIBC}"
+
+# The things *libc can provide.
+PREFERRED_PROVIDER_virtual/libc = "${ANGSTROMLIBC}"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial = "${ANGSTROMLIBC}-initial"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc = "${ANGSTROMLIBC}"
+
+# And the same as above for the nativesdk
+PREFERRED_PROVIDER_virtual/libc-nativesdk = "${ANGSTROMLIBC}-nativesdk"
+PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-initial-nativesdk = "${ANGSTROMLIBC}-initial-nativesdk"
+PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-for-gcc-nativesdk = "${ANGSTROMLIBC}-nativesdk"
+
+PREFERRED_PROVIDER_linux-libc-headers-nativesdk = "linux-libc-headers-nativesdk"
+
 require conf/distro/include/angstrom-${LIBC}.inc
 
 # Set some java bits

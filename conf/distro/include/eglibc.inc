@@ -4,11 +4,11 @@ OVERRIDES =. "libc-glibc:"
 # The things eglibc can provide.  We default to wanting eglibc to provide them.
 PREFERRED_PROVIDER_virtual/libiconv ?= "eglibc"
 PREFERRED_PROVIDER_virtual/libintl ?= "eglibc"
-PREFERRED_PROVIDER_virtual/libc = "eglibc"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial = "eglibc-initial"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc = "eglibc"
-PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-for-gcc-nativesdk ?= "eglibc-nativesdk"
 
+# And the same as above for the nativesdk
+PREFERRED_PROVIDER_virtual/libiconv-nativesdk ?= "eglibc-nativesdk"
+PREFERRED_PROVIDER_virtual/libintl-nativesdk ?= "eglibc-nativesdk"
+ 
 # eglibc is configured for OLDEST_KERNEL kernel version, so we set minimal
 # sane versions there
 
