@@ -4,6 +4,8 @@ ANGSTROM_LIBTOOL_VERSION = "2.4"
 # Use new sysroot feature
 LIBTOOL_HAS_SYSROOT = "yes"
 
+PYTHON_BASEVERSION ?= "2.6"
+
 CE_VERSION ?= "latest"
 
 require conf/distro/include/angstrom-codec-engine-${CE_VERSION}-preferred-versions.inc
