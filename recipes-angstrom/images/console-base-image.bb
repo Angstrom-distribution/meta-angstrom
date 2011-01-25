@@ -19,7 +19,8 @@ IMAGE_INSTALL += "task-base \
 	    ${SPLASH} \
 	    ${ZZAPSPLASH} \
 	    task-boot \
-       "
+        update-alternatives-cworth \
+"
 
 IMAGE_LINGUAS = ""
 
