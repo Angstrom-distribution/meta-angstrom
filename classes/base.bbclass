@@ -259,7 +259,13 @@ python base_do_unpack() {
 			continue
 		local = os.path.realpath(local)
 		lf = bb.utils.lockfile(urldata[url].lockfile)
-		ret = oe_unpack_file(local, localdata, url)
+		if bb.fetch.__version__ == "1":
+			ret = oe_unpack_file(local, localdata, url)
+		else:
+			# use bb.fetch2 unpack API
+			ud = urldata[url]
+			rootdir = bb.data.getVar('WORKDIR', localdata, True)
+			ret = ud.method.unpack(ud, rootdir, localdata)
 		bb.utils.unlockfile(lf)
 		if not ret:
 			raise bb.build.FuncFailed("oe_unpack_file failed with return value %s" % ret)
@@ -425,7 +431,8 @@ python () {
 
     commercial_license = bb.data.getVar('COMMERCIAL_LICENSE', d, 1)
     import re
-    if commercial_license and re.search(pn, commercial_license):
+    pnr = pn.replace('+', "\+")
+    if commercial_license and re.search(pnr, commercial_license):
         bb.debug(1, "Skipping %s because it's commercially licensed" % pn)
         raise bb.parse.SkipPackage("because it requires commercial license to ship product")
 
