@@ -1,12 +1,13 @@
 #To populate the source mirror the autobuilder uses the following command:
 
-rsync ~/OE/downloads/ angstrom@linuxtogo.org:~/website/yocto/sources/ -aPvz \
+rsync ~/OE/downloads/ angstrom@linuxtogo.org:~/website/unstable/sources/ -aPvz \
 	--exclude "*.md5" \
 	--exclude "svn" \
 	--exclude "hg" \
 	--exclude "bzr" \
 	--exclude "cvs"  \
 	--exclude "git" \
+	--exclude "git2" \
 	--exclude "umac.ko" \
 	--exclude "IPL_*.zip" \
 	--exclude "*.lock" \
