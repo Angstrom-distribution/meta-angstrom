@@ -36,3 +36,6 @@ IMAGE_LINGUAS ?= "de-de fr-fr en-gb"
 
 IMAGE_INSTALL += "${IMAGE_BOOT}"
 
+
+# SDK stuff
+SDK_NAME = "${DISTRO}-${ANGSTROMLIBC}-${SDK_ARCH}-${TARGET_ARCH}"
