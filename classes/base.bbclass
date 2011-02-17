@@ -7,6 +7,7 @@ inherit mirrors
 inherit utils
 inherit utility-tasks
 inherit metadata_scm
+inherit buildstats
 
 python sys_path_eh () {
     if isinstance(e, bb.event.ConfigParsed):
@@ -343,7 +344,7 @@ python () {
             if this_machine and not re.match(need_machine, this_machine):
                 this_soc_family = bb.data.getVar('SOC_FAMILY', d, 1)
                 if (this_soc_family and not re.match(need_machine, this_soc_family)) or not this_soc_family:
-                    raise bb.parse.SkipPackage("incompatible with machine %s" % this_machine)                
+                    raise bb.parse.SkipPackage("incompatible with machine %s" % this_machine)
 
 
         dont_want_license = bb.data.getVar('INCOMPATIBLE_LICENSE', d, 1)
@@ -466,24 +467,18 @@ addtask cleanall after do_clean
 python do_cleanall() {
         sstate_clean_cachefiles(d)
 
+        src_uri = (bb.data.getVar('SRC_URI', d, True) or "").split()
+        if len(src_uri) == 0:
+            return
+
 	localdata = bb.data.createCopy(d)
 	bb.data.update_data(localdata)
 
-	dl_dir = bb.data.getVar('DL_DIR', localdata, True)
-	dl_dir = os.path.realpath(dl_dir)
-
-	src_uri = (bb.data.getVar('SRC_URI', localdata, True) or "").split()
-	if len(src_uri) == 0:
-		return
-        fetcher = bb.fetch2.Fetch(src_uri, localdata)
-	for url in src_uri:
-                local = fetcher.localpath(url)
-		if local is None:
-			continue
-		local = os.path.realpath(local)
-                if local.startswith(dl_dir):
-			bb.note("Removing %s*" % local)
-			oe.path.remove(local + "*")
+        try:
+            fetcher = bb.fetch2.Fetch(src_uri, localdata)
+            fetcher.clean()
+        except bb.fetch2.BBFetchException, e:
+            raise bb.build.FuncFailed(e)
 }
 do_cleanall[nostamp] = "1"
 
