@@ -1,6 +1,6 @@
 This layer depends on:
 
-URI: git://git.pokylinux.org/poky
+URI: git://git.openembedded.org/openembedded-core
 branch: master
 revision: HEAD
 
