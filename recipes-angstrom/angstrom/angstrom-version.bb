@@ -2,7 +2,7 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${POKYBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
 PV = "${DISTRO_VERSION}"
-PR = "r7"
+PR = "r8"
 PE = "1"
 
 SRC_URI = "file://lsb_release"
@@ -12,7 +12,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 do_install() {
 	install -d ${D}${sysconfdir}
-	echo "Angstrom ${DISTRO_VERSION}" > ${D}${sysconfdir}/angstrom-version
+	echo "Angstrom ${DISTRO_VERSION} (Core edition)" > ${D}${sysconfdir}/angstrom-version
 	echo "Built from branch: ${METADATA_BRANCH}" >> ${D}${sysconfdir}/angstrom-version
 	echo "Revision: ${METADATA_REVISION}" >> ${D}${sysconfdir}/angstrom-version
 	echo "Target system: ${TARGET_SYS}" >> ${D}${sysconfdir}/angstrom-version

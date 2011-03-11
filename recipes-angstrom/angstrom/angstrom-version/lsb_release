@@ -1,6 +1,6 @@
 #!/bin/sh
 VERSION="$(cat /etc/angstrom-version | head -n1 | awk '{print $2}')"
-CODENAME="yoctopus"
+CODENAME="Core edition"
 
 case $1 in
 "-v")
