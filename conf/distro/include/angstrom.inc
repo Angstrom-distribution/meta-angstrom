@@ -103,21 +103,6 @@ INHERIT += "devshell"
 #use angstrom source mirrors to combat 404s
 INHERIT += "angstrom-mirrors" 
 
-PREMIRRORS_append = "\
-bzr://.*/.*   http://www.angstrom-distribution.org/unstable/sources/ \n \
-cvs://.*/.*   http://www.angstrom-distribution.org/unstable/sources/ \n \
-git://.*/.*   http://www.angstrom-distribution.org/unstable/sources/ \n \
-hg://.*/.*    http://www.angstrom-distribution.org/unstable/sources/ \n \
-osc://.*/.*   http://www.angstrom-distribution.org/unstable/sources/ \n \
-p4://.*/.*    http://www.angstrom-distribution.org/unstable/sources/ \n \
-svk://.*/.*   http://www.angstrom-distribution.org/unstable/sources/ \n \
-svn://.*/.*   http://www.angstrom-distribution.org/unstable/sources/ \n"
-
-MIRRORS_append = "\
-ftp://.*/.*     http://www.angstrom-distribution.org/unstable/sources/ \n \
-http://.*/.*    http://www.angstrom-distribution.org/unstable/sources/ \n \
-https://.*/.*   http://www.angstrom-distribution.org/unstable/sources/ \n"
-
 #run QA tests on builds and packages and log them  
 INHERIT += "insane"
 # INHERIT += "packagehistory"
@@ -209,7 +194,7 @@ TINDER_URL        ?= "/tinderbox"
 
 # Which branch do we build
 TINDER_BRANCH     = "org.openembedded.dev"
-   
+
 ## Clobbing
 ## 0 for rebuilding everything from scratch
 ## 1 for incremental builds
