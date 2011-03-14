@@ -3,6 +3,8 @@
 # bitbake.conf stuff:
 
 TARGET_LDFLAGS += "${TARGET_LINK_HASH_STYLE}"
+TOOLCHAIN_PATH ?= "${STAGING_DIR_NATIVE}${prefix_native}/bin/${BASE_PACKAGE_ARCH}${HOST_VENDOR}-${HOST_OS}"
+TOOLCHAIN_SYSPATH ?= "${TOOLCHAIN_PATH}/${TARGET_SYS}"
 
 # Image.bbclass stuff:
 
