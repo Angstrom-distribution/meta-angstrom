@@ -15,7 +15,7 @@
  *
  */
 
-$build_link_base = 'http://www.angstrom-distribution.org/yocto/autobuild/';
+$build_link_base = 'http://www.angstrom-distribution.org/core/autobuild/';
 
 $builder_log_date = file('autobuilder.log');
 
