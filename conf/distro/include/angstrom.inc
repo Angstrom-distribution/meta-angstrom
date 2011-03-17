@@ -233,4 +233,4 @@ DISTRO_FEATURES += "tk"
 DISTRO_FEATURES += ' ${@["", "thumb-interwork"][bb.data.getVar('THUMB_INTERWORK', d, 1) == "yes"]}'
 
 # Yocto tweaks
-require conf/distro/include/angstrom-yocto-tweaks.inc
+require conf/distro/include/angstrom-core-tweaks.inc

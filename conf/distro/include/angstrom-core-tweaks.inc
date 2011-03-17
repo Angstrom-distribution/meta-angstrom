@@ -1,4 +1,4 @@
-# This include is to import changes from OE that are hard to overlay into yocto
+# This include is to import changes from OE that are hard to overlay into core
 
 # bitbake.conf stuff:
 
