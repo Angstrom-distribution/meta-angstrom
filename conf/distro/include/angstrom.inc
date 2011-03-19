@@ -95,7 +95,7 @@ INHERIT += "debian"
 INHERIT += "sanity" 
 
 #activate the blacklister
-INHERIT += "angstrom"
+INHERIT += "angstrom-blacklist"
 
 #make devshell available as task
 INHERIT += "devshell" 
