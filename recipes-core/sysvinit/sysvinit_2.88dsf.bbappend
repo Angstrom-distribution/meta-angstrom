@@ -1,0 +1,2 @@
+FILESEXTRAPATHS := "${THISDIR}/${PN}"
+ 
