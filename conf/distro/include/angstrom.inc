@@ -48,7 +48,7 @@ PREFERRED_PROVIDER_linux-libc-headers-nativesdk = "linux-libc-headers-nativesdk"
 require conf/distro/include/angstrom-${LIBC}.inc
 
 # Set some java bits
-require conf/distro/include/sane-toolchain-java.inc
+require conf/distro/include/angstrom-java.inc
 require conf/distro/include/angstrom-jalimo.conf
 
 # ARM920T and up can use thumb mode to decrease binary size at the expense of speed

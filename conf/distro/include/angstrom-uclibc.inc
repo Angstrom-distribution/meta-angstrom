@@ -12,9 +12,6 @@ USE_NLS_gcc-cross = "no"
 TARGET_OS_UC = "linux${@['-uclibc','-uclibceabi'][bb.data.getVar('TARGET_ARCH',d,1) in ['arm', 'armeb']]}"
 TARGET_OS = "${@['${TARGET_OS_UC}', 'uclinux-uclibc'][bb.data.getVar('TARGET_ARCH',d)  in ['bfin']]}"
 
-FULL_OPTIMIZATION = "-fexpensive-optimizations -fomit-frame-pointer -frename-registers -O2 -ggdb2"
-BUILD_OPTIMIZATION = "-O2 -g"
-
 #Gcc will die with 'internal consistency error when using the above optimizations
 #with gcc-4.2.1-atmel.1.0.3 (and probably most other avr32 gcc ports).
 #However, some packages require optimizations to compile (e.g. libmad).
@@ -23,7 +20,7 @@ BUILD_OPTIMIZATION = "-O2 -g"
 #it was removed while debugging an issue that ultimately turned out to be due
 #to the ICE fixed by gcc-pr32889.patch.  It needs to be tested again. 
 #Note that this testing was done without the gcc-pr32889.patch.
-FULL_OPTIMIZATION_avr32 = "-Os -fomit-frame-pointer"
+FULL_OPTIMIZATION_avr32 = "-Os -pipe ${DEBUG_FLAGS}"
 
 TARGET_LINK_HASH_STYLE = "${@['-Wl,--hash-style=gnu',''][bb.data.getVar('TARGET_ARCH',d,1) in ['mips', 'mipsel', 'mips64', 'mips64el', 'avr32']]}"
 
