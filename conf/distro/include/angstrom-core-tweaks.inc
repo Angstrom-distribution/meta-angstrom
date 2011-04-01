@@ -9,7 +9,7 @@ TOOLCHAIN_SYSPATH ?= "${TOOLCHAIN_PATH}/${TARGET_SYS}"
 # Angstrom cares for uclibc and eglibc
 STAGING_DIR_TARGET = "${STAGING_DIR}/${MACHINE}-${ANGSTROMLIBC}"
 STAGING_DIR_HOST = "${STAGING_DIR}/${MACHINE}-${ANGSTROMLIBC}"
-
+SSTATE_MANIFESTS = "${TMPDIR}/sstate-control-${ANGSTROMLIBC}"
 # Image.bbclass stuff:
 
 #
