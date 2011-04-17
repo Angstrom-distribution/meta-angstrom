@@ -9,7 +9,9 @@ PYTHON_BASEVERSION ?= "2.6"
 CE_VERSION ?= "latest"
 
 require conf/distro/include/angstrom-codec-engine-${CE_VERSION}-preferred-versions.inc
-require conf/distro/include/preferred-xorg-versions-live.inc
+
+# Needs updating to the latest meta-oe 
+#require conf/distro/include/preferred-xorg-versions-live.inc
 
 PREFERRED_VERSION_autoconf = "2.65"
 PREFERRED_VERSION_autoconf-native = "2.65"
