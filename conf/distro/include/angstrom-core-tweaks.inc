@@ -1,5 +1,10 @@
 # This include is to import changes from OE that are hard to overlay into core
 
+# Providers
+
+# Prefer the one from meta-oe over the one in oe-core
+PREFERRED_PROVIDER_virtual/libx11 = "libx11"
+
 # bitbake.conf stuff:
 
 TOOLCHAIN_PATH ?= "${STAGING_DIR_NATIVE}${prefix_native}/bin/${BASE_PACKAGE_ARCH}${HOST_VENDOR}-${HOST_OS}"
