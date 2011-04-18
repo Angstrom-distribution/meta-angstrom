@@ -4,6 +4,8 @@
 
 # Prefer the one from meta-oe over the one in oe-core
 PREFERRED_PROVIDER_virtual/libx11 = "libx11"
+PREFERRED_PROVIDER_virtual/xserver-xf86 = "xserver-xorg"
+PREFERRED_PROVIDER_virtual/xserver = "xserver-xorg"
 
 # bitbake.conf stuff:
 
