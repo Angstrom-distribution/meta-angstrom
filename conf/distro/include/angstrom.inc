@@ -26,26 +26,26 @@ OVERRIDES .= ":${FEED_ARCH}:${SOC_FAMILY}"
 SRC_DIST_LOCAL ?= "symlink"
 
 # Can be "glibc", "eglibc" or "uclibc"
-ANGSTROMLIBC ?= "eglibc"
-LIBC ?= "${ANGSTROMLIBC}"
-PSTAGE_EXTRAPATH = "${LIBC}"
+TCLIBC ?= "eglibc"
+TCLIBC ?= "${TCLIBC}"
+PSTAGE_EXTRAPATH = "${TCLIBC}"
 
-CACHE = "${TMPDIR}/cache/${LIBC}/${MACHINE}"
-DEPLOY_DIR = "${TMPDIR}/deploy/${LIBC}"
+CACHE = "${TMPDIR}/cache/${TCLIBC}/${MACHINE}"
+DEPLOY_DIR = "${TMPDIR}/deploy/${TCLIBC}"
 
 # The things *libc can provide.
-PREFERRED_PROVIDER_virtual/libc = "${ANGSTROMLIBC}"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial = "${ANGSTROMLIBC}-initial"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc = "${ANGSTROMLIBC}"
+PREFERRED_PROVIDER_virtual/libc = "${TCLIBC}"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial = "${TCLIBC}-initial"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc = "${TCLIBC}"
 
 # And the same as above for the nativesdk
-PREFERRED_PROVIDER_virtual/libc-nativesdk = "${ANGSTROMLIBC}-nativesdk"
-PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-initial-nativesdk = "${ANGSTROMLIBC}-initial-nativesdk"
-PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-for-gcc-nativesdk = "${ANGSTROMLIBC}-nativesdk"
+PREFERRED_PROVIDER_virtual/libc-nativesdk = "${TCLIBC}-nativesdk"
+PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-initial-nativesdk = "${TCLIBC}-initial-nativesdk"
+PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-for-gcc-nativesdk = "${TCLIBC}-nativesdk"
 
 PREFERRED_PROVIDER_linux-libc-headers-nativesdk = "linux-libc-headers-nativesdk"
 
-require conf/distro/include/angstrom-${LIBC}.inc
+require conf/distro/include/angstrom-${TCLIBC}.inc
 
 # Set some java bits
 require conf/distro/include/angstrom-java.inc
@@ -170,7 +170,7 @@ FEED_ARCH ?= "${BASE_PACKAGE_ARCH}"
 FEED_ARCH_bfin          = "blackfin"
 
 #Name the generated images in a sane way
-IMAGE_NAME = "${DISTRO_NAME}-${IMAGE_BASENAME}-${LIBC}-${ANGSTROM_PKG_FORMAT}-${DISTRO_VERSION}-${MACHINE}"
+IMAGE_NAME = "${DISTRO_NAME}-${IMAGE_BASENAME}-${TCLIBC}-${ANGSTROM_PKG_FORMAT}-${DISTRO_VERSION}-${MACHINE}"
 DEPLOY_DIR_IMAGE = "${DEPLOY_DIR}/images/${MACHINE}"
 
 # Angstrom *always* has some form of release config, so error out if someone thinks he knows better 
@@ -182,7 +182,7 @@ DISTRO_CHECK := "${@bb.data.getVar("DISTRO_VERSION",d,1) or bb.fatal('Remove thi
 # in their local.conf 
 
 #Name of the client
-TINDER_MACHINE  = "${MACHINE}-${LIBC}-build-image"
+TINDER_MACHINE  = "${MACHINE}-${TCLIBC}-build-image"
 
 # Which lof file to write to, which tree to report to
 TINDER_LOG        = "${TMPDIR}/tinder.log"
