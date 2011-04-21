@@ -1,5 +1,7 @@
 DESCRIPTION = "Enlightenment DR17 theme for Angstrom"
 LICENSE = "MIT/BSD"
+LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
+
 DEPENDS = "edje-native eet-native e-wm places gnome-icon-theme"
 
 PACKAGES_DYNAMIC = "e-wm-config-angstrom*"
