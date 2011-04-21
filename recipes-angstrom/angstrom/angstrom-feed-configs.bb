@@ -1,6 +1,6 @@
 DESCRIPTION = "Configuration files for online package repositories aka feeds"
 LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://${POKYBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
+LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
 RRECOMMENDS_${PN} += "opkg"
 
