@@ -20,6 +20,7 @@ IMAGE_INSTALL += "task-base \
 	    ${ZZAPSPLASH} \
 	    task-boot \
         update-alternatives-cworth \
+        dropbear \
 "
 
 IMAGE_LINGUAS = ""
