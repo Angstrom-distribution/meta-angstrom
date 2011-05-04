@@ -43,6 +43,7 @@ PREFERRED_PROVIDER_virtual/libc-nativesdk = "${TCLIBC}-nativesdk"
 PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-initial-nativesdk = "${TCLIBC}-initial-nativesdk"
 PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-for-gcc-nativesdk = "${TCLIBC}-nativesdk"
 
+PREFERRED_PROVIDER_virtual/gettext ??= "gettext"
 PREFERRED_PROVIDER_linux-libc-headers-nativesdk = "linux-libc-headers-nativesdk"
 
 require conf/distro/include/angstrom-${TCLIBC}.inc
