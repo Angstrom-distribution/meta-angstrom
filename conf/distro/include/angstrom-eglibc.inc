@@ -1,7 +1,7 @@
 # eglibc:
 require conf/distro/include/eglibc.inc
 
-ANGSTROM_BLACKLIST_pn-libiconv = "the glibc builtin iconv replacement is used"
+ANGSTROM_BLACKLIST_pn-libiconv = "the eglibc provided iconv library is used"
 
 TARGET_OS = "linux"
 

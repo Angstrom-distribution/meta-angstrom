@@ -1,7 +1,7 @@
 # glibc:
 require conf/distro/include/glibc-${TOOLCHAIN_TYPE}.inc
 
-ANGSTROM_BLACKLIST_pn-libiconv = "the glibc builtin iconv replacement is used"
+ANGSTROM_BLACKLIST_pn-libiconv = "the glibc provided iconv library is used"
 
 TARGET_OS = "linux"
 TARGET_OS .= "${@['','-gnueabi'][bb.data.getVar('TARGET_ARCH',d,1) in ['arm', 'armeb']]}"
