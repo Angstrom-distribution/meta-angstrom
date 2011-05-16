@@ -4,6 +4,12 @@ URI: git://git.openembedded.org/openembedded-core
 branch: master
 revision: HEAD
 
+And for testlab.bbclass:
+
+URI: git://git.openembedded.net/meta-openembedded
+branch: master
+revision: HEAD
+
 It is recommended to follow the instruction at http://www.angstrom-distribution.org/building-angstrom with one important difference:
 
 After "Step 1" go into the newl created 'setup-scripts' directory and do
