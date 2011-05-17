@@ -16,8 +16,13 @@ TOOLCHAIN_SYSPATH ?= "${TOOLCHAIN_PATH}/${TARGET_SYS}"
 STAGING_DIR_TARGET = "${STAGING_DIR}/${MACHINE}-${TCLIBC}"
 STAGING_DIR_HOST = "${STAGING_DIR}/${MACHINE}-${TCLIBC}"
 SSTATE_MANIFESTS = "${TMPDIR}/sstate-control-${TCLIBC}"
-# Image.bbclass stuff:
 
+# Work around multimachine breakage
+# See http://lists.linuxtogo.org/pipermail/openembedded-core/2011-May/002535.html
+LICENSE_DIRECTORY = "${DEPLOY_DIR}/licenses"
+
+# Image.bbclass stuff:
+ 
 #
 # udev, devfsd, busybox-mdev (from busybox) or none
 #
