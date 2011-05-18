@@ -12,15 +12,6 @@ PREFERRED_PROVIDER_virtual/xserver = "xserver-xorg"
 TOOLCHAIN_PATH ?= "${STAGING_DIR_NATIVE}${prefix_native}/bin/${BASE_PACKAGE_ARCH}${HOST_VENDOR}-${HOST_OS}"
 TOOLCHAIN_SYSPATH ?= "${TOOLCHAIN_PATH}/${TARGET_SYS}"
 
-# Angstrom cares for uclibc and eglibc
-STAGING_DIR_TARGET = "${STAGING_DIR}/${MACHINE}-${TCLIBC}"
-STAGING_DIR_HOST = "${STAGING_DIR}/${MACHINE}-${TCLIBC}"
-SSTATE_MANIFESTS = "${TMPDIR}/sstate-control-${TCLIBC}"
-
-# Work around multimachine breakage
-# See http://lists.linuxtogo.org/pipermail/openembedded-core/2011-May/002535.html
-LICENSE_DIRECTORY = "${DEPLOY_DIR}/licenses"
-
 # Image.bbclass stuff:
  
 #

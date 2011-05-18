@@ -27,11 +27,6 @@ SRC_DIST_LOCAL ?= "symlink"
 
 # Can be "glibc", "eglibc" or "uclibc"
 TCLIBC ?= "eglibc"
-TCLIBC ?= "${TCLIBC}"
-PSTAGE_EXTRAPATH = "${TCLIBC}"
-
-CACHE = "${TMPDIR}/cache/${TCLIBC}/${MACHINE}"
-DEPLOY_DIR = "${TMPDIR}/deploy/${TCLIBC}"
 
 # The things *libc can provide.
 PREFERRED_PROVIDER_virtual/libc = "${TCLIBC}"
