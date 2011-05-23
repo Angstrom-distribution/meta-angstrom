@@ -37,7 +37,7 @@ do_upload_packages() {
 
 	# Find and delete morgue dirs, we don't need them
 	echo "Deleting morgue directories"
-	find ipk/ -name "morgue" -exec rm -rf \{\} \;
+	find ipk/ -name "morgue" -exec rm -rf \{\} \; || true
 
 	# Copy symlink packages to an upload queue
 	echo "Symlink packages to upload queue"
