@@ -9,6 +9,9 @@ REMOTEM = "angstrom@eu.feeds.angstrom-distribution.org"
 # Feed dir we want to upload to
 REMOTED = "website/${FEED_BASEPATH}"
 
+# set some vars to get rid of spurious deps
+INHIBIT_DEFAULT_DEPS = "1"
+
 do_fetch[noexec] = "1"
 do_unpack[noexec] = "1"
 do_patch[noexec] = "1"
@@ -42,6 +45,7 @@ do_upload_packages() {
 
 	# Find file already present on webserver
 	echo "Getting file list from server"
+	ssh -C ${REMOTEM} 'mkdir -p ${REMOTED} ; touch ${REMOTED}/unsorted/files-sorted'
 	scp -C ${REMOTEM}:${REMOTED}/unsorted/files-sorted files-remote
 	ls upload-queue/ | grep -v morgue > files-local
 
