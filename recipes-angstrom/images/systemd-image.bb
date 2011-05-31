@@ -7,14 +7,16 @@ IMAGE_PREPROCESS_COMMAND = "rootfs_update_timestamp"
 
 IMAGE_INSTALL += " \
 	angstrom-version angstrom-feed-configs \
-    base-files base-passwd \
-    opkg opkg-config-base \
-    update-alternatives-cworth \
-    busybox \
+	base-files base-passwd \
+	opkg opkg-config-base \
+	update-alternatives-cworth \
+	busybox \
 	dropbear \
-	e2fsprogs-e2fsck \
+	e2fsprogs-e2fsck e2fsprogs-blkid \
 	avahi-daemon avahi-utils avahi-systemd \
-    connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi"
+	connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi \
+	systemd-compat-units \
+"
 
 IMAGE_DEV_MANAGER   = "udev"
 IMAGE_INIT_MANAGER  = "systemd"
