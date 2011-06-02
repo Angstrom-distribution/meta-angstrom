@@ -14,7 +14,7 @@ IMAGE_INSTALL += " \
 	dropbear \
 	e2fsprogs-e2fsck e2fsprogs-blkid \
 	avahi-daemon avahi-utils avahi-systemd \
-	connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi \
+	connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd \
 	systemd-compat-units \
 "
 
