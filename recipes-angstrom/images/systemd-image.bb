@@ -8,6 +8,7 @@ IMAGE_PREPROCESS_COMMAND = "rootfs_update_timestamp"
 IMAGE_INSTALL += " \
 	angstrom-version angstrom-feed-configs \
 	base-files base-passwd \
+	netbase \
 	opkg opkg-config-base \
 	update-alternatives-cworth \
 	busybox \
