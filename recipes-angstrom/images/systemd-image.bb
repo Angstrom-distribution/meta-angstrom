@@ -17,6 +17,8 @@ IMAGE_INSTALL += " \
 	avahi-daemon avahi-utils avahi-systemd \
 	connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd \
 	systemd-compat-units \
+	cpufrequtils \
+    htop \
 "
 
 IMAGE_DEV_MANAGER   = "udev"
