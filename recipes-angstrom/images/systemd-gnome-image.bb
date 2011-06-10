@@ -8,12 +8,15 @@ XSERVER ?= "xserver-xorg \
 "
 
 IMAGE_INSTALL += " \
+	gnome-settings-daemon gnome-control-center \
 	gdm-systemd angstrom-gdm-autologin-hack \
+	connman-gnome \
 	gnome-panel \
 	gnome-icon-theme angstrom-gnome-icon-theme-enable \
 	gnome-themes \
 	upower udisks \
 	nautilus \
+	matchbox-terminal \
 	${XSERVER} \
 "
 export IMAGE_BASENAME = "systemd-GNOME-image"
