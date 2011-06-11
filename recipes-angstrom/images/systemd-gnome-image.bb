@@ -17,6 +17,7 @@ IMAGE_INSTALL += " \
 	upower udisks \
 	nautilus \
 	matchbox-terminal \
+	gtk-engine-clearlooks gtk-theme-clearlooks \
 	${XSERVER} \
 "
 export IMAGE_BASENAME = "systemd-GNOME-image"
