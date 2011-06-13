@@ -21,6 +21,8 @@ IMAGE_INSTALL += " \
 	matchbox-terminal \
 	gpe-scap \
 	${XSERVER} \
+	xset xhost xauth xrdb \
+	x11vnc \
 	bash \
 "
 
