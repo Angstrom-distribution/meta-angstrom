@@ -218,14 +218,17 @@ SEPPUKU_COMPONENT    = "org.openembedded.dev"
 
 OESTATS_SERVER      ?= "tinderbox.openembedded.org"
 
-# We want images supporting the following features (for task-base)
-DISTRO_FEATURES = "largefile ipv4 ipv6 nfs smbfs wifi ppp alsa bluetooth ext2 vfat irda pcmcia usbgadget usbhost pci pam xattr argp"
+# We want images supporting the following features (for task(-core)-base)
+DISTRO_FEATURES = "alsa argp bluetooth ext2 ipv4 ipv6 irda largefile nfs pam pci pcmcia ppp smbfs usbgadget usbhost vfat wifi xattr zeroconf"
 
-# Use-like features
+# USE-flag like features
 DISTRO_FEATURES += "tk"
 
 # Add thumb-interwork to feature list if selected machine supports it.
 DISTRO_FEATURES += ' ${@["", "thumb-interwork"][bb.data.getVar('THUMB_INTERWORK', d, 1) == "yes"]}'
+
+# Inherit the default LIBC features superset from OE-core
+DISTRO_FEATURES += "${DISTRO_FEATURES_LIBC}"
 
 # Yocto tweaks
 require conf/distro/include/angstrom-core-tweaks.inc
