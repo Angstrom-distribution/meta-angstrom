@@ -17,8 +17,17 @@ SOC_FAMILY ?= "Unknown"
 # Yocto work around for missing ONLINE_PACKAGE_MANAGEMENT support
 ONLINE_PACKAGE_MANAGEMENT = "full"
 
-# Add FEED_ARCH and SOC_FAMILY to machine overrides
-MACHINEOVERRIDES .= ":${FEED_ARCH}:${SOC_FAMILY}"
+#Set the right arch for the feeds
+#Alphabetically sorted
+
+FEED_ARCH ?= "${BASE_PACKAGE_ARCH}"
+
+#blackfin machines
+FEED_ARCH_bfin          = "blackfin"
+
+# Add FEED_ARCH and SOC_FAMILY to machine overrides so we get access to e.g. 'armv7a' and 'omap3'
+# Hopefully we'll never see a machine or arch with 'all' as substring
+MACHINEOVERRIDES .= ":${@bb.data.getVar('FEED_ARCH', d,1).replace('all','noarch')}:${SOC_FAMILY}"
 
 # Put links to sources in deploy/sources to make it easier for people to be GPL compliant
 #INHERIT += "src_distribute_local"
@@ -155,14 +164,6 @@ INHERIT += "image-prelink"
 # disable them here
 TARGET_CC_ARCH_pn-webkit-gtk_armv5te = "-march=armv4t"
 TARGET_CC_ARCH_pn-cairo_armv5te = "-march=armv4t"
-
-#Set the right arch for the feeds
-#Alphabetically sorted
-
-FEED_ARCH ?= "${BASE_PACKAGE_ARCH}"
-
-#blackfin machines
-FEED_ARCH_bfin          = "blackfin"
 
 #Name the generated images in a sane way
 IMAGE_NAME = "${DISTRO_NAME}-${IMAGE_BASENAME}-${TCLIBC}-${ANGSTROM_PKG_FORMAT}-${DISTRO_VERSION}-${MACHINE}"
