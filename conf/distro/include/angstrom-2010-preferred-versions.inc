@@ -13,6 +13,7 @@ require conf/distro/include/angstrom-codec-engine-${CE_VERSION}-preferred-versio
 
 PREFERRED_VERSION_busybox 	= "1.18.4"
 PREFERRED_VERSION_cairo		= "1.10.0"
+PREFFERED_VERSION_connman	= "0.74"
 PREFERRED_VERSION_dropbear      = "0.52"
 PREFERRED_VERSION_fontconfig	= "2.8.0"
 PREFERRED_VERSION_glib-2.0 	= "2.28.6"
