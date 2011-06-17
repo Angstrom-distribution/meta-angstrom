@@ -9,6 +9,7 @@ IMAGE_INSTALL += " \
 	angstrom-version angstrom-feed-configs \
 	base-files base-passwd \
 	netbase \
+	rsyslog \
 	opkg opkg-config-base \
 	update-alternatives-cworth \
 	busybox \
