@@ -2,6 +2,8 @@
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
+PR = "r1"
+
 inherit task
 
 # Most of these tasks are arch independant
@@ -34,6 +36,7 @@ RDEPENDS_task-gnome-fonts = " \
 RDEPENDS_task-gnome = " \
   gnome-settings-daemon gnome-control-center \
   gdm-systemd angstrom-gdm-autologin-hack \
+  gnome-power-manager \
   connman-gnome connman-plugin-ntpd \
   gnome-panel \
   gtk-engine-clearlooks gtk-theme-clearlooks \
