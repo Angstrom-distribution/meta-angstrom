@@ -13,7 +13,7 @@ IMAGE_INSTALL += " \
 	opkg opkg-config-base \
 	update-alternatives-cworth \
 	busybox \
-	dropbear openssh-sftp \
+	dropbear-systemd openssh-sftp \
 	e2fsprogs-e2fsck e2fsprogs-blkid \
 	avahi-daemon avahi-utils avahi-systemd \
 	connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd \
