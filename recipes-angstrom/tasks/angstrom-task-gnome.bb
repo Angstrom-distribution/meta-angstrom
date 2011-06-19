@@ -2,7 +2,7 @@
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
-PR = "r1"
+PR = "r2"
 
 inherit task
 
@@ -45,6 +45,7 @@ RDEPENDS_task-gnome = " \
   nautilus \
   gpe-scap \
   bash \ 
+  tzdata \
 "
 
 DEPENDS_task-gnome-gstreamer = " \
