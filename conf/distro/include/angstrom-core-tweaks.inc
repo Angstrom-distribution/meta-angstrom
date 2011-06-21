@@ -7,6 +7,23 @@ PREFERRED_PROVIDER_virtual/libx11 = "libx11"
 PREFERRED_PROVIDER_virtual/xserver-xf86 = "xserver-xorg"
 PREFERRED_PROVIDER_virtual/xserver = "xserver-xorg"
 
+XSERVER_qemux86 = "xserver-xorg \
+                   mesa-dri-driver-swrast \
+                   xf86-input-vmmouse \
+                   xf86-input-keyboard \
+                   xf86-input-evdev \
+                   xf86-video-vmware \
+                   qemugl"
+
+XSERVER_qemux86-64 = "xserver-xorg \
+                      mesa-dri-driver-swrast \
+                      xf86-input-vmmouse \
+                      xf86-input-keyboard \
+                      xf86-input-evdev \
+                      xf86-video-vmware \
+                      qemugl"
+
+
 # bitbake.conf stuff:
 
 TOOLCHAIN_PATH ?= "${STAGING_DIR_NATIVE}${prefix_native}/bin/${BASE_PACKAGE_ARCH}${HOST_VENDOR}-${HOST_OS}"
