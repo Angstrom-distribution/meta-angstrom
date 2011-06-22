@@ -94,7 +94,7 @@ case "$arch" in
 	"i586")
 			machines="d201gly2 epia i586-generic netvisa progear x86 x86-uml" ;;
 	"i686")
-			machines="eee701 i686-generic qemux86 guinness progear ion qemux86 vmware x86-32-nocona x86-prescott" ;;
+			machines="eee701 i686-generic guinness progear ion qemux86 vmware x86-32-nocona x86-prescott" ;;
 	"iwmmxt")
 			machines="" ;;
 	"mips")
@@ -125,6 +125,8 @@ case "$arch" in
 			machines="sun4cdm" ;;
 	"x86")
 			machines="colinux" ;;
+	"x86_64")
+			machines="qemux86" ;;
 esac
 
 if [ $(find . -name  "*_$arch.ipk"| wc -l) -gt 0 ] ; then
