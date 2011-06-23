@@ -8,7 +8,7 @@ XSERVER ?= "xserver-xorg \
            "
 
 IMAGE_INSTALL += " \
-    e-wm-config-angstrom \
+    e-wm-config-angstrom e-wm-config-default e-wm-config-scaleable \
     xserver-nodm-init \
     xserver-common \
     ttf-dejavu-sans ttf-dejavu-sans-mono ttf-dejavu-common \
