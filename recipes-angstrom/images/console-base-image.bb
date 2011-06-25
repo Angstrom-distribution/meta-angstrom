@@ -18,7 +18,7 @@ IMAGE_INSTALL += "task-base \
 	    ${ANGSTROM_EXTRA_INSTALL} \
 	    ${SPLASH} \
 	    ${ZZAPSPLASH} \
-	    task-boot \
+	    angstrom-task-boot \
         update-alternatives-cworth \
         dropbear \
 "
