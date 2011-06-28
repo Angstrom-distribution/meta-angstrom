@@ -5,7 +5,7 @@ IMAGE_INSTALL += " \
 	task-gnome-apps \
 	task-gnome-themes \
 	task-gnome-xserver-base \
-	task-gnome-xserver \
+	task-xserver \
 	task-gnome-fonts \
 "
 
