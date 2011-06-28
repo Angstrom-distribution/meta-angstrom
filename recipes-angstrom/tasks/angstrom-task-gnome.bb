@@ -2,22 +2,14 @@
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
-PR = "r5"
+PR = "r7"
 
 inherit task
 
 # Most of these tasks are arch independant
 PACKAGE_ARCH = "all"
 
-
-XSERVER ?= "xserver-xorg \
-           xf86-input-evdev \
-           xf86-input-mouse \
-           xf86-video-fbdev \
-           xf86-input-keyboard \
-"
-
-PACKAGES += "task-gnome-apps task-gnome-fonts task-gnome task-gnome-gstreamer task-gnome-perl task-gnome-cups task-gnome-pulseaudio task-gnome-themes task-gnome-totem task-gnome-xserver-base task-gnome-xserver"
+PACKAGES += "task-gnome-apps task-gnome-fonts task-gnome task-gnome-gstreamer task-gnome-perl task-gnome-cups task-gnome-pulseaudio task-gnome-themes task-gnome-totem task-gnome-xserver-base "
 
 
 RDEPENDS_task-gnome-apps = " \
@@ -107,12 +99,6 @@ RDEPENDS_task-gnome-xserver-base = " \
   xvinfo \
  "
 
-RDEPENDS_task-gnome-xserver = " \
-  ${XSERVER} \
-"
-
-PACKAGE_ARCH_task-gnome-xserver = "${MACHINE_ARCH}"
-
 RDEPENDS_${PN} = " \
   task-gnome-fonts \
   task-gnome \
@@ -123,6 +109,6 @@ RDEPENDS_${PN} = " \
 "
 
 RRECOMMENDS_${PN} = " \
-   task-gnome-xserver \
+   task-xserver \
 "
 
