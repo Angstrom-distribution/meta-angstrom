@@ -12,11 +12,13 @@ IMAGE_INSTALL += " \
 	dropbear-systemd openssh-sftp \
 	e2fsprogs-e2fsck e2fsprogs-blkid \
 	avahi-daemon avahi-utils avahi-systemd \
-	connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd \
+	${CONMANPKGS} \
 	systemd-compat-units \
 	cpufrequtils \
     htop \
 "
+CONMANPKGS = "connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd"
+CONMANPKGS_libc-uclibc = ""
 
 IMAGE_DEV_MANAGER   = "udev"
 IMAGE_INIT_MANAGER  = "systemd"
