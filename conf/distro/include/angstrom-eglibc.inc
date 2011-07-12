@@ -1,5 +1,5 @@
 # eglibc:
-require conf/distro/include/eglibc.inc
+require conf/distro/include/tclibc-eglibc.inc
 
 ANGSTROM_BLACKLIST_pn-libiconv = "the eglibc provided iconv library is used"
 
@@ -17,19 +17,4 @@ TARGET_OS .= "${@['','-gnuspe'][bb.data.getVar('BASE_PACKAGE_ARCH',d,1) in ['ppc
 FULL_OPTIMIZATION_pn-perl = "-O1 -g"
 
 TARGET_LINK_HASH_STYLE = "${@['-Wl,--hash-style=gnu',''][bb.data.getVar('TARGET_ARCH',d,1) in ['mips', 'mipsel', 'mips64', 'mips64el']]}"
-
-CXXFLAGS += "-fvisibility-inlines-hidden"
-
-LIBC_DEPENDENCIES = "libsegfault \
-             eglibc \
-             eglibc-dbg \
-             eglibc-dev \
-             eglibc-utils \
-             eglibc-thread-db \
-             eglibc-localedata-i18n \
-             eglibc-gconv-ibm850 \
-             eglibc-gconv-cp1252 \
-             eglibc-gconv-iso8859-1 \
-             eglibc-gconv-iso8859-15 \
-             locale-base-en-gb "
 
