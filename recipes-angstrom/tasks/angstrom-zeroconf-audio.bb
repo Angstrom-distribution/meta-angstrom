@@ -2,30 +2,27 @@ DESCRIPTION = "Meta package to enable zeroconf audio with pulseaudio"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
-DEPENDS = "avahi pulseaudio"
+PR = "r7"
+
+inherit task allarch
+
 RDEPENDS_${PN} = " \
   avahi-daemon \
   pulseaudio-server \
+  pulseaudio-module-udev-detect \
+  pulseaudio-module-stream-restore \
+  pulseaudio-module-default-device-restore \
+  pulseaudio-module-position-event-sounds \
+  pulseaudio-module-null-sink \
   pulseaudio-module-alsa-sink \
   pulseaudio-module-alsa-source \
   pulseaudio-module-cli \
-  pulseaudio-module-esound-protocol-unix \
   pulseaudio-module-simple-protocol-tcp \
   pulseaudio-module-native-protocol-unix \
   pulseaudio-module-cli-protocol-unix \
   pulseaudio-module-zeroconf-publish \
+  pulseaudio-module-suspend-on-idle \
 "
-
-PR = "r4"
-
-S = "${WORKDIR}"
-
-do_compile() {
-        :
-}
-
-PACKAGE_ARCH = "all"
-ALLOW_EMPTY_${PN} = "1"
 
 pkg_postinst_${PN} () {
 #!/bin/sh
