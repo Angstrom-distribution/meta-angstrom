@@ -12,7 +12,7 @@ require conf/distro/include/angstrom-codec-engine-${CE_VERSION}-preferred-versio
 #require conf/distro/include/preferred-xorg-versions-live.inc
 
 PREFERRED_VERSION_busybox 	= "1.18.4"
-PREFERRED_VERSION_cairo		= "1.10.0"
+PREFERRED_VERSION_cairo		= "1.10.2"
 PREFFERED_VERSION_connman	= "0.74"
 PREFERRED_VERSION_dropbear      = "0.52"
 PREFERRED_VERSION_fontconfig	= "2.8.0"
@@ -51,7 +51,7 @@ PREFERRED_VERSION_perl-native = "5.12.3"
 #PREFERRED_VERSION_pixman	= "0.13.2"
 PREFERRED_VERSION_pkgconfig	= "0.25"
 PREFERRED_VERSION_pkgconfig-native = "0.25"
-PREFERRED_VERSION_pulseaudio 	= "0.9.22"
+PREFERRED_VERSION_pulseaudio 	= "0.9.23"
 PREFERRED_VERSION_python-pycairo = "1.8.0"
 PREFERRED_VERSION_qt4-tools-native = "${ANGSTROM_QT_VERSION}"
 PREFERRED_VERSION_qt4-tools-sdk = "${ANGSTROM_QT_VERSION}"
