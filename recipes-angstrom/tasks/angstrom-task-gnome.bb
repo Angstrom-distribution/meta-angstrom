@@ -2,7 +2,7 @@ DESCRIPTION = "Task for a GNOME based image"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
-PR = "r7"
+PR = "r9"
 
 inherit task
 
@@ -36,11 +36,14 @@ RDEPENDS_task-gnome = " \
   gtk-engine-clearlooks gtk-theme-clearlooks \
   upower udisks \
   gnome-disk-utility \
+  gnome-system-monitor \
   nautilus \
   gpe-scap \
   bash \ 
   tzdata \
 "
+
+RRECOMMENDS_task-gnome = "ofono"
 
 DEPENDS_task-gnome-gstreamer = " \
   gst-plugins-base \
