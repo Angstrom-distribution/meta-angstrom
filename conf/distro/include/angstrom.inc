@@ -199,24 +199,6 @@ TINDER_CLOBBER    = "1"
 ## Do a report at all
 TINDER_REPORT     = "1"
 
-# Configuration for seppuku autobuilder, people only need to put:
-# INHERIT += "seppuku oestats-client"
-# SEPPUKU_USER         = "your_bugzilla@user.id"
-# SEPPUKU_PASS         = "your_bugzilla_password"
-# OESTATS_BUILDER      = "your_name" 
-# in their local.conf
-
-# seppuku bbclass
-SEPPUKU_LOGIN        = "http://bugs.openembedded.net/query.cgi?"
-SEPPUKU_QUERY        = "http://bugs.openembedded.net/buglist.cgi?"
-SEPPUKU_NEWREPORT    = "http://bugs.openembedded.net/post_bug.cgi?bug_file_loc=http%3A%2F%2F&version=Angstrom%20unstable&priority=P2&bug_severity=normal&op_sys=Linux&rep_platform=Other&"
-SEPPUKU_ADDCOMMENT   = "http://bugs.openembedded.net/process_bug.cgi?bug_file_loc=http%3A%2F%2F&version=Angstrom&priority=P2&bug_severity=normal&op_sys=Linux&rep_platform=Other&"
-SEPPUKU_ATTACHMENT   = "http://bugs.openembedded.net/attachment.cgi?"
-SEPPUKU_AUTOBUILD    = "1"
-
-SEPPUKU_PRODUCT      = "Openembedded"
-SEPPUKU_COMPONENT    = "org.openembedded.dev"
-
 OESTATS_SERVER      ?= "tinderbox.openembedded.org"
 
 # We want images supporting the following features (for task(-core)-base)
@@ -230,6 +212,9 @@ DISTRO_FEATURES += ' ${@["", "thumb-interwork"][bb.data.getVar('THUMB_INTERWORK'
 
 # Inherit the default LIBC features superset from OE-core
 DISTRO_FEATURES += "${DISTRO_FEATURES_LIBC}"
+
+# EFL tweaks
+require conf/distro/include/efl-from-svn.inc
 
 # Yocto tweaks
 require conf/distro/include/angstrom-core-tweaks.inc
