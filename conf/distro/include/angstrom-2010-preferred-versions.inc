@@ -67,7 +67,7 @@ UDEV_GE_141 = "1"
 
 PREFERRED_VERSION_wpa-supplicant = "0.7.3"
 PREFERRED_VERSION_wget = "1.11.4"
-PREFERRED_VERSION_xserver-common = "1.33"
+PREFERRED_VERSION_xserver-common = "1.34"
 PREFERRED_VERSION_xserver-kdrive = "1.4.0.90"
 
 #
