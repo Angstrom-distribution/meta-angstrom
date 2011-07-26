@@ -1,6 +1,6 @@
 # Small image that launches the Enlightenment desktop without a display manager
 
-require console-image.bb
+require systemd-image.bb
 
 XSERVER ?= "xserver-xorg \
             xf86-video-fbdev \
@@ -8,7 +8,7 @@ XSERVER ?= "xserver-xorg \
            "
 
 IMAGE_INSTALL += " \
-    e-wm-config-angstrom e-wm-config-default \
+    e-wm-config-angstrom e-wm-config-default e-wm-config-standard e-wm-config-illume2 \
     xserver-nodm-init \
     xserver-common \
     ttf-dejavu-sans ttf-dejavu-sans-mono ttf-dejavu-common \
