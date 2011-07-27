@@ -20,7 +20,7 @@ ONLINE_PACKAGE_MANAGEMENT = "full"
 #Set the right arch for the feeds
 #Alphabetically sorted
 
-FEED_ARCH ?= "${BASE_PACKAGE_ARCH}"
+FEED_ARCH ?= "${TUNE_PKGARCH}"
 
 #blackfin machines
 FEED_ARCH_bfin          = "blackfin"

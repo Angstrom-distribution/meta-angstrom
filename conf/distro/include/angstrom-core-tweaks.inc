@@ -1,5 +1,12 @@
 # This include is to import changes from OE that are hard to overlay into core
 
+# Tuning and package arch compatibility
+
+# Turn armv7a-vfp-neon into armv7a for compatibility reasons
+# In the long term the switch to the longer arch needs to be made,
+# but that needs a coordinated effort
+PKGARCHCOMPAT_ARMV7A = True
+
 # Providers
 
 # Prefer the one from meta-oe over the one in oe-core
@@ -26,7 +33,7 @@ XSERVER_qemux86-64 = "xserver-xorg \
 
 # bitbake.conf stuff:
 
-TOOLCHAIN_PATH ?= "${STAGING_DIR_NATIVE}${prefix_native}/bin/${BASE_PACKAGE_ARCH}${HOST_VENDOR}-${HOST_OS}"
+TOOLCHAIN_PATH ?= "${STAGING_DIR_NATIVE}${prefix_native}/bin/${TUNE_PKGARCH}${HOST_VENDOR}-${HOST_OS}"
 TOOLCHAIN_SYSPATH ?= "${TOOLCHAIN_PATH}/${TARGET_SYS}"
 
 # Image.bbclass stuff:
