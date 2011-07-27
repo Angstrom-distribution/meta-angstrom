@@ -145,18 +145,6 @@ ENABLE_BINARY_LOCALE_GENERATION_ep9312 = "0"
 #qemu has taken a dislike to armeb as well
 ENABLE_BINARY_LOCALE_GENERATION_armeb = "0"
 
-#ARM EABI is softfloat by default, but let's make sure :)
-#make it overridable for platforms with FPU, like ep93xx or i.mx31
-TARGET_FPU_arm = "soft"
-TARGET_FPU_armeb = "soft"
-TARGET_FPU_ixp4xx = "soft"
-TARGET_FPU_ppc405 = "soft"
-
-TARGET_FPU_armv6 = "hard"
-TARGET_FPU_armv6-novfp = "soft"
-TARGET_FPU_armv7a = "hard"
-TARGET_FPU_ppc603e = "hard"
-
 # Prelink images
 INHERIT += "image-prelink"
 
