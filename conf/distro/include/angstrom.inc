@@ -194,6 +194,7 @@ DISTRO_FEATURES = "alsa argp bluetooth ext2 ipv4 ipv6 irda largefile nfs pam pci
 
 # USE-flag like features
 DISTRO_FEATURES += "tk"
+DISTRO_FEATURES += "x11"
 
 # Add thumb-interwork to feature list if selected machine supports it.
 DISTRO_FEATURES += ' ${@["", "thumb-interwork"][bb.data.getVar('THUMB_INTERWORK', d, 1) == "yes"]}'
