@@ -10,6 +10,10 @@ URI: git://git.openembedded.net/meta-openembedded
 branch: master
 revision: HEAD
 
+==============================
+           Setup
+==============================
+
 It is recommended to follow the instruction at http://www.angstrom-distribution.org/building-angstrom with one important difference:
 
 After "Step 1" go into the newl created 'setup-scripts' directory and do
@@ -18,7 +22,13 @@ After "Step 1" go into the newl created 'setup-scripts' directory and do
 
 This will set it up for the OpenEmbedded-core layout instead of the old OpenEmbedded-dev layout.
 
-Send pull requests to openembedded-core@lists.openembedded.org
+==============================
+          Patches
+==============================
+
+Send pull requests to angstrom-distro-devel@linuxtogo.org with '[meta-angstrom]' in the subject'
+
+When sending single patches, please use something like 'git send-email -1 --to angstrom-distro-devel@linuxtogo.org --subject-prefix meta-angstrom'
 
 Main layer maintainer: Koen Kooi <koen@dominion.thruhere.net>
 
