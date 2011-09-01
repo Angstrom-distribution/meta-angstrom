@@ -8,5 +8,4 @@ inherit task
 
 RDEPENDS_${PN} = "\
     cups \
-#    gnome-cups-manager \
     "

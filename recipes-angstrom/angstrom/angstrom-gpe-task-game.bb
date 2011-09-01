@@ -12,5 +12,4 @@ RDEPENDS_${PN} = "\
     gpe-othello \
     gpe-tetris \
     gsoko \
-#    xdemineur \
 "
