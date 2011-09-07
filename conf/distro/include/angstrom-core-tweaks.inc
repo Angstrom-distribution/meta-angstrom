@@ -1,5 +1,8 @@
 # This include is to import changes from OE that are hard to overlay into core
 
+# Empty commercial license, we want to build a superset for the default config
+COMMERCIAL_LICENSE = ""
+
 # Tuning and package arch compatibility
 
 # Turn armv7a-vfp-neon into armv7a for compatibility reasons
