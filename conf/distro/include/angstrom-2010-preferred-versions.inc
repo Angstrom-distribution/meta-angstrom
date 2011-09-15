@@ -11,7 +11,6 @@ require conf/distro/include/angstrom-codec-engine-${CE_VERSION}-preferred-versio
 # Needs updating to the latest meta-oe 
 #require conf/distro/include/preferred-xorg-versions-live.inc
 
-PREFERRED_VERSION_busybox 	= "1.18.4"
 PREFERRED_VERSION_cairo		= "1.10.2"
 PREFFERED_VERSION_connman	= "0.76"
 PREFERRED_VERSION_dropbear      = "0.52"
