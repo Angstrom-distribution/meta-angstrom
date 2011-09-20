@@ -1,6 +1,6 @@
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
  
-PRINC = "7"
+PRINC = "8"
 
 # Original: volatiles = "cache run log lock tmp"
 # We don't any of those in volatiles, so:
