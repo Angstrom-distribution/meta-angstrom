@@ -2,7 +2,7 @@ DESCRIPTION = "Task for a GNOME based image"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
-PR = "r9"
+PR = "r10"
 
 inherit task
 
@@ -16,7 +16,8 @@ RDEPENDS_task-gnome-apps = " \
   x11vnc \
   matchbox-terminal \
   epiphany \
- "
+  gedit \
+"
 
 RDEPENDS_task-gnome-fonts = " \
   fontconfig fontconfig-utils font-util \
@@ -33,7 +34,7 @@ RDEPENDS_task-gnome = " \
   gnome-bluetooth \
   connman-gnome connman-plugin-ntpd \
   gnome-panel \
-  gtk-engine-clearlooks gtk-theme-clearlooks \
+  gtk-engine-clearlooks gtk-theme-clearlooks angstrom-clearlooks-theme-enable \
   upower udisks \
   gnome-disk-utility \
   gnome-system-monitor \
