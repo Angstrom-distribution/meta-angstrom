@@ -1,6 +1,6 @@
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
  
-PRINC = "8"
+PRINC = "9"
 
 # Original: volatiles = "cache run log lock tmp"
 # We don't any of those in volatiles, so:
@@ -30,4 +30,18 @@ do_install_angstromissue () {
         echo "- Kernel \r" >> ${D}${sysconfdir}/issue
         echo >> ${D}${sysconfdir}/issue
     fi
+}
+
+# Something during do_rootfs makes /var/run a symlink, we do not want that, so we remove it on 1st boot again
+pkg_postinst_${PN} () {
+#!/bin/sh
+if [ "x$D" != "x" ]; then
+        exit 1
+fi
+	
+if [ -L ${localstatedir}/run ] ; then
+	echo "fixing ${localstatedir}/run"
+	rm ${localstatedir}/run
+	mkdir ${localstatedir}/run
+fi
 }
