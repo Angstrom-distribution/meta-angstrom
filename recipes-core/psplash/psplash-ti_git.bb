@@ -9,7 +9,7 @@ ALTERNATIVE_PRIORITY = "20"
 # respectively psplash-bar-img.h (BAR) for the bar.
 # You might also want to patch the colors (see patch)
 
-SRC_URI = "svn://svn.o-hand.com/repos/misc/trunk;module=psplash;proto=http \
+SRC_URI = "git://git.yoctoproject.org/${BPN};protocol=git \
           file://psplash-18bpp.patch \
           file://logo-math.patch \
           file://0001-configurability-for-rev-422.patch \
@@ -18,5 +18,5 @@ SRC_URI = "svn://svn.o-hand.com/repos/misc/trunk;module=psplash;proto=http \
           file://psplash-default \
           file://splashfuncs \
           file://psplash-init"
-S = "${WORKDIR}/psplash"
+S = "${WORKDIR}/git"
 
