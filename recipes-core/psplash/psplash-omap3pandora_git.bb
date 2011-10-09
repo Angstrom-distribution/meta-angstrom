@@ -11,7 +11,6 @@ ALTERNATIVE_PRIORITY_omap3pandora = "5"
 # You might also want to patch the colors (see patch)
 
 SRC_URI = "git://git.yoctoproject.org/${BPN};protocol=git \
-          file://logo-math.patch \
           file://psplash-poky-img.h \
           file://psplash-bar-img.h \
           file://psplash-default \
