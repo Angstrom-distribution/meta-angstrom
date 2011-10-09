@@ -13,7 +13,7 @@ IMAGE_INSTALL += " \
 	e2fsprogs-e2fsck e2fsprogs-blkid \
 	avahi-daemon avahi-utils avahi-systemd \
 	${CONMANPKGS} \
-	systemd-compat-units \
+	systemd-compat-units python-dbus python-pycairo \
 	cpufrequtils \
 	htop \
 	usbutils \
