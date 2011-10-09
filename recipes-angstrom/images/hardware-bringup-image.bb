@@ -8,14 +8,9 @@ IMAGE_PREPROCESS_COMMAND = "rootfs_update_timestamp"
 
 IMAGE_INSTALL += " \
 	angstrom-task-boot \
-	rsyslog \
-	dropbear-systemd openssh-sftp \
-	e2fsprogs-e2fsck e2fsprogs-blkid \
-	avahi-daemon avahi-utils avahi-systemd \
+	task-basic \
 	${CONMANPKGS} \
-	systemd-compat-units python-dbus python-pycairo \
-	cpufrequtils \
-	htop \
+	python-dbus python-pycairo \
 	usbutils \
 	i2c-tools \
 	alsa-utils \
