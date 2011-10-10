@@ -73,5 +73,9 @@ IMAGE_INSTALL += "${IMAGE_BOOT}"
 
 
 # SDK stuff
+
+PREFERRED_PROVIDER_libltdl-dev = "libtool"
+PREFERRED_PROVIDER_libtool = "libtool"
+
 SDK_NAME = "${DISTRO}-${TCLIBC}-${SDK_ARCH}-${FEED_ARCH}"
 TOOLCHAIN_OUTPUTNAME ?= "${SDK_NAME}-${DISTRO_VERSION}-toolchain"
