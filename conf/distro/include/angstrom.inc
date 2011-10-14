@@ -203,7 +203,7 @@ DISTRO_FEATURES += ' ${@["", "thumb-interwork"][bb.data.getVar('THUMB_INTERWORK'
 DISTRO_FEATURES += "${DISTRO_FEATURES_LIBC}"
 
 # EFL tweaks
-require conf/distro/include/efl-from-svn.inc
+include conf/distro/include/efl-from-svn.inc
 
 # Yocto tweaks
 require conf/distro/include/angstrom-core-tweaks.inc
