@@ -1,6 +1,6 @@
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
  
-PRINC = "11"
+PRINC = "12"
 
 # Original: volatiles = "cache run log lock tmp"
 # We don't any of those in volatiles, so:
@@ -12,6 +12,7 @@ dirs755 += "${localstatedir}/cache \
             ${localstatedir}/lock/subsys \
             ${localstatedir}/tmp \
             ${localstatedir}/volatile/tmp \
+            /run \
            "
 
 BASEFILESISSUEINSTALL = "do_install_angstromissue"
