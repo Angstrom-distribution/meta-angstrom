@@ -67,6 +67,9 @@ PREFERRED_VERSION_wget = "1.11.4"
 PREFERRED_VERSION_xserver-common = "1.34"
 PREFERRED_VERSION_xserver-kdrive = "1.7.99.2"
 
+#xserver
+PREFERRED_VERSION_xserver-xorg = "1.11.1"
+
 #
 # meta-moblin package SRCREVs
 #
