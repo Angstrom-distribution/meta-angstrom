@@ -8,7 +8,6 @@ IMAGE_PREPROCESS_COMMAND = "rootfs_update_timestamp"
 
 IMAGE_INSTALL += " \
 	angstrom-task-boot \
-	systemd-speed-hacks \
 	task-basic \
 	${CONMANPKGS} \
 	python-dbus python-pycairo \
