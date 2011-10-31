@@ -3,6 +3,9 @@
 # Empty commercial license, we want to build a superset for the default config
 COMMERCIAL_LICENSE = ""
 
+# Shared state fixups
+MACHINEOVERRIDES[vardepsexclude] += "SOC_FAMILY"
+
 # Tuning and package arch compatibility
 
 # Turn armv7a-vfp-neon into armv7a for compatibility reasons
