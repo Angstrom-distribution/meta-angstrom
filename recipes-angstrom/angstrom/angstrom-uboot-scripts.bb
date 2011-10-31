@@ -37,7 +37,6 @@ do_deploy() {
 	install -d ${DEPLOY_DIR_IMAGE}
 	for i in *.scr ; do
 		cp $i ${DEPLOY_DIR_IMAGE}
-		package_stagefile_shell ${DEPLOY_DIR_IMAGE}/$i
 	done
 }
 
