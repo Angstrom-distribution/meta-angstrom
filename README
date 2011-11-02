@@ -14,13 +14,9 @@ revision: HEAD
            Setup
 ==============================
 
-It is recommended to follow the instruction at http://www.angstrom-distribution.org/building-angstrom with one important difference:
+It is recommended to follow the instruction at http://www.angstrom-distribution.org/building-angstrom
 
-After "Step 1" go into the newl created 'setup-scripts' directory and do
-
-    git checkout origin/oe-core -b oe-core
-
-This will set it up for the OpenEmbedded-core layout instead of the old OpenEmbedded-dev layout.
+This will set it up for the OpenEmbedded-core layout needed for this layer instead of the old OpenEmbedded-dev layout.
 
 ==============================
           Patches
