@@ -2,16 +2,15 @@ DESCRIPTION = "Configuration files for runtime LED configuration"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
-#PV = "${DISTRO_VERSION}"
-PR = "r9"
-PACKAGE_ARCH = "${MACHINE_ARCH}"
+inherit systemd
 
-inherit update-rc.d
-INITSCRIPT_NAME = "led-config"
-INITSCRIPT_PARAMS = "defaults 05"
+#PV = "${DISTRO_VERSION}"
+PR = "r12"
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 SRC_URI = "file://led-config \
            file://leds \
+           file://leds.service \
           "	
 
 do_compile() {
@@ -20,14 +19,20 @@ do_compile() {
 
 
 do_install () {
-        install -d ${D}/${sysconfdir}/default
-	install -d ${D}/${INIT_D_DIR}
+	install -d ${D}/${sysconfdir}/default
+	install -d ${D}/${bindir}
 
 	install -m 0644 ${WORKDIR}/leds ${D}/${sysconfdir}/default/
-	install -m 0755 ${WORKDIR}/led-config ${D}/${INIT_D_DIR}
+	install -m 0755 ${WORKDIR}/led-config ${D}/${bindir}
+
+	install -d ${D}/${base_libdir}/systemd/system
+	install -m 0644 ${WORKDIR}/leds.service ${D}/${base_libdir}/systemd/system/
 }
 
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "leds.service"
+
+FILES_${PN} += "${base_libdir}/systemd"
 CONFFILES_${PN} += "${sysconfdir}/default/leds \
-                    ${INIT_D_DIR}/led-config \
                    "
 

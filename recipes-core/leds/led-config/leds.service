@@ -1,0 +1,12 @@
+[Unit]
+Description=Angstrom LED config
+ConditionPathExists=|/sys/class/leds
+After=remount-rootfs.service
+
+[Service]
+RemainAfterExit=yes
+ExecStart=/usr/bin/led-config start
+ExecStop=/usr/bin/led-config stop
+
+[Install]
+WantedBy=basic.target

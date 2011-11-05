@@ -1,0 +1,2 @@
+#file format: name trigger
+beaglebone::usr0 heartbeat
