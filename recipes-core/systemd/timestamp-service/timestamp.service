@@ -1,0 +1,12 @@
+[Unit]
+Description=Timestamping service
+ConditionPathExists=/etc/timestamp
+After=remount-rootfs.service
+
+[Service]
+RemainAfterExit=yes
+ExecStart=/usr/bin/load-timestamp.sh
+ExecStop=/usr/bin/load-timestamp.sh --save
+
+[Install]
+WantedBy=basic.target
