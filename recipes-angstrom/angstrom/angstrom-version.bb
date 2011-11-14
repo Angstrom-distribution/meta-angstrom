@@ -2,7 +2,7 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
 PV = "${DISTRO_VERSION}"
-PR = "r10"
+PR = "r11"
 PE = "2"
 
 SRC_URI = "file://lsb_release"
@@ -13,7 +13,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 def get_layers(bb, d):
 	layers = (bb.data.getVar("BBLAYERS", d, 1) or "").split()
 	layers_branch_rev = ["%-17s = \"%s:%s\"" % (os.path.basename(i), \
-		base_get_metadata_git_branch(i, None).strip(), \
+		base_get_metadata_git_branch(i, None).strip().strip('()'), \
 		base_get_metadata_git_revision(i, None)) \
 			for i in layers]
 	i = len(layers_branch_rev)-1
