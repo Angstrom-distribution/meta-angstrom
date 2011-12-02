@@ -1,6 +1,6 @@
 ANGSTROM_MESA_VERSION = "7.11"
 ANGSTROM_QT_VERSION ?= "4.7.4"
-ANGSTROM_LIBTOOL_VERSION = "2.4"
+ANGSTROM_LIBTOOL_VERSION = "2.4.2"
 # Use new sysroot feature
 LIBTOOL_HAS_SYSROOT = "yes"
 
@@ -61,9 +61,6 @@ PREFERRED_VERSION_wpa-supplicant = "0.7.3"
 PREFERRED_VERSION_wget = "1.11.4"
 PREFERRED_VERSION_xserver-common = "1.34"
 PREFERRED_VERSION_xserver-kdrive = "1.7.99.2"
-
-#xserver
-PREFERRED_VERSION_xserver-xorg = "1.11.1"
 
 #
 # meta-moblin package SRCREVs
