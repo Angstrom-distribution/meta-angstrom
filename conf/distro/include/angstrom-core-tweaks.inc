@@ -3,6 +3,9 @@
 # Empty commercial license, we want to build a superset for the default config
 COMMERCIAL_LICENSE = ""
 
+# Preset set this or bbappends break
+PRINC ??= "0"
+
 # Shared state fixups
 MACHINEOVERRIDES[vardepsexclude] += "SOC_FAMILY"
 
