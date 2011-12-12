@@ -1,11 +1,12 @@
 DDESCRIPTION = "Angstrom theme for exquisite"
 HOMEPAGE = "http://www.enlightenment.org"
-LICENSE = "MIT/BSD"
+LICENSE = "BSD"
 SECTION = "x11"
 
 DEPENDS = "edje-native"
 RRECOMMENDS_${PN} = "exquisite"
 
+PR = "r1"
 PV = "1.2"
 
 inherit update-alternatives
