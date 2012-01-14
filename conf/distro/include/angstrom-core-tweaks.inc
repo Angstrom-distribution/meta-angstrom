@@ -18,6 +18,10 @@ PKGARCHCOMPAT_ARMV7A = True
 
 # Providers
 
+# Prefer libjpeg-turbo
+PREFERRED_PROVIDER_jpeg = "libjpeg-turbo"
+PREFERRED_PROVIDER_jpeg-native = "libjpeg-turbo-native"
+
 # Prefer the one from meta-oe over the one in oe-core
 PREFERRED_PROVIDER_virtual/libx11 = "libx11"
 PREFERRED_PROVIDER_virtual/xserver-xf86 = "xserver-xorg"
