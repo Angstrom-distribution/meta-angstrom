@@ -2,7 +2,7 @@ INHERIT += "package_ipk"
 
 ANGSTROM_FEED_CONFIGS ?= "angstrom-feed-configs"
 
-EXTRAOPKGCONFIG = "opkg-config-base angstrom-feed-configs"
+EXTRAOPKGCONFIG = "opkg-config-base ${ANGSTROM_FEED_CONFIGS}"
 
 ANGSTROM_IPK_UPDATE_ALTERNATIVES ?= "update-alternatives-cworth"
 
