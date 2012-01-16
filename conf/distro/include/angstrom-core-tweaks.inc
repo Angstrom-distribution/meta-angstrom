@@ -18,6 +18,9 @@ PKGARCHCOMPAT_ARMV7A = True
 
 # Providers
 
+# opkg
+PREFERRED_PROVIDER_opkg-collateral = "angstrom-feed-configs"
+
 # Prefer libjpeg-turbo
 PREFERRED_PROVIDER_jpeg = "libjpeg-turbo"
 PREFERRED_PROVIDER_jpeg-native = "libjpeg-turbo-native"
