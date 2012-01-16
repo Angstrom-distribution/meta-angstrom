@@ -5,12 +5,11 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3
 
 IMAGE_PREPROCESS_COMMAND = "rootfs_update_timestamp"
 
-
 IMAGE_INSTALL += " \
 	angstrom-task-boot \
 	task-basic \
 	${CONMANPKGS} \
-	python-dbus python-pycairo \
+	${ROOTFS_PKGMANAGE_PKGS} \
 	usbutils \
 	i2c-tools \
 	alsa-utils \
@@ -26,7 +25,9 @@ IMAGE_INSTALL += " \
 	bc \
 "
 
-CONMANPKGS = "connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd"
+ROOTFS_PKGMANAGE_PKGS ?= ${@base_conditional("ONLINE_PACKAGE_MANAGEMENT", "none", "", "${ROOTFS_PKGMANAGE}", d)}
+
+CONMANPKGS ?= "connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd"
 CONMANPKGS_libc-uclibc = ""
 
 IMAGE_DEV_MANAGER   = "udev"
