@@ -2,10 +2,8 @@ DESCRIPTION = "Configuration files for online package repositories aka feeds"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
-RRECOMMENDS_${PN} += "opkg"
-
 #PV = "${DISTRO_VERSION}"
-PR = "r15"
+PR = "r16"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 FEED_BASEPATH ?= "unstable/feed/"
@@ -60,6 +58,13 @@ CONFFILES_${PN} += "${sysconfdir}/opkg/base-feed.conf \
 					${sysconfdir}/opkg/noarch-feed.conf \
 					${sysconfdir}/opkg/sdk-feed.conf \
 					"
+
+# Get rid of opkg-collateral
+RCONFLICTS_${PN} = "opkg-collateral"
+RREPLACES_${PN} = "opkg-collateral"
+RPROVIDES_${PN} = "opkg-collateral"
+
+RRECOMMENDS_${PN} += "opkg"
 
 python populate_packages_prepend () {
 	etcdir = bb.data.expand('${sysconfdir}/opkg', d)
