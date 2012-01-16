@@ -87,7 +87,7 @@ ANGSTROM_URI ?= "http://feeds.angstrom-distribution.org"
 #Use this variable to select which recipe you want to use to get feed configs (/etc/ipkg/, /etc/apt/sources.list)
 # usefull for derivative distros and local testing
 # As this is runtime we can't and won't use virtual/feed-configs
-ANGSTROM_FEED_CONFIGS ?= "angstrom-feed-configs"
+ANGSTROM_FEED_CONFIGS ??= "angstrom-feed-configs"
 
 #Set the default maintainer to angstrom-dev
 MAINTAINER = "Angstrom Developers <angstrom-distro-devel@linuxtogo.org>"
