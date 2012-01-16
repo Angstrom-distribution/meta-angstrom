@@ -5,7 +5,8 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3
 
 IMAGE_PREPROCESS_COMMAND = "rootfs_update_timestamp"
 
-ROOTFS_PKGMANAGE_PKGS ?= ${@base_conditional("ONLINE_PACKAGE_MANAGEMENT", "none", "", "${ROOTFS_PKGMANAGE}", d)}
+DISTRO_UPDATE_ALTERNATIVES ??= ""
+ROOTFS_PKGMANAGE_PKGS ?= ${@base_conditional("ONLINE_PACKAGE_MANAGEMENT", "none", "", "${ROOTFS_PKGMANAGE} ${DISTRO_UPDATE_ALTERNATIVES}", d)}
 
 CONMANPKGS ?= "connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd"
 CONMANPKGS_libc-uclibc = ""
