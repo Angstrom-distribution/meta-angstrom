@@ -4,10 +4,12 @@ ANGSTROM_FEED_CONFIGS ?= "angstrom-feed-configs"
 
 EXTRAOPKGCONFIG = "opkg-config-base angstrom-feed-configs"
 
-DISTRO_UPDATE_ALTERNATIVES ?= "update-alternatives-cworth"
+ANGSTROM_IPK_UPDATE_ALTERNATIVES ?= "update-alternatives-cworth"
+
+DISTRO_UPDATE_ALTERNATIVES = "${ANGSTROM_IPK_UPDATE_ALTERNATIVES}"
 
 # we need the same provider for opkg and u-a
 PREFERRED_PROVIDER_virtual/update-alternatives-native ?= "opkg-native"
-PREFERRED_PROVIDER_virtual/update-alternatives ?= "update-alternatives-cworth"
-VIRTUAL-RUNTIME_update-alternatives ?= "update-alternatives-cworth"
+PREFERRED_PROVIDER_virtual/update-alternatives = "${ANGSTROM_IPK_UPDATE_ALTERNATIVES}"
+VIRTUAL-RUNTIME_update-alternatives = "${ANGSTROM_IPK_UPDATE_ALTERNATIVES}"
 
