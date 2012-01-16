@@ -1,0 +1,9 @@
+[sakoman]
+name=Angstrom
+enabled=1
+autorefresh=1
+baseurl=http://feeds.angstrom-distribution.org/feeds/core/rpm
+type=rpm-md
+keeppackages=0
+gpgcheck=0
+
