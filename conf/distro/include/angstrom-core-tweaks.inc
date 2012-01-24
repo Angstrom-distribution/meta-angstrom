@@ -2,6 +2,7 @@
 
 # Empty commercial license, we want to build a superset for the default config
 COMMERCIAL_LICENSE = ""
+LICENSE_FLAGS_WHITELIST += "mpeg2dec"
 
 # Preset set this or bbappends break
 PRINC ??= "0"
