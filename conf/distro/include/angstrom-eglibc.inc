@@ -1,6 +1,4 @@
 # eglibc:
-require conf/distro/include/tclibc-eglibc.inc
-
 ANGSTROM_BLACKLIST_pn-libiconv = "the eglibc provided iconv library is used"
 
 TARGET_OS = "linux"

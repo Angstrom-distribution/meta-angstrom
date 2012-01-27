@@ -12,7 +12,7 @@ BUILDNAME = "Angstrom ${DISTRO_VERSION}"
 TARGET_VENDOR = "-angstrom"
 SDK_VENDOR = "-angstromsdk"
 
-SOC_FAMILY ?= "Unknown"
+SOC_FAMILY ?= ""
 
 # Yocto work around for missing ONLINE_PACKAGE_MANAGEMENT support
 ONLINE_PACKAGE_MANAGEMENT = "full"
@@ -27,8 +27,8 @@ FEED_ARCH_bfin          = "blackfin"
 
 # Add FEED_ARCH and SOC_FAMILY to machine overrides so we get access to e.g. 'armv7a' and 'omap3'
 # Hopefully we'll never see a machine or arch with 'all' as substring
-MACHINEOVERRIDES .= ":${@bb.data.getVar('FEED_ARCH', d,1).replace('all','noarch')}:${SOC_FAMILY}"
-
+MACHINEOVERRIDES .= ":${@bb.data.getVar('FEED_ARCH', d,1).replace('all','noarch')}"
+MACHINEOVERRIDES .= "${@['', ':${SOC_FAMILY}']['${SOC_FAMILY}' != '']}"
 # Put links to sources in deploy/sources to make it easier for people to be GPL compliant
 #INHERIT += "src_distribute_local"
 SRC_DIST_LOCAL ?= "symlink"
@@ -72,14 +72,6 @@ ARM_INSTRUCTION_SET = "${ANGSTROM_ARM_INSTRUCTION_SET}"
 #    encoded RISC sub-set.  Thumb code is smaller (maybe 70% of the ARM size)
 #    but requires more instructions (140% for 70% smaller code) so may be
 #    slower.
-
-THUMB_INTERWORK = "yes"
-# "yes" "no"
-#    Whether to compile with code to allow interworking between the two
-#    instruction sets.  This allows thumb code to be executed on a primarily
-#    arm system and vice versa.  It is strongly recommended that DISTROs not
-#    turn this off - the actual cost is very small.
-
 
 #Use this variable in feeds and other parts that need a URI
 ANGSTROM_URI ?= "http://feeds.angstrom-distribution.org"
@@ -148,11 +140,6 @@ ENABLE_BINARY_LOCALE_GENERATION_armeb = "0"
 # Prelink images
 INHERIT += "image-prelink"
 
-# webkit-gtk and cairo have alignment issues with double instructions on armv5 so
-# disable them here
-TARGET_CC_ARCH_pn-webkit-gtk_armv5te = "-march=armv4t"
-TARGET_CC_ARCH_pn-cairo_armv5te = "-march=armv4t"
-
 #Name the generated images in a sane way
 IMAGE_NAME = "${DISTRO_NAME}-${IMAGE_BASENAME}-${TCLIBC}-${ANGSTROM_PKG_FORMAT}-${DISTRO_VERSION}-${MACHINE}"
 DEPLOY_DIR_IMAGE = "${DEPLOY_DIR}/images/${MACHINE}"
@@ -195,9 +182,6 @@ DISTRO_FEATURES = "alsa argp bluetooth ext2 ipv4 ipv6 irda largefile nfs pam pci
 # USE-flag like features
 DISTRO_FEATURES += "tk"
 DISTRO_FEATURES += "x11"
-
-# Add thumb-interwork to feature list if selected machine supports it.
-DISTRO_FEATURES += ' ${@["", "thumb-interwork"][bb.data.getVar('THUMB_INTERWORK', d, 1) == "yes"]}'
 
 # Inherit the default LIBC features superset from OE-core
 DISTRO_FEATURES += "${DISTRO_FEATURES_LIBC}"
