@@ -18,7 +18,6 @@ PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-nativesdk  = "eglibc-nativesdk"
 PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-for-gcc-nativesdk  = "eglibc-nativesdk"
 # libc settings
 DISTRO_FEATURES += "${@['', ' nls'][bb.data.getVar('ENABLE_BINARY_LOCALE_GENERATION', d, 1) == '1']}"
-MACHINE_FEATURES += "${@['', ' bx'][bb.data.getVar('ARM_INSTRUCTION_SET', d, 1) == 'thumb']}"
 # FIXME: We enable IPv4 per default to avoid alot of breakage.
 # FIXME: Figure out an acceptable way to negotiate either
 # FIXME: desired features or hard requirements, either top-down or bottom-up.
