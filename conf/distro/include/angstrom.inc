@@ -106,12 +106,8 @@ QA_LOG = "1"
 #have a shared state a.k.a package-staging2
 INHERIT += "sstate"
 
-#save statistical info on images
-INHERIT += "testlab"
-
 ANGSTROM_PKG_FORMAT ?= "ipk"
 require conf/distro/include/angstrom-package-${ANGSTROM_PKG_FORMAT}.inc
-
 
 # We don't want to keep OABI compat
 ARM_KEEP_OABI = "0"
