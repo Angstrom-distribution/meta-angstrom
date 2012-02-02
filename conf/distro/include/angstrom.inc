@@ -139,35 +139,6 @@ DEPLOY_DIR_IMAGE = "${DEPLOY_DIR}/images/${MACHINE}"
 # Angstrom *always* has some form of release config, so error out if someone thinks he knows better 
 DISTRO_CHECK := "${@bb.data.getVar("DISTRO_VERSION",d,1) or bb.fatal('Remove this line or set a dummy DISTRO_VERSION if you really want to build an unversioned distro')}"
 
-
-# Configuration for tinderbox, so people only need:
-# INHERIT          += "tinderclient"
-# in their local.conf 
-
-#Name of the client
-TINDER_MACHINE  = "${MACHINE}-${TCLIBC}-build-image"
-
-# Which lof file to write to, which tree to report to
-TINDER_LOG        = "${TMPDIR}/tinder.log"
-TINDER_TREE       = "Angstrom"
-
-# HTTP posting    
-TINDER_HOST       ?= "ewi546.ewi.utwente.nl"
-TINDER_URL        ?= "/tinderbox"
-
-# Which branch do we build
-TINDER_BRANCH     = "org.openembedded.dev"
-
-## Clobbing
-## 0 for rebuilding everything from scratch
-## 1 for incremental builds
-TINDER_CLOBBER    = "1"
-
-## Do a report at all
-TINDER_REPORT     = "1"
-
-OESTATS_SERVER      ?= "tinderbox.openembedded.org"
-
 # We want images supporting the following features (for task(-core)-base)
 DISTRO_FEATURES = "alsa argp bluetooth ext2 ipv4 ipv6 irda largefile nfs pam pci pcmcia ppp smbfs usbgadget usbhost vfat wifi xattr zeroconf"
 
