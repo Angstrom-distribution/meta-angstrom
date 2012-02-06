@@ -97,8 +97,12 @@ INHERIT += "angstrom-mirrors"
 
 #run QA tests on builds and packages and log them  
 INHERIT += "insane"
-# INHERIT += "packagehistory"
 QA_LOG = "1"
+
+# Log information on images and packages
+# https://github.com/Angstrom-distribution/buildhistory/
+INHERIT += "buildhistory"
+BUILDHISTORY_COMMIT = "1"
 
 #run QA tests on recipes
 #INHERIT += "recipe_sanity"
