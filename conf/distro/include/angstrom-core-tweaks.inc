@@ -1,5 +1,17 @@
 # This include is to import changes from OE that are hard to overlay into core
 
+# Default hash policy for distro
+BB_SIGNATURE_HANDLER ?= "OEBasicHash"
+
+# The network based PR service host and port
+# Uncomment the following lines to enable PRservice.
+# Set PRSERV_HOST to 'localhost' and PRSERV_PORT to '0' to automatically
+# start local PRService.
+# Set to other values to use remote PRService.
+#PRSERV_HOST ?= "localhost"
+#PRSERV_PORT ?= "0"
+ 
+
 # Empty commercial license, we want to build a superset for the default config
 COMMERCIAL_LICENSE = ""
 LICENSE_FLAGS_WHITELIST += "commercial"
