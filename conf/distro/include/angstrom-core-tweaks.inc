@@ -109,6 +109,7 @@ IMAGE_INSTALL += "${IMAGE_BOOT}"
 
 # meta-opie
 include conf/distro/include/preferred-opie-git-versions.inc 
+PREFERRED_PROVIDER_virtual/libsdl = "libsdl"
 
 # SDK stuff
 
