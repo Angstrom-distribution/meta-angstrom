@@ -80,10 +80,10 @@ FILESYSTEM_PERMS_TABLES = "fs-perms-angstrom.txt"
 #
 IMAGE_DEV_MANAGER ?= "${@base_contains("MACHINE_FEATURES", "kernel26",  "udev","",d)} "
 #
-# sysvinit, upstart
+# sysvinit, upstart, systemd
 #
-IMAGE_INIT_MANAGER ?= "sysvinit sysvinit-pidof"
-IMAGE_INITSCRIPTS ?= "initscripts"
+IMAGE_INIT_MANAGER ?= "systemd"
+IMAGE_INITSCRIPTS ?= "systemd-compat-units"
 #
 # tinylogin, getty
 #
