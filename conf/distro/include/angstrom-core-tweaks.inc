@@ -105,6 +105,10 @@ IMAGE_LINGUAS ?= "de-de fr-fr en-gb"
 
 IMAGE_INSTALL += "${IMAGE_BOOT}"
 
+# Layer tweaks
+
+# meta-opie
+include conf/distro/include/preferred-opie-git-versions.inc 
 
 # SDK stuff
 
