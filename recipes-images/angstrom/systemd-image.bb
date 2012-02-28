@@ -16,6 +16,7 @@ IMAGE_INSTALL += " \
 	task-basic \
 	${CONMANPKGS} \
 	${ROOTFS_PKGMANAGE_PKGS} \
+	timestamp-service \
 "
 
 IMAGE_DEV_MANAGER   = "udev"
