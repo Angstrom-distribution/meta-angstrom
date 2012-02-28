@@ -27,7 +27,7 @@ MACHINEOVERRIDES[vardepsexclude] += "SOC_FAMILY"
 # Turn armv7a-vfp-neon into armv7a for compatibility reasons
 # In the long term the switch to the longer arch needs to be made,
 # but that needs a coordinated effort
-PKGARCHCOMPAT_ARMV7A = True
+PKGARCHCOMPAT_ARMV7A = "True"
 
 # Providers
 
