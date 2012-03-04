@@ -1,12 +1,15 @@
+PREMIRRORS_append () {
+cvs://.*/.* http://sources.angstrom-distribution.org/
+svn://.*/.* http://sources.angstrom-distribution.org/
+git://.*/.* http://sources.angstrom-distribution.org/
+hg://.*/.*  http://sources.angstrom-distribution.org/
+bzr://.*/.* http://sources.angstrom-distribution.org/
+osc://.*/.* http://sources.angstrom-distribution.org/
+p4://.*/.*  http://sources.angstrom-distribution.org/
+svk://.*/.* http://sources.angstrom-distribution.org/
+}
+
 MIRRORS_append () {
-cvs://.*/.* http://www.angstrom-distribution.org/unstable/sources/
-svn://.*/.* http://www.angstrom-distribution.org/unstable/sources/
-git://.*/.* http://www.angstrom-distribution.org/unstable/sources/
-hg://.*/.*  http://www.angstrom-distribution.org/unstable/sources/
-bzr://.*/.* http://www.angstrom-distribution.org/unstable/sources/
-osc://.*/.* http://www.angstrom-distribution.org/unstable/sources/
-p4://.*/.*  http://www.angstrom-distribution.org/unstable/sources/
-svk://.*/.* http://www.angstrom-distribution.org/unstable/sources/
-ftp://.*/.*	http://www.angstrom-distribution.org/unstable/sources/
-https?$://.*/.*	http://www.angstrom-distribution.org/unstable/sources/
+ftp://.*/.*	http://sources.angstrom-distribution.org/
+https?$://.*/.*	http://sources.angstrom-distribution.org/
 }
