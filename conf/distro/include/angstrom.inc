@@ -25,10 +25,10 @@ FEED_ARCH ?= "${TUNE_PKGARCH}"
 #blackfin machines
 FEED_ARCH_bfin          = "blackfin"
 
-# Add FEED_ARCH and SOC_FAMILY to machine overrides so we get access to e.g. 'armv7a' and 'omap3'
+# Add FEED_ARCH to machine overrides so we get access to e.g. 'armv7a' and 'sh4'
 # Hopefully we'll never see a machine or arch with 'all' as substring
 MACHINEOVERRIDES .= ":${@bb.data.getVar('FEED_ARCH', d,1).replace('all','noarch')}"
-MACHINEOVERRIDES .= "${@['', ':${SOC_FAMILY}']['${SOC_FAMILY}' != '']}"
+
 # Put links to sources in deploy/sources to make it easier for people to be GPL compliant
 #INHERIT += "src_distribute_local"
 SRC_DIST_LOCAL ?= "symlink"
