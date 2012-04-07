@@ -31,6 +31,8 @@ def get_layers(bb, d):
 			s1= layers_branch_rev[i][p1:]
 
 	layertext = "Configured Openembedded layers:\n%s\n" % '\n'.join(layers_branch_rev)
+	layertext = layertext.replace('<','')
+	layertext = layertext.replace('>','')
 	return layertext
 
 do_install() {
