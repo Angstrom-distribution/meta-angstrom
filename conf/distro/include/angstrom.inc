@@ -150,6 +150,7 @@ DISTRO_FEATURES = "alsa argp bluetooth ext2 ipv4 ipv6 irda largefile nfs pam pci
 DISTRO_FEATURES += "tk"
 DISTRO_FEATURES += "x11"
 DISTRO_FEATURES += "3g"
+DISTRO_FEATURES += "pulseaudio"
 
 # Inherit the default LIBC features superset from OE-core
 DISTRO_FEATURES += "${DISTRO_FEATURES_LIBC}"
