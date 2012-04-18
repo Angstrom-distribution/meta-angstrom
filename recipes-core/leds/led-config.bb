@@ -29,6 +29,7 @@ do_install () {
 	install -m 0644 ${WORKDIR}/leds.service ${D}/${base_libdir}/systemd/system/
 }
 
+NATIVE_SYSTEMD_SUPPORT = "1"
 SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE_${PN} = "leds.service"
 
