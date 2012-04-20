@@ -45,7 +45,7 @@ do_upload_packages() {
 
 	# Find file already present on webserver
 	echo "Getting file list from server"
-	ssh -C ${REMOTEM} 'mkdir -p ${REMOTED} ; touch ${REMOTED}/unsorted/files-sorted'
+	ssh -C ${REMOTEM} 'mkdir -p ${REMOTED}/unsorted ; touch ${REMOTED}/unsorted/files-sorted'
 	scp -C ${REMOTEM}:${REMOTED}/unsorted/files-sorted files-remote
 	ls upload-queue/ | grep -v morgue > files-local
 
