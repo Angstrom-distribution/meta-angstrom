@@ -4,6 +4,7 @@ PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}binutils = "binutils-cross"
 PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers"
 
 # The things uclibc can provide.  We default to wanting uclibc to provide them.
+PREFERRED_PROVIDER_virtual/libiconv = "mini-iconv"
 PREFERRED_PROVIDER_virtual/libintl = "proxy-libintl"
 PREFERRED_PROVIDER_virtual/gettext = "proxy-libintl"
 #fix some iconv issues, needs to be adjusted when doing uclibc builds
