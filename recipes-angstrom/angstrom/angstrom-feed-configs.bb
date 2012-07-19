@@ -67,7 +67,7 @@ RPROVIDES_${PN} = "opkg-collateral"
 RRECOMMENDS_${PN} += "opkg"
 
 python populate_packages_prepend () {
-	etcdir = bb.data.expand('${sysconfdir}/opkg', d)
-	do_split_packages(d, etcdir, '^locale-(.*)\.conf$', 'angstrom-locale-%s-config', 'Angstrom feed config for the %s locale', extra_depends='', allow_links=True)
+    etcdir = bb.data.expand('${sysconfdir}/opkg', d)
+    do_split_packages(d, etcdir, '^locale-(.*)\.conf$', 'angstrom-locale-%s-config', 'Angstrom feed config for the %s locale', extra_depends='', allow_links=True)
 }
 
