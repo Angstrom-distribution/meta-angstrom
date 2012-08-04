@@ -9,32 +9,7 @@ inherit task
 # Most of these tasks are arch independant
 PACKAGE_ARCH = "all"
 
-PACKAGES += "task-gnome-themes task-gnome-xserver-base "
-
-RDEPENDS_task-gnome-themes = " \
-  angstrom-gnome-icon-theme-enable \
-  gnome-icon-theme \
-  gnome-themes \
-  gnome-theme-crux \
-  gnome-theme-highcontrast \
-  gnome-theme-highcontrastinverse \
-  gnome-theme-highcontrastlargeprint \
-  gnome-theme-highcontrastlargeprintinverse \
-  gnome-theme-largeprint \
-  gnome-theme-mist \
-  gtk-engine-clearlooks \
-  gtk-engine-crux-engine \
-  gtk-engine-glide \
-  gtk-engine-hcengine \
-  gtk-engine-thinice \
-  gtk-engine-redmond95 \
-  gtk-theme-clearlooks \
-  gtk-theme-crux \
-  gtk-theme-mist \
-  gtk-theme-thinice \
-  gtk-theme-redmond \
-  hicolor-icon-theme \
- "
+PACKAGES += "task-gnome-xserver-base "
 
 RDEPENDS_task-gnome-xserver-base = " \
   dbus-x11 \
