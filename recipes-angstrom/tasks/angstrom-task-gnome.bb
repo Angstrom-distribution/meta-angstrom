@@ -9,7 +9,7 @@ inherit task
 # Most of these tasks are arch independant
 PACKAGE_ARCH = "all"
 
-PACKAGES += "task-gnome-cups task-gnome-pulseaudio task-gnome-themes task-gnome-totem task-gnome-xserver-base "
+PACKAGES += "task-gnome-themes task-gnome-xserver-base "
 
 RDEPENDS_task-gnome-themes = " \
   angstrom-gnome-icon-theme-enable \
