@@ -6,6 +6,9 @@ PR = "r13"
 
 inherit task
 
+# for backwards compatibility
+RPROVIDES_${PN} += "task-gnome3-themes"
+
 RDEPENDS_${PN} = " \
   angstrom-gnome-icon-theme-enable \
   gnome-icon-theme \
