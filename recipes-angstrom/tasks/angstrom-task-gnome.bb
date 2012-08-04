@@ -9,14 +9,7 @@ inherit task
 # Most of these tasks are arch independant
 PACKAGE_ARCH = "all"
 
-PACKAGES += "task-gnome-fonts task-gnome task-gnome-gstreamer task-gnome-perl task-gnome-cups task-gnome-pulseaudio task-gnome-themes task-gnome-totem task-gnome-xserver-base "
-
-RDEPENDS_task-gnome-fonts = " \
-  fontconfig fontconfig-utils font-util \
-  ttf-liberation-sans \
-  ttf-liberation-serif \
-  ttf-liberation-mono \
- "  
+PACKAGES += "task-gnome task-gnome-gstreamer task-gnome-perl task-gnome-cups task-gnome-pulseaudio task-gnome-themes task-gnome-totem task-gnome-xserver-base "
 
 RDEPENDS_task-gnome = " \
   gnome-settings-daemon gnome-control-center \
