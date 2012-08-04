@@ -6,6 +6,9 @@ PR = "r13"
 
 inherit task
 
+# for backwards compatibility
+RPROVIDES_${PN} += "task-gnome3-fonts"
+
 RDEPENDS_${PN} = " \
   fontconfig fontconfig-utils font-util \
   ttf-liberation-sans \
