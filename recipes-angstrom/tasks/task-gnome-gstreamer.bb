@@ -6,6 +6,9 @@ PR = "r13"
 
 inherit task
 
+# for backwards compatibility
+RPROVIDES_${PN} += "task-gnome3-gstreamer"
+
 DEPENDS_${PN} = " \
   gst-plugins-base \
   gst-plugins-good \
