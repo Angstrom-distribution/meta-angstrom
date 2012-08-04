@@ -6,26 +6,6 @@ PR = "r6"
 
 inherit task
 
-# Most of these tasks are arch independant
-PACKAGE_ARCH = "all"
-
-PACKAGES += "task-gnome3-xserver-base "
-
-RDEPENDS_task-gnome3-xserver-base = " \
-  dbus-x11 \
-  iso-codes \
-  mime-support \
-  xauth \
-  xdg-utils \
-  xhost \
-  xinetd \
-  xinit \
-  xrandr \
-  xrdb \
-  xset \
-  xvinfo \
- "
-
 RDEPENDS_${PN} = " \
   task-gnome3-fonts \
   task-gnome3 \

@@ -6,6 +6,9 @@ PR = "r13"
 
 inherit task
 
+# for backwards compatibility
+RPROVIDES_${PN} += "task-gnome3-xserver-base"
+
 RDEPENDS_${PN} = " \
   dbus-x11 \
   iso-codes \
