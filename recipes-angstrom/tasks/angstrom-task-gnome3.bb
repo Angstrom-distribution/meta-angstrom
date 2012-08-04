@@ -9,12 +9,7 @@ inherit task
 # Most of these tasks are arch independant
 PACKAGE_ARCH = "all"
 
-PACKAGES += "task-gnome3-perl task-gnome3-cups task-gnome3-pulseaudio task-gnome3-themes task-gnome3-totem task-gnome3-xserver-base "
-
-RDEPENDS_task-gnome3-perl = " \
-  perl \
-  libxml-parser-perl \
-"
+PACKAGES += "task-gnome3-cups task-gnome3-pulseaudio task-gnome3-themes task-gnome3-totem task-gnome3-xserver-base "
 
 RDEPENDS_task-gnome3-themes = " \
   angstrom-gnome-icon-theme-enable \
