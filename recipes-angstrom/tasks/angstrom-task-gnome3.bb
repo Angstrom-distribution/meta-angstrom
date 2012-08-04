@@ -9,23 +9,7 @@ inherit task
 # Most of these tasks are arch independant
 PACKAGE_ARCH = "all"
 
-PACKAGES += "task-gnome3 task-gnome3-gstreamer task-gnome3-perl task-gnome3-cups task-gnome3-pulseaudio task-gnome3-themes task-gnome3-totem task-gnome3-xserver-base "
-
-RDEPENDS_task-gnome3 = " \
-  gnome-settings-daemon gnome-control-center \
-  gnome-keyring \
-  gdm-systemd angstrom-gdm-autologin-hack \
-  gnome-power-manager3 \
-  gnome-bluetooth \
-  gnome-panel3 \
-  gtk-engine-clearlooks gtk-theme-clearlooks \
-  upower udisks \
-  gnome-disk-utility \
-  nautilus3 \
-  gpe-scap \
-  bash \ 
-  tzdata \
-"
+PACKAGES += "task-gnome3-gstreamer task-gnome3-perl task-gnome3-cups task-gnome3-pulseaudio task-gnome3-themes task-gnome3-totem task-gnome3-xserver-base "
 
 DEPENDS_task-gnome3-gstreamer = " \
   gst-plugins-base \
