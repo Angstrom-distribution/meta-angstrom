@@ -9,19 +9,7 @@ inherit task
 # Most of these tasks are arch independant
 PACKAGE_ARCH = "all"
 
-PACKAGES += "task-gnome-gstreamer task-gnome-perl task-gnome-cups task-gnome-pulseaudio task-gnome-themes task-gnome-totem task-gnome-xserver-base "
-
-DEPENDS_task-gnome-gstreamer = " \
-  gst-plugins-base \
-  gst-plugins-good \
-  gst-plugins-bad \
-  gst-plugins-ugly \
-"
-
-RDEPENDS_task-gnome-gstreamer = " \
-  gst-ffmpeg \
-  gst-plugins-base-meta \
-"
+PACKAGES += "task-gnome-perl task-gnome-cups task-gnome-pulseaudio task-gnome-themes task-gnome-totem task-gnome-xserver-base "
 
 RDEPENDS_task-gnome-perl = " \
   perl \
