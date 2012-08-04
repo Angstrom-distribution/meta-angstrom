@@ -2,21 +2,14 @@ DESCRIPTION = "Task for a GNOME based image"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
-PR = "r5"
+PR = "r6"
 
 inherit task
 
 # Most of these tasks are arch independant
 PACKAGE_ARCH = "all"
 
-PACKAGES += "task-gnome3-apps task-gnome3-fonts task-gnome3 task-gnome3-gstreamer task-gnome3-perl task-gnome3-cups task-gnome3-pulseaudio task-gnome3-themes task-gnome3-totem task-gnome3-xserver-base "
-
-
-RDEPENDS_task-gnome3-apps = " \
-  x11vnc \
-  matchbox-terminal \
-  epiphany \
- "
+PACKAGES += "task-gnome3-fonts task-gnome3 task-gnome3-gstreamer task-gnome3-perl task-gnome3-cups task-gnome3-pulseaudio task-gnome3-themes task-gnome3-totem task-gnome3-xserver-base "
 
 RDEPENDS_task-gnome3-fonts = " \
   fontconfig fontconfig-utils font-util \
