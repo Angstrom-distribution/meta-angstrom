@@ -484,7 +484,7 @@ python populate_packages_prepend () {
         bb.data.setVar('PKG_glibc-dev', 'libc6-dev', d)
         bb.data.setVar('PKG_libgcc', 'libgcc1', d)
         bb.data.setVar('PKG_libgcc-dev', 'libgcc1-dev', d)
-    bb.build.exec_func('package_do_split_gconvs', d)
+        bb.build.exec_func('package_do_split_gconvs', d)
 }
 
 NATIVE_INSTALL_WORKS = "1"
