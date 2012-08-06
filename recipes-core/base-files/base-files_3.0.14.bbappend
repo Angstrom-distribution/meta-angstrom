@@ -1,8 +1,6 @@
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
  
-PRINC = "14"
-
-SRC_URI_append = " file://var-run.conf"
+PRINC = "15"
 
 # Original: volatiles = "cache run log lock tmp"
 # We don't any of those in volatiles, so:
@@ -35,7 +33,3 @@ do_install_angstromissue () {
     fi
 }
 
-do_install_append() {
-	install -d ${D}${sysconfdir}/tmpfiles.d
-	install -m 0644 ${WORKDIR}/var-run.conf ${D}${sysconfdir}/tmpfiles.d/
-}
