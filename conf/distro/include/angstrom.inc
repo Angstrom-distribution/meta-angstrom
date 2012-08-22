@@ -113,6 +113,16 @@ INHERIT += "sstate"
 ANGSTROM_PKG_FORMAT ?= "ipk"
 require conf/distro/include/angstrom-package-${ANGSTROM_PKG_FORMAT}.inc
 
+# MACHINE_KERNEL_PR if not defined can cause parsing failures
+# since MACHINE_KERNEL_PR is used in PR assignments in some recipes
+# (meta-ti comes to mind) which means when creating FILESPATH
+# it will try to evaluate it and if its undefined then python
+# will except
+#
+# so for machines which do not define it lets define it to be empty
+
+MACHINE_KERNEL_PR ??= ""
+
 # We don't want to keep OABI compat
 ARM_KEEP_OABI = "0"
 # Do keep OABI compat for om-gta01 to keep the gllin binary working
