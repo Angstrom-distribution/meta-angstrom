@@ -1,4 +1,4 @@
-PR = "r1"
+PR = "r2"
 
 INHIBIT_DEFAULT_DEPS = "1"
 
@@ -17,7 +17,6 @@ PROVIDES = "\
     virtual/${TARGET_PREFIX}gcc \
     virtual/${TARGET_PREFIX}g++ \
     virtual/${TARGET_PREFIX}gcc-initial \
-    virtual/${TARGET_PREFIX}gcc-intermediate \
     virtual/${TARGET_PREFIX}binutils \
     virtual/${TARGET_PREFIX}libc-for-gcc \
     virtual/${TARGET_PREFIX}libc-initial \
