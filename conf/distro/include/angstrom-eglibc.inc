@@ -1,5 +1,5 @@
 # eglibc:
-ANGSTROM_BLACKLIST_pn-libiconv = "the eglibc provided iconv library is used"
+PNBLACKLIST[libiconv] = "the eglibc provided iconv library is used"
 
 TARGET_OS = "linux"
 
