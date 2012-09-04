@@ -4,7 +4,7 @@ URI: git://git.openembedded.org/openembedded-core
 branch: master
 revision: HEAD
 
-And for testlab.bbclass:
+And the layers found in the meta-openembedded repo. At least 'meta-oe' and 'meta-systemd' are needed. The instructions below will take care of everything automagically.
 
 URI: git://git.openembedded.net/meta-openembedded
 branch: master
