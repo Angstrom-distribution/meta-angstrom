@@ -4,10 +4,10 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3
 
 PR = "r13"
 
-inherit task
+inherit packagegroup
 
 # for backwards compatibility
-RPROVIDES_${PN} += "task-gnome3-gstreamer"
+RPROVIDES_${PN} += "packagegroup-gnome3-gstreamer"
 
 DEPENDS_${PN} = " \
   gst-plugins-base \

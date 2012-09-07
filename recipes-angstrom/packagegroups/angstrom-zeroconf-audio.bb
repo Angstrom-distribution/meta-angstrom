@@ -4,7 +4,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3
 
 PR = "r7"
 
-inherit task allarch
+inherit packagegroup allarch
 
 RDEPENDS_${PN} = " \
   avahi-daemon \

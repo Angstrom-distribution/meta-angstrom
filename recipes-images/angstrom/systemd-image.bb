@@ -12,8 +12,8 @@ CONMANPKGS ?= "connman connman-plugin-loopback connman-plugin-ethernet connman-p
 CONMANPKGS_libc-uclibc = ""
 
 IMAGE_INSTALL += " \
-	angstrom-task-boot \
-	task-basic \
+	angstrom-packagegroup-boot \
+	packagegroup-basic \
 	${CONMANPKGS} \
 	${ROOTFS_PKGMANAGE_PKGS} \
 	timestamp-service \

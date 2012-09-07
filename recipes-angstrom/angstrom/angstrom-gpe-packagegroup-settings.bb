@@ -4,12 +4,12 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3
 
 PR = "r36"
 
-inherit task
+inherit packagegroup
 
 RDEPENDS_${PN} = "\
     matchbox-panel-manager \
     mboxkbd-layouts-gui \
-	gpe-su \
+    gpe-su \
     gpe-conf \
     gpe-shield \
     gpe-taskmanager \

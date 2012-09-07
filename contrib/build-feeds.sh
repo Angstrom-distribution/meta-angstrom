@@ -75,7 +75,7 @@ do
                       opkg-native \
                       abiword \
                       aircrack-ng \
-                      angstrom-task-gnome \
+                      angstrom-packagegroup-gnome \
                       angstrom-zeroconf-audio \
                       apache2 \
                       artoolkit \
@@ -334,13 +334,13 @@ do
                       sylpheed \
                       sysstat \
                       systray \
-                      task-beagleboard-demo \
-                      task-gpe-pim \
-                      task-opie-apps \
-                      task-opie-games \
-                      task-proper-tools \
-                      task-xqtlauncher \
-                      tasks \
+                      packagegroup-beagleboard-demo \
+                      packagegroup-gpe-pim \
+                      packagegroup-opie-apps \
+                      packagegroup-opie-games \
+                      packagegroup-proper-tools \
+                      packagegroup-xqtlauncher \
+                      packagegroups \
                       texinfo \
                       tgt \
                       thttpd \
@@ -434,9 +434,9 @@ for machine in ${MACHINES}
 do
         BUILD_MACHINE=$machine
             BUILD_CLEAN="qmake-native qmake2-native qt-x11-free python python-native python-pygtk gnome-icon-theme"
-        BUILD_TARGETS="task-base task-boot \
-                       task-opie task-opie-all \
-                       angstrom-x11-base-depends angstrom-gpe-task-settings \
+        BUILD_TARGETS="packagegroup-base packagegroup-boot \
+                       packagegroup-opie packagegroup-opie-all \
+                       angstrom-x11-base-depends angstrom-gpe-packagegroup-settings \
                        xserver-xorg-conf \ 
                        "
 
