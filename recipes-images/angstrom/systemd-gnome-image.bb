@@ -5,7 +5,7 @@ IMAGE_INSTALL += " \
 	packagegroup-gnome-apps \
 	packagegroup-gnome-themes \
 	packagegroup-gnome-xserver-base \
-	packagegroup-xserver \
+	packagegroup-core-x11-xserver \
 	packagegroup-gnome-fonts \
 "
 

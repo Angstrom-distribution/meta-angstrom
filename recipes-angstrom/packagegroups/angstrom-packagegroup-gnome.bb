@@ -16,6 +16,6 @@ RDEPENDS_${PN} = " \
 "
 
 RRECOMMENDS_${PN} = " \
-   packagegroup-xserver \
+   packagegroup-core-x11-xserver \
 "
 
