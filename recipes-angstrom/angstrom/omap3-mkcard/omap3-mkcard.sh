@@ -1,1 +1,0 @@
-../../../contrib/angstrom/omap3-mkcard.sh
