@@ -1,4 +1,4 @@
-PRINC := "${@int(PRINC) + 3}"
+PRINC := "${@int(PRINC) + 4}"
 DEPENDS += "orc orc-native"
-EXTRA_OECONF += "--enable-orc"
+EXTRA_OECONF =  "--disable-vdpau --disable-apexsink --enable-experimental --enable-orc"
 
