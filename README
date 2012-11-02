@@ -6,7 +6,7 @@ revision: HEAD
 
 And the layers found in the meta-openembedded repo. At least 'meta-oe' and 'meta-systemd' are needed. The instructions below will take care of everything automagically.
 
-URI: git://git.openembedded.net/meta-openembedded
+URI: git://git.openembedded.org/meta-openembedded
 branch: master
 revision: HEAD
 
@@ -17,6 +17,14 @@ revision: HEAD
 It is recommended to follow the instruction at http://www.angstrom-distribution.org/building-angstrom
 
 This will set it up for the OpenEmbedded-core layout needed for this layer instead of the old OpenEmbedded-dev layout.
+
+==============================
+       Test Reports
+==============================
+
+To see which machines and packages were successfully built, check the buildhistory git repository:
+
+https://github.com/Angstrom-distribution/buildhistory
 
 ==============================
           Patches
