@@ -44,23 +44,6 @@ PREFERRED_PROVIDER_virtual/libx11 = "libx11"
 PREFERRED_PROVIDER_virtual/xserver-xf86 = "xserver-xorg"
 PREFERRED_PROVIDER_virtual/xserver = "xserver-xorg"
 
-XSERVER_qemux86 = "xserver-xorg \
-                   mesa-dri-driver-swrast \
-                   xf86-input-vmmouse \
-                   xf86-input-keyboard \
-                   xf86-input-evdev \
-                   xf86-video-vmware \
-                   qemugl"
-
-XSERVER_qemux86-64 = "xserver-xorg \
-                      mesa-dri-driver-swrast \
-                      xf86-input-vmmouse \
-                      xf86-input-keyboard \
-                      xf86-input-evdev \
-                      xf86-video-vmware \
-                      qemugl"
-
-
 # bitbake.conf stuff:
 
 TOOLCHAIN_PATH ?= "${STAGING_DIR_NATIVE}${prefix_native}/bin/${TUNE_PKGARCH}${HOST_VENDOR}-${HOST_OS}"
@@ -78,7 +61,7 @@ FILESYSTEM_PERMS_TABLES = "fs-perms-angstrom.txt"
 #
 # udev, devfsd, busybox-mdev (from busybox) or none
 #
-IMAGE_DEV_MANAGER ?= "${@base_contains("MACHINE_FEATURES", "kernel26",  "udev","",d)} "
+IMAGE_DEV_MANAGER ?= "udev"
 #
 # sysvinit, upstart, systemd
 #
