@@ -1,4 +1,4 @@
-ANGSTROM_MESA_VERSION = "8.0.5%"
+ANGSTROM_MESA_VERSION = "9.0.1"
 ANGSTROM_QT_VERSION ?= "4.8.4"
 
 PREFERRED_VERSION_gobject-introspection-native = "0.9.10"
