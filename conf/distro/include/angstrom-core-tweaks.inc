@@ -22,6 +22,9 @@ PRINC ??= "0"
 # Shared state fixups
 MACHINEOVERRIDES[vardepsexclude] += "SOC_FAMILY"
 
+# Fix kernel
+KEEPUIMAGE = ""
+
 # Tuning and package arch compatibility
 
 # Turn armv7a-vfp-neon into armv7a for compatibility reasons
