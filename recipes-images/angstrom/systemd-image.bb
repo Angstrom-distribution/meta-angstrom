@@ -26,4 +26,22 @@ IMAGE_LOGIN_MANAGER = "tinylogin shadow"
 
 export IMAGE_BASENAME = "systemd-image"
 
+# For some unknown reason some initscripts break PAM, so just delete them
+# This is a HACK, the offending script(s) need to get fixed, not deleted.
+# And yes, this breaks on package upgrade
+
+delete_sysvinit_scripts() {
+	if [ -d ${IMAGE_ROOTFS}${sysconfdir}/init.d ] ; then
+		echo "Deleting sysv scripts from ${IMAGE_ROOTFS}"
+		# known offenders
+		for sysv in networking ofono syslog syslog.busybox banner.sh bootmisc.sh checkroot.sh devpts.sh fuse halt hostname.sh keymap.sh mountall.sh mountall.sh mountnfs.sh populate-volatile.sh rmnologin.sh save-rtc.sh sendsigs sysfs.sh umountfs umountnfs.sh urandom ; do
+			rm -f ${IMAGE_ROOTFS}${sysconfdir}/init.d/$sysv
+		done 
+		# the rest
+		find ${IMAGE_ROOTFS}${sysconfdir}/init.d/* | sed 's:${IMAGE_ROOTFS}${sysconfdir}/init.d/::g' | grep -v function | xargs echo
+	fi
+}
+
+ROOTFS_POSTPROCESS_COMMAND += "delete_sysvinit_scripts ; "
+
 inherit image
