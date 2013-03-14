@@ -1,6 +1,6 @@
 PRINC := "${@int(PRINC) + 3}"
 DEPENDS += "orc orc-native"
-EXTRA_OECONF =  "--disable-directfb --disable-examples --disable-vdpau --disable-apexsink --enable-experimental --enable-orc"
+EXTRA_OECONF =  "--disable-directfb --disable-examples --disable-vdpau --disable-apexsink --enable-experimental --enable-orc --disable-eglgles"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
