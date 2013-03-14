@@ -1,0 +1,27 @@
+From 74daa0b098fc448eddd81844e48335d1d40f03d9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tim-Philipp=20M=C3=BCller?= <tim.muller@collabora.co.uk>
+Date: Wed, 31 Oct 2012 11:38:32 +0000
+Subject: [PATCH 2/2] configure: opencv plugin builds with newer versions up to
+ 2.4.2 as well
+
+https://bugzilla.gnome.org/show_bug.cgi?id=687237
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 19a8ff4..ed55db0 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1552,7 +1552,7 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
+   dnl a new version and the no-backward-compatibility define. (There doesn't
+   dnl seem to be a switch to suppress the warnings the cvcompat.h header
+   dnl causes.)
+-  PKG_CHECK_MODULES(OPENCV, opencv >= 2.0.0 opencv <= 2.3.1 , [
++  PKG_CHECK_MODULES(OPENCV, opencv >= 2.0.0 opencv <= 2.4.2 , [
+     AC_PROG_CXX
+     AC_LANG([C++])
+     OLD_CPPFLAGS=$CPPFLAGS
+-- 
+1.8.1.4
+
