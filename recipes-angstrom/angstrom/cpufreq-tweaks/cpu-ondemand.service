@@ -1,0 +1,6 @@
+[Unit]
+Description=Switch to ondemand CPU-freq governor
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/cpufreq-set -g ondemand
