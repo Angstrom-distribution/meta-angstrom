@@ -1,6 +1,6 @@
-PRINC := "${@int(PRINC) + 2}"
-DEPENDS += "orc orc-native"
-EXTRA_OECONF += "--enable-orc"
+PRINC := "${@int(PRINC) + 3}"
+DEPENDS += "pango orc orc-native"
+EXTRA_OECONF += "--enable-orc --enable-pango"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
