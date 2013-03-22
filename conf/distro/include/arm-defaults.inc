@@ -1,0 +1,2 @@
+DEFAULTTUNE_beagleboard = "cortexa8hf-neon"
+DEFAULTTUNE_beaglebone = "cortexa8hf-neon"
