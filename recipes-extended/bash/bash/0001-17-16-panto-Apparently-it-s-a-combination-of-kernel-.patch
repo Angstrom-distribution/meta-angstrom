@@ -1,0 +1,46 @@
+From 8a9f66f59dd73678fd1e0d4c21a963c1c84ec87f Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@gmail.com>
+Date: Mon, 1 Apr 2013 17:21:00 +0200
+Subject: [PATCH] fix sigalarm handler 
+
+17:16 < panto> Apparently it's a combination of kernel/libc/bash version problem 
+17:17 < panto> ok, so you have the read builtin in bash which takes a timeout argument 
+17:17 < panto> it is internally implemented by calling setitimer (which queues a SIGALRM) 
+17:18 < panto> the bash implementation uses a longjmp from within the signal handler
+17:18 < panto> the problem is that SIGALRM is blocked while in the signal handler 
+17:18 < panto> longjmp'ing out, the signal mask is not modified  accordingly after the exit, which on return clears the signal 
+17:19 < panto> glibc probably has longjmp==siglongjmp 
+17:19 < panto> eglibc doesn't 
+17:19 < panto> so you get the first timeout, but the second is never delivered since SIGLARM is blocked
+
+Upstream-status: Unknown
+
+---
+ builtins/read.def | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/builtins/read.def b/builtins/read.def
+index c4a668a..a323784 100644
+--- a/builtins/read.def
++++ b/builtins/read.def
+@@ -135,7 +135,7 @@ static sighandler
+ sigalrm (s)
+      int s;
+ {
+-  longjmp (alrmbuf, 1);
++  siglongjmp (alrmbuf, 1);
+ }
+ 
+ static void
+@@ -380,7 +380,7 @@ read_builtin (list)
+ 
+   if (tmsec > 0 || tmusec > 0)
+     {
+-      code = setjmp (alrmbuf);
++      code = sigsetjmp (alrmbuf, 1);
+       if (code)
+ 	{
+ 	  /* Tricky.  The top of the unwind-protect stack is the free of
+-- 
+1.8.1.4
+
