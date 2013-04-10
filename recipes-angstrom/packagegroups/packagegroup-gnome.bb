@@ -13,7 +13,7 @@ RDEPENDS_${PN} = " \
   gdm angstrom-gdm-autologin-hack \
   gnome-power-manager \
   gnome-bluetooth \
-  gnome-panel \
+  gnome-panel gnome-applets \
   gtk-engine-clearlooks gtk-theme-clearlooks angstrom-clearlooks-theme-enable \
   upower udisks \
   gnome-disk-utility \
