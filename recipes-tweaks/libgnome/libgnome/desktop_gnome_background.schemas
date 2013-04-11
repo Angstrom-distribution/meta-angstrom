@@ -5,7 +5,7 @@
         <applyto>/desktop/gnome/background/draw_background</applyto>
         <owner>gnome</owner>
         <type>bool</type>
-        <>true</default>
+        <default>true</default>
         <locale name="C">
         <short>Draw Desktop Background</short>
         <long>Have GNOME draw the desktop background.</long>
