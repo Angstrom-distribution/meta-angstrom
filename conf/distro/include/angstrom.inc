@@ -162,6 +162,7 @@ DISTRO_FEATURES_BACKFILL_CONSIDERED_append = " sysvinit"
 # USE-flag like features
 DISTRO_FEATURES += "tk"
 DISTRO_FEATURES += "x11"
+DISTRO_FEATURES += "wayland"
 DISTRO_FEATURES += "3g"
 DISTRO_FEATURES += "pulseaudio"
 
