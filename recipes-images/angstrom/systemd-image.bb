@@ -8,7 +8,7 @@ IMAGE_PREPROCESS_COMMAND = "rootfs_update_timestamp"
 DISTRO_UPDATE_ALTERNATIVES ??= ""
 ROOTFS_PKGMANAGE_PKGS ?= '${@base_conditional("ONLINE_PACKAGE_MANAGEMENT", "none", "", "${ROOTFS_PKGMANAGE} ${DISTRO_UPDATE_ALTERNATIVES}", d)}'
 
-CONMANPKGS ?= "connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd"
+CONMANPKGS ?= "connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman"
 CONMANPKGS_libc-uclibc = ""
 
 IMAGE_INSTALL += " \
@@ -16,7 +16,6 @@ IMAGE_INSTALL += " \
 	packagegroup-basic \
 	${CONMANPKGS} \
 	${ROOTFS_PKGMANAGE_PKGS} \
-	timestamp-service \
 "
 
 IMAGE_DEV_MANAGER   = "udev"
