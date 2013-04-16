@@ -1,5 +1,8 @@
 # This include is to import changes from OE that are hard to overlay into core
 
+# Use seperate builddir for autotools stuff
+include conf/distro/include/seperatebuilddir.inc
+
 # Default hash policy for distro
 BB_SIGNATURE_HANDLER ?= "OEBasicHash"
 
