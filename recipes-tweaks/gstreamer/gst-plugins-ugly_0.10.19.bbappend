@@ -14,10 +14,10 @@ S = "${WORKDIR}/git"
 
 # Yes, that breaks offline builds
 do_configure_prepend() {
-	cd ${S}
+	( cd ${S}
 	git submodule init
 	git submodule update
-	cp ${WORKDIR}/remove-pot* ${S}/po/
+	cp ${WORKDIR}/remove-pot* ${S}/po/ )
 }
 
 do_configure_append() {

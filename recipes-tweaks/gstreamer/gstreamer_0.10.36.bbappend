@@ -9,8 +9,8 @@ S = "${WORKDIR}/git"
 
 # Yes, that breaks offline builds
 do_configure_prepend() {
-	cd ${S}
+	( cd ${S}
 	git submodule init
-	git submodule update
+	git submodule update )
 }
 
