@@ -17,6 +17,5 @@ DEPENDS_${PN} = " \
 "
 
 RDEPENDS_${PN} = " \
-  gst-ffmpeg \
   gst-plugins-base-meta \
 "
