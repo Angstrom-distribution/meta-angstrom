@@ -1,0 +1,1 @@
+KERNEL=="eth*", ACTION=="add", ATTR{address}=="00:00:00:00:00:00", RUN += "/usr/bin/fixmac.sh %k"
