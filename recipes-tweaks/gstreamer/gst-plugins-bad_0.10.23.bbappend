@@ -25,3 +25,5 @@ do_configure_prepend() {
 do_configure_append() {
 	sed -i -e 's:POTFILES.in remove-potcdate.sed:POTFILES.in:' ${B}/po/Makefile
 }
+
+ALLOW_EMPTY_${PN}-glib = "1"
