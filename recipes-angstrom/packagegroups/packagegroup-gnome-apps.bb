@@ -8,7 +8,9 @@ inherit packagegroup
 
 RDEPENDS_${PN} = " \
   x11vnc \
-  matchbox-terminal \
+  xfce4-terminal \
   epiphany \
   gedit \
+  cheese \
+  abiword \
 "
