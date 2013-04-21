@@ -7,6 +7,7 @@ PR = "r13"
 inherit packagegroup
 
 RDEPENDS_${PN} = " \
+  gsettings-desktop-schemas \
   gnome-settings-daemon gnome-control-center \
   gnome-keyring \
   angstrom-gdm-autologin-hack \
