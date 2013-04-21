@@ -14,5 +14,6 @@ do_configure_prepend() {
 	git submodule update )
 }
 
+ALLOW_EMPTY_${PN}-apps = "1"
 ALLOW_EMPTY_${PN}-glib = "1"
 
