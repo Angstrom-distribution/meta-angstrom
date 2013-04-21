@@ -7,6 +7,7 @@ PR = "r14"
 inherit packagegroup
 
 RDEPENDS_${PN} = " \
+  gsettings-desktop-schemas \
   gnome-settings-daemon gnome-control-center \
   gnome-keyring \
   gdm angstrom-gdm-autologin-hack \
