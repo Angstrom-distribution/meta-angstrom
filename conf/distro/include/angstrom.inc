@@ -157,7 +157,8 @@ DISTRO_CHECK := "${@bb.data.getVar("DISTRO_VERSION",d,1) or bb.fatal('Remove thi
 DISTRO_FEATURES = "alsa argp bluetooth ext2 ipv4 ipv6 irda largefile nfs pam pci pcmcia ppp smbfs systemd usbgadget usbhost vfat wifi xattr zeroconf"
 
 # Disable sysvinit for recipes with systemd support
-DISTRO_FEATURES_BACKFILL_CONSIDERED_append = " sysvinit"
+DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
+VIRTUAL-RUNTIME_init_manager = "systemd"
 
 # USE-flag like features
 DISTRO_FEATURES += "tk"
