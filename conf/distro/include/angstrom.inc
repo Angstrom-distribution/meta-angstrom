@@ -159,6 +159,8 @@ DISTRO_FEATURES = "alsa argp bluetooth ext2 ipv4 ipv6 irda largefile nfs pam pci
 # Disable sysvinit for recipes with systemd support
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 VIRTUAL-RUNTIME_init_manager = "systemd"
+# Uncomment to completely disable support for sysv scripts:
+#PACKAGECONFIG_pn-systemd = "xz"
 
 # USE-flag like features
 DISTRO_FEATURES += "tk"
