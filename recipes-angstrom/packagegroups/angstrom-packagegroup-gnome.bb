@@ -7,6 +7,7 @@ PR = "r13"
 inherit packagegroup
 
 RDEPENDS_${PN} = " \
+  gconf-sanity \
   packagegroup-gnome-fonts \
   packagegroup-gnome \
   packagegroup-gnome-gstreamer \
