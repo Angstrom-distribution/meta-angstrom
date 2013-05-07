@@ -9,7 +9,7 @@ inherit packagegroup
 RDEPENDS_${PN} = " \
   gnome-settings-daemon gnome-control-center \
   gnome-keyring \
-  gdm-systemd angstrom-gdm-autologin-hack \
+  angstrom-gdm-autologin-hack \
   gnome-power-manager \
   gnome-bluetooth \
   gnome-panel \
