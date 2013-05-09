@@ -3,6 +3,7 @@ require systemd-image.bb
 IMAGE_INSTALL += " \
 	xinput-calibrator \
 	systemd-analyze \
+	gconf-sanity \
 	packagegroup-gnome \
 	packagegroup-gnome-apps \
 	packagegroup-gnome-themes \
