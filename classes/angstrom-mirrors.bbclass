@@ -1,15 +1,15 @@
 PREMIRRORS_append () {
-cvs://.*/.* http://sources.angstrom-distribution.org/
-svn://.*/.* http://sources.angstrom-distribution.org/
-git://.*/.* http://sources.angstrom-distribution.org/
-hg://.*/.*  http://sources.angstrom-distribution.org/
-bzr://.*/.* http://sources.angstrom-distribution.org/
-osc://.*/.* http://sources.angstrom-distribution.org/
-p4://.*/.*  http://sources.angstrom-distribution.org/
-svk://.*/.* http://sources.angstrom-distribution.org/
+cvs://.*/.* http://sources.angstrom-distribution.org/v2013.06/
+svn://.*/.* http://sources.angstrom-distribution.org/v2013.06/
+git://.*/.* http://sources.angstrom-distribution.org/v2013.06/
+hg://.*/.*  http://sources.angstrom-distribution.org/v2013.06/
+bzr://.*/.* http://sources.angstrom-distribution.org/v2013.06/
+osc://.*/.* http://sources.angstrom-distribution.org/v2013.06/
+p4://.*/.*  http://sources.angstrom-distribution.org/v2013.06/
+svk://.*/.* http://sources.angstrom-distribution.org/v2013.06/
 }
 
 MIRRORS_append () {
-ftp://.*/.*	http://sources.angstrom-distribution.org/
-https?$://.*/.*	http://sources.angstrom-distribution.org/
+ftp://.*/.*	http://sources.angstrom-distribution.org/v2013.06/
+https?$://.*/.*	http://sources.angstrom-distribution.org/v2013.06/
 }
