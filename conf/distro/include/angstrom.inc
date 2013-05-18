@@ -38,6 +38,7 @@ TCLIBC ?= "eglibc"
 
 # The things *libc can provide.
 PREFERRED_PROVIDER_virtual/libc = "${TCLIBC}"
+PREFERRED_PROVIDER_eglibc = "eglibc"
 PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial = "${TCLIBC}-initial"
 PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc = "${TCLIBC}"
 
