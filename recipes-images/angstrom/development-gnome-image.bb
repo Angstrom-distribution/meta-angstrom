@@ -47,7 +47,7 @@ IMAGE_INSTALL += " \
 	screen \
 	minicom \
 	rsync \
-	vim vimrc \
+	vim vim-vimrc \
 	${ARCHTOOLS} \
 	\
 	git \
