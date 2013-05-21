@@ -44,9 +44,15 @@ IMAGE_INSTALL += " \
 	ethtool \
 	bridge-utils \
 	wget \
+	screen \
+	minicom \
+	rsync \
+	vim vimrc \
 	${ARCHTOOLS} \
 	\
 	git \
+	\
+	python-core python-modules \
 "
 
 export IMAGE_BASENAME = "development-GNOME-image"
