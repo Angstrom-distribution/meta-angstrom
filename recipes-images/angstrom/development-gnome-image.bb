@@ -52,6 +52,12 @@ IMAGE_INSTALL += " \
 	\
 	git \
 	\
+	e2fsprogs-mke2fs \
+	dosfstools \
+	parted \
+	xfsprogs \
+	btrfs-tools \
+	\
 	python-core python-modules \
 "
 
