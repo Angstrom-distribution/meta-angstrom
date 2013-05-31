@@ -1,0 +1,13 @@
+[global]
+# The Angstrom ntp server pool is strictly for non-commercial user only!
+# If you are building a commercial product using Angstrom you MUST obtain your
+# own vendor pool, see http://www.pool.ntp.org/vendors/contribute.html.
+Timeservers=0.angstrom.pool.ntp.org;1.angstrom.pool.ntp.org;2.angstrom.pool.ntp.org;3.angstrom.pool.ntp.org
+
+# Enable wired by default on Angstrom devices
+[Wired]
+Enable=true
+
+# Enable wireless by default on Angstrom devices
+[WiFi]
+Enable=true
