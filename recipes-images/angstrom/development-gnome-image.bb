@@ -1,6 +1,6 @@
 # Image with a GNOME2 desktop and various tools installed
 
-CONMANPKGS = "connman connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-systemd connman-gnome"
+CONMANPKGS = "connman connman-angstrom-settings connman-plugin-loopback connman-plugin-ethernet connman-plugin-wifi connman-gnome"
 
 require systemd-image.bb
 
