@@ -1,16 +1,18 @@
 DESCRIPTION = "Userspace framebuffer boot logo based on usplash."
-+HOMEPAGE = "http://git.yoctoproject.org/cgit/cgit.cgi/psplash"
+HOMEPAGE = "http://git.yoctoproject.org/cgit/cgit.cgi/psplash"
 SECTION = "base"
 LICENSE = "GPLv2+"
-LIC_FILES_CHKSUM = "file://psplash.h;md5=a87c39812c1e37f3451567cc29a29c8f"
+LIC_FILES_CHKSUM = "file://psplash.h;md5=89004674feba6dcfe7fbb8baccb58205"
 
 PROVIDES = "virtual/psplash"
 RPROVIDES_${PN} = "virtual-psplash"
 RCONFLICTS_${PN} = "exquisite"
 
-SRCREV = "e05374aae945bcfc6d962ed0d7b2774b77987e1d"
+SRCREV = "afd4e228c606a9998feae44a3fed4474803240b7"
 PV = "0.1+git${SRCPV}"
 PR = "r1"
+
+SRC_URI = "git://git.yoctoproject.org/psplash;protocol=git"
 
 # You can create your own pslash-poky-img.h by doing
 # ./make-image-header.sh <file>.png POKY

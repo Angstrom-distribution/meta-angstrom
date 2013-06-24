@@ -9,7 +9,7 @@ ALTERNATIVE_PRIORITY = "20"
 # respectively psplash-bar-img.h (BAR) for the bar.
 # You might also want to patch the colors (see patch)
 
-SRC_URI = "git://git.yoctoproject.org/${BPN};protocol=git \
+SRC_URI += "\
           file://psplash-18bpp.patch \
           file://0001-configurability-for-rev-422.patch \
           file://psplash-poky-img.h \

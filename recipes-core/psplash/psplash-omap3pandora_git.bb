@@ -10,7 +10,7 @@ ALTERNATIVE_PRIORITY_omap3pandora = "5"
 # respectively psplash-bar-img.h (BAR) for the bar.
 # You might also want to patch the colors (see patch)
 
-SRC_URI = "git://git.yoctoproject.org/${BPN};protocol=git \
+SRC_URI += "\
           file://psplash-poky-img.h \
           file://psplash-bar-img.h \
           file://psplash-default \
