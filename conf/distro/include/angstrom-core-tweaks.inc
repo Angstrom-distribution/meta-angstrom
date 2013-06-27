@@ -68,9 +68,9 @@ IMAGE_DEV_MANAGER ?= "udev"
 IMAGE_INIT_MANAGER ?= "systemd"
 IMAGE_INITSCRIPTS ?= "systemd-compat-units"
 #
-# tinylogin, getty
+# busybox, getty
 #
-IMAGE_LOGIN_MANAGER ?= "tinylogin"
+IMAGE_LOGIN_MANAGER ?= "busybox"
 
 # set sane default for the SPLASH variable
 SPLASH ?= ""

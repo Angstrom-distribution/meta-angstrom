@@ -22,7 +22,7 @@ IMAGE_INSTALL += " \
 IMAGE_DEV_MANAGER   = "udev"
 IMAGE_INIT_MANAGER  = "systemd"
 IMAGE_INITSCRIPTS   = " "
-IMAGE_LOGIN_MANAGER = "tinylogin shadow"
+IMAGE_LOGIN_MANAGER = "busybox shadow"
 
 export IMAGE_BASENAME = "systemd-image"
 
