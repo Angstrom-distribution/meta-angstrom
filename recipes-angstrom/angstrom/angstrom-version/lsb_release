@@ -9,6 +9,10 @@ case $1 in
 "-i")
 	echo "Distributor ID: Angstrom"
 	;;
+"-ir")
+	echo "Distributor ID: Angstrom"
+	echo "Release:        $VERSION"
+	;;
 "-irc")
 	echo "Distributor ID: Angstrom"
 	echo "Release:        $VERSION"
@@ -19,6 +23,10 @@ case $1 in
 	;;
 "-r")
 	echo "Release:        $VERSION"
+	;;
+"-ri")
+	echo "Release:        $VERSION"
+	echo "Distributor ID: Angstrom"
 	;;
 "-c")
 	echo "Codename:       $CODENAME"
@@ -31,6 +39,9 @@ case $1 in
 	;;
 "-s")
 	echo "No LSB modules are available."
+	;;
+"-sc")
+	echo "$CODENAME"
 	;;
 *)
 	echo "Usage: lsb_release [options]"
