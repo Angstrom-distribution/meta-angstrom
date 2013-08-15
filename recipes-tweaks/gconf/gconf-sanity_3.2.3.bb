@@ -31,5 +31,6 @@ do_install_append() {
 # disable dbus-x11 when x11 isn't in DISTRO_FEATURES
 RDEPENDS_${PN} += "gconf"
 
+ALLOW_EMPTY_${PN} = "1"
 FILES_${PN} += "${libexecdir}/*sanity* \
                "
