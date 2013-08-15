@@ -17,6 +17,7 @@ IMAGE_INSTALL += " \
 	${CONMANPKGS} \
 	${ROOTFS_PKGMANAGE_PKGS} update-alternatives-cworth \
 	systemd-analyze \
+	fixmac \
 "
 
 IMAGE_DEV_MANAGER   = "udev"
