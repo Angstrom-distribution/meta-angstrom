@@ -24,8 +24,13 @@ EXTRA_OECONF = "--enable-shared --disable-static --enable-debug=yes \
 
 do_install_append() {
 	rm -rf ${D}${sysconfdir}
-	rm -rf ${D}${bindir} ${D}${libdir} ${D}${includedir} ${D}${datadir}
+	rm -rf ${D}${bindir} ${D}${includedir} ${D}${datadir}
 	rm -f ${D}${libexecdir}/*defaults* rm -f ${D}${libexecdir}/gconfd*
+	rm -rf ${D}${libdir}/pkgconfig ${D}${libdir}/GConf ${D}${libdir}/gio ${D}${libdir}/lib*
+
+	# hardcoded somewhere in gdm
+	install -d ${D}${prefix}/libexec
+	ln -sf ${libexecdir}/gconf-sanity-check-2 ${D}${prefix}/libexec/
 }
 
 # disable dbus-x11 when x11 isn't in DISTRO_FEATURES
@@ -33,4 +38,5 @@ RDEPENDS_${PN} += "gconf"
 
 ALLOW_EMPTY_${PN} = "1"
 FILES_${PN} += "${libexecdir}/*sanity* \
+                ${prefix}/libexec/ \
                "
