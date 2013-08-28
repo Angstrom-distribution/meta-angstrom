@@ -8,9 +8,11 @@ inherit packagegroup
 
 RDEPENDS_${PN} = " \
   x11vnc \
-  xfce4-terminal \
+  gnome-terminal \
   epiphany \
   gedit \
   cheese \
   abiword \
+  gnumeric \
+  gimp \
 "
