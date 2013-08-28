@@ -18,6 +18,7 @@ IMAGE_INSTALL += " \
 	${ROOTFS_PKGMANAGE_PKGS} update-alternatives-cworth \
 	systemd-analyze \
 	fixmac \
+	cpufreq-tweaks \
 "
 
 IMAGE_DEV_MANAGER   = "udev"
