@@ -16,6 +16,7 @@ IMAGE_INSTALL += " \
 	packagegroup-basic \
 	${CONMANPKGS} \
 	${ROOTFS_PKGMANAGE_PKGS} \
+	cpufreq-tweaks \
 "
 
 IMAGE_DEV_MANAGER   = "udev"
