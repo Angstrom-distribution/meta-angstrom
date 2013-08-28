@@ -10,7 +10,6 @@ ARCHTOOLS_x86 = "dmidecode"
 IMAGE_INSTALL += " \
 	xinput-calibrator \
 	systemd-analyze \
-	gconf-sanity \
 	packagegroup-gnome \
 	packagegroup-gnome-apps \
 	packagegroup-gnome-themes \
