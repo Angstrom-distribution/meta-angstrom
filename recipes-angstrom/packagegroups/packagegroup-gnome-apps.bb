@@ -7,6 +7,10 @@ PR = "r14"
 inherit packagegroup
 
 RDEPENDS_${PN} = " \
+  abiword \
+  gnumeric \
+  gimp \
+  inkscape \
   x11vnc \
   xfce-terminal \
   epiphany \
