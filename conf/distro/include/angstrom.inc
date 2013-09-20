@@ -170,10 +170,7 @@ DISTRO_FEATURES += "3g"
 DISTRO_FEATURES += "pulseaudio"
 
 # OpenGL support
-DISTRO_GLFEATURES_x86 = "opengl"
-DISTRO_GLFEATURES    ?= ""
-
-DISTRO_FEATURES += "${DISTRO_GLFEATURES}"
+DISTRO_FEATURES += "opengl"
 
 # Inherit the default LIBC features superset from OE-core
 DISTRO_FEATURES += "${DISTRO_FEATURES_LIBC}"
