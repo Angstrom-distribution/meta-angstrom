@@ -27,6 +27,17 @@ To see which machines and packages were successfully built, check the buildhisto
 https://github.com/Angstrom-distribution/buildhistory
 
 ==============================
+       Branching
+==============================
+
+When branching 'master' for a release ensure that:
+
+	1) conf/distro/angstrom-${VERSION}.conf is created
+	2) DISTRO_VERSION is set to vYYYY.MM (e.g. 2014.06)
+	3) classes/angstrom-mirrors.bbclass is pointing to the correct source mirror
+	4) recipes-angstrom/angstrom/angstrom-feed-configs.bb has PV = "${DISTRO_VERSION}" 
+
+==============================
           Patches
 ==============================
 
