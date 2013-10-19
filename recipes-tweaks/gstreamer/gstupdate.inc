@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:${THISDIR}/files"
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:${THISDIR}/files:"
 PRINC := "${@int(PRINC) + 5}"
 
 SRC_URI += " \
