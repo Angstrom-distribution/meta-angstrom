@@ -3,7 +3,7 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
 PV = "${DISTRO_VERSION}"
-PR = "r16"
+PR = "r17"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 FEED_BASEPATH ?= "unstable/feed/"
@@ -36,6 +36,11 @@ do_compile() {
 do_install () {
 	install -d ${D}${sysconfdir}/opkg
 	install -m 0644  ${S}/${sysconfdir}/opkg/* ${D}${sysconfdir}/opkg/
+
+	# Info needed for narcissus
+	mkdir -p ${DEPLOY_DIR}/narcissus/
+	echo "${MACHINE},${MACHINE_ARCH},${FEED_ARCH},${DISTRO_VERSION}" >> ${DEPLOY_DIR}/narcissus/machines
+	cat ${DEPLOY_DIR}/narcissus/machines | sort | uniq > ${DEPLOY_DIR}/narcissus/unqiue-machines 
 }
 
 FILES_${PN} = "${sysconfdir}/opkg/base-feed.conf \
