@@ -122,7 +122,7 @@ require conf/distro/include/angstrom-package-${ANGSTROM_PKG_FORMAT}.inc
 #
 # so for machines which do not define it lets define it to be empty
 
-MACHINE_KERNEL_PR ??= ""
+MACHINE_KERNEL_PR ??= "r0"
 
 # We don't want to keep OABI compat
 ARM_KEEP_OABI = "0"
