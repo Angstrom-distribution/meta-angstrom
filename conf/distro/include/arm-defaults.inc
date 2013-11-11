@@ -1,23 +1,22 @@
-# Use 'hardfloat' for ARMv7A machines
+# This function changes the default tune for machines which
+# are based on armv7a to use common tune value, note that we enforce hard-float
+# which is default on Ångström for armv7+
+# so if you have one of those machines which are armv7a but can't support
+# hard-float, please change tune = 'armv7athf' to tune = 'armv7at'
+# below but then this is for your own distro, Ångström will not support
+# it
+# - Khem
 
-DEFAULTTUNE_am335x-evm = "armv7athf-neon"
-DEFAULTTUNE_am3517-evm = "armv7athf-neon"
-DEFAULTTUNE_am37x-evm = "armv7athf-neon"
-DEFAULTTUNE_beagleboard = "armv7athf-neon"
-DEFAULTTUNE_beaglebone = "armv7athf-neon"
-DEFAULTTUNE_dra7xx-evm = "armv7athf-neon"
-DEFAULTTUNE_efikamx = "armv7athf-neon"
-DEFAULTTUNE_genericarmv7a = "armv7athf-neon"
-DEFAULTTUNE_hpveer = "armv7athf-neon"
-DEFAULTTUNE_htcleo = "armv7athf-neon"
-DEFAULTTUNE_keystone-evm = "armv7athf-neon"
-DEFAULTTUNE_nexusone = "armv7athf-neon"
-DEFAULTTUNE_nokia900 = "armv7athf-neon"
-DEFAULTTUNE_omap3evm = "armv7athf-neon"
-DEFAULTTUNE_omap5-evm = "armv7athf-neon"
-DEFAULTTUNE_om-gta04 = "armv7athf-neon"
-DEFAULTTUNE_overo = "armv7athf-neon"
-DEFAULTTUNE_pandaboard = "armv7athf-neon"
+def arm_tune_handler(d):
+    features = d.getVar('TUNE_FEATURES', True).split()
+    if 'armv7a' in features:
+        tune = 'armv7athf'
+        if 'bigendian' in features:
+            tune += 'b'
+        if 'neon' in features:
+            tune += '-neon'
+    else:
+        tune = d.getVar('DEFAULTTUNE', True)
+    return tune
 
-DEFAULTTUNE_genericarmv7ab = "armv7athfb-neon"
-
+DEFAULTTUNE := "${@arm_tune_handler(d)}"
