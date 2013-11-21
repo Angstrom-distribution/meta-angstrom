@@ -101,3 +101,8 @@ PREFERRED_PROVIDER_libtool = "libtool"
 
 SDK_NAME = "${DISTRO}-${TCLIBC}-${SDK_ARCH}-${FEED_ARCH}"
 TOOLCHAIN_OUTPUTNAME ?= "${SDK_NAME}-${DISTRO_VERSION}-toolchain"
+
+FREESMARTPHONE_GIT = "git://git.freesmartphone.org"
+E_MIRROR = "http://download.enlightenment.org/releases"
+FREEBSD_MIRROR = "ftp://ftp.freebsd.org/pub/FreeBSD/"
+E_SVN = "svn://svn.enlightenment.org/svn/e"
