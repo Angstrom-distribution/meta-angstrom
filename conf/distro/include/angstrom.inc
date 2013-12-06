@@ -61,7 +61,11 @@ require conf/distro/include/angstrom-jalimo.conf
 # Angstrom turns on thumb for armv4t machine according to this RFC:
 # http://lists.linuxtogo.org/pipermail/angstrom-distro-devel/2008-October/002714.html
 
-ARM_INSTRUCTION_SET ?= "arm"
+ARM_INSTRUCTION_SET ??= "thumb"
+ARM_INSTRUCTION_SET_armv4t ?= "arm"
+ARM_INSTRUCTION_SET_armv5te ?= "arm"
+ARM_INSTRUCTION_SET_armv6 ?= "arm"
+
 # "arm" "thumb"
 #    The instruction set the compiler should use when generating application
 #    code.  The kernel is always compiled with arm code at present.  arm code
