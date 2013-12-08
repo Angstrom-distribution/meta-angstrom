@@ -44,9 +44,9 @@ do_install_prepend() {
 }
 
 INITSCRIPT_NAME = "psplash"
-INITSCRIPT_PARAMS = "start 01 S . stop 20 0 1 6 ."
+INITSCRIPT_PARAMS = "start 0 S . stop 20 0 1 6 ."
 
-PACKAGES =+ "psplash-support"
+PACKAGES =+ "${PN}-support"
 
-RDEPENDS_${PN} += "psplash-support"
-FILES_psplash-support += "/mnt/.splash ${sysconfdir} ${bindir}/psplash-write ${bindir}/splash-write"
+RDEPENDS_${PN} += "${PN}-support"
+FILES_${PN}-support += "/mnt/.splash ${sysconfdir} ${bindir}/psplash-write ${bindir}/splash-write"

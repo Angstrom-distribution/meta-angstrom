@@ -1,11 +1,18 @@
 #!/bin/sh 
+### BEGIN INIT INFO
+# Provides:             psplash
+# Required-Start:
+# Required-Stop:
+# Default-Start:        S
+# Default-Stop:
+### END INIT INF
 
 if grep -qE '\s?psplash=false\s?' /proc/cmdline; then
 	echo "Boot splashscreen disabled"
 	exit 0;
 fi
 
-. /etc/init.d/functions
+. /etc/default/splashfuncs
 . /etc/default/psplash
 
 case `machine_id` in

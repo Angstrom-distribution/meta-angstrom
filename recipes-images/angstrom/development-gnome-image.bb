@@ -4,6 +4,7 @@ CONMANPKGS = "connman connman-angstrom-settings connman-plugin-loopback connman-
 
 require systemd-image.bb
 
+EXTRA_IMAGE_FEATURES += "splash"
 ARCHTOOLS = ""
 ARCHTOOLS_x86 = "dmidecode"
 

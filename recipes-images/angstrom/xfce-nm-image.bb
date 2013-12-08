@@ -2,6 +2,8 @@ require systemd-image.bb
 
 CONMANPKGS = "networkmanager network-manager-applet"
 
+EXTRA_IMAGE_FEATURES += "splash"
+
 IMAGE_INSTALL += " \
 	packagegroup-xfce-base \
 	packagegroup-gnome-xserver-base \

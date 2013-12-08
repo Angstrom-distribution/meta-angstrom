@@ -1,5 +1,7 @@
 require systemd-image.bb
 
+EXTRA_IMAGE_FEATURES += "splash"
+
 IMAGE_INSTALL += " \
 	xinput-calibrator \
 	systemd-analyze \
