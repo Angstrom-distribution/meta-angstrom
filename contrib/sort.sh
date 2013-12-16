@@ -152,20 +152,29 @@ else
 fi
 
 sortmachines=""
-for machine in $((echo $machines ; echo $machines | sed s:-:_:g) | sed -e s:\ :\\n: | sort | uniq) ;  do
+for machine in $((echo $machines ; echo $machines | sed s:-:_:g) | sed -e s:\ :\\n:g | sort | uniq) ;  do
 	if [ $(find . -name  "*_$machine.ipk"| wc -l) -gt 0 ] ; then
 		export sortmachines="$sortmachines $machine"
 	fi
 done
 
-echo "Sorting $arch"
+if [ -n "$sortmachines" ] ; then
+	echo "Sorting $arch and the following machines: $sortmachines"
+else
+	echo "Sorting $arch"
+fi
 
 mkdir -p ../$archdir/base/ || true
-for i in `find . -name  "*_$arch.ipk"` ; do mv $i ../$archdir/base/ ; done
-	for machine in $sortmachines ; do
-		mkdir -p ../$archdir/machine/$machine || true ;mv $i ../$archdir/machine/$machine
-	done
+for ipk in `find . -name  "*_$arch.ipk"` ; do
+	mv $ipk ../$archdir/base/
+ done
+
+for machine in $sortmachines ; do
+	 for machineipk in $(find . -name  "*_$machine.ipk" | grep $machine) ; do mkdir -p ../$archdir/machine/$machine || true ; mv $machineipk ../$archdir/machine/$machine ; done
+done
+
 ( cd ../$archdir && do_index )
+
 }
 
 do_index() {
