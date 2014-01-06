@@ -1,6 +1,6 @@
 DESCRIPTION = "Configuration files for online package repositories aka feeds"
 LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
+LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=4d92cd373abda3937c2bc47fbc49d690"
 
 #PV = "${DISTRO_VERSION}"
 PR = "r16"
