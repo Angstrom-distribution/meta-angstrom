@@ -2,7 +2,7 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 
 PV = "${DISTRO_VERSION}"
-PR = "r11"
+PR = "r12"
 PE = "2"
 
 SRC_URI = "file://lsb_release"
@@ -44,11 +44,13 @@ do_install() {
 
 	echo "${@get_layers(bb, d)}" > ${D}${sysconfdir}/angstrom-build-info
 
-	echo "NAME=Angstrom" > ${D}${sysconfdir}/os-release
-	echo "ID=angstrom" >> ${D}${sysconfdir}/os-release
-	echo "PRETTY_NAME=The Ångström Distribution" >> ${D}${sysconfdir}/os-release
-	echo "ANSI_COLOR=1;35" >> ${D}${sysconfdir}/os-release
-	
+	echo "VERSION=\"${DISTRO_VERSION}\"" > ${D}${sysconfdir}/os-release
+	echo "NAME=\"Angstrom\"" >> ${D}${sysconfdir}/os-release
+	echo "ID=\"angstrom\"" >> ${D}${sysconfdir}/os-release
+	echo "PRETTY_NAME=\"The Ångström Distribution\"" >> ${D}${sysconfdir}/os-release
+	echo "ANSI_COLOR=\"1;35\"" >> ${D}${sysconfdir}/os-release
+	echo "HOME_URL=\"http://www.angstrom-distribution.org\"" >> ${D}${sysconfdir}/os-release
+
 	install -d ${D}${bindir}
 	install -m 0755 ${WORKDIR}/lsb_release ${D}${bindir}/
 }
