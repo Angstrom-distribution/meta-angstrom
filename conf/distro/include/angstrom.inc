@@ -170,6 +170,7 @@ VIRTUAL-RUNTIME_init_manager = "systemd"
 # USE-flag like features
 DISTRO_FEATURES += "tk"
 DISTRO_FEATURES += "x11"
+DISTRO_FEATURES += "wayland"
 DISTRO_FEATURES += "3g"
 DISTRO_FEATURES += "pulseaudio"
 
