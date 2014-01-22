@@ -15,7 +15,8 @@ IMAGE_INSTALL += " \
 	angstrom-packagegroup-boot \
 	packagegroup-basic \
 	${CONMANPKGS} \
-	${ROOTFS_PKGMANAGE_PKGS} update-alternatives-cworth \
+	${ROOTFS_PKGMANAGE_PKGS} \
+	update-alternatives-opkg \
 	systemd-analyze \
 	fixmac \
 	cpufreq-tweaks \
