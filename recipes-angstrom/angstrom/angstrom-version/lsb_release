@@ -7,7 +7,11 @@ case $1 in
 	echo "No LSB modules are available."
 	;;
 "-i")
-	echo "Distributor ID: Angstrom"
+	if [ "$2" = "-s" ] ; then
+		echo "Angstrom"
+	else
+		echo "Distributor ID: Angstrom"
+	fi
 	;;
 "-si")
 	echo "Angstrom"
@@ -28,7 +32,11 @@ case $1 in
 	echo "Angstrom GNU/Linux $VERSION ($CODENAME)"
 	;;
 "-r")
-	echo "Release:        $VERSION"
+	if [ "$2" = "-s" ] ; then
+		echo "$VERSION"
+	else
+		echo "Release:        $VERSION"
+	fi
 	;;
 "-sr")
 	echo "$VERSION"
@@ -38,7 +46,11 @@ case $1 in
 	echo "Distributor ID: Angstrom"
 	;;
 "-c")
-	echo "Codename:       $CODENAME"
+	if [ "$2" = "-s" ] ; then
+		echo "$CODENAME"
+	else
+		echo "Codename:       $CODENAME"
+	fi
 	;;
 "-a")
 	echo "Distributor ID: Angstrom"
