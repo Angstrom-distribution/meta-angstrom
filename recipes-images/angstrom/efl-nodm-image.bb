@@ -8,7 +8,7 @@ XSERVER ?= "xserver-xorg \
            "
 
 IMAGE_INSTALL += " \
-    e-wm-config-angstrom e-wm-config-default e-wm-config-standard e-wm-config-illume2 \
+    e-wm-config-angstrom e-wm-config-default e-wm-config-standard e-wm-config-illume2 xterm \
     xserver-nodm-init-systemd \
     formfactor \
     xserver-common \
