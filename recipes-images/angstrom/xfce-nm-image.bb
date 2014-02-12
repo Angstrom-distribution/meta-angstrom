@@ -7,7 +7,7 @@ IMAGE_INSTALL += " \
 	packagegroup-gnome-xserver-base \
 	packagegroup-core-x11-xserver \
 	packagegroup-gnome-fonts \
-	angstrom-gdm-autologin-hack angstrom-gdm-xfce-hack gdm gdm-systemd \
+	angstrom-gdm-autologin-hack angstrom-gdm-xfce-hack gdm \
 	angstrom-gnome-icon-theme-enable gtk-engine-clearlooks gtk-theme-clearlooks angstrom-clearlooks-theme-enable \
 "
 
