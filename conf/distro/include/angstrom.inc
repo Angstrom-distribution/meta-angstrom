@@ -173,6 +173,11 @@ DISTRO_FEATURES += "pulseaudio"
 DISTRO_FEATURES += "opengl"
 PREFERRED_PROVIDER_virtual/libgl ?= "mesa-gl"
 
+# We use gold as default linker
+DISTRO_FEATURES_append_arm = " ld-is-gold"
+DISTRO_FEATURES_append_x86 = " ld-is-gold"
+DISTRO_FEATURES_append_x86-64 = " ld-is-gold"
+
 # Inherit the default LIBC features superset from OE-core
 DISTRO_FEATURES += "${DISTRO_FEATURES_LIBC}"
 
