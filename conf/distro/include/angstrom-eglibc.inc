@@ -16,3 +16,8 @@ FULL_OPTIMIZATION_pn-perl = "-O1 -g"
 
 TARGET_LINK_HASH_STYLE = "${@['-Wl,--hash-style=gnu',''][bb.data.getVar('TARGET_ARCH',d,1) in ['mips', 'mipsel', 'mips64', 'mips64el']]}"
 
+# We use gold as default linker for arm/x86 on eglibc based images
+DISTRO_FEATURES_append_arm = " ld-is-gold"
+DISTRO_FEATURES_append_x86 = " ld-is-gold"
+DISTRO_FEATURES_append_x86-64 = " ld-is-gold"
+
