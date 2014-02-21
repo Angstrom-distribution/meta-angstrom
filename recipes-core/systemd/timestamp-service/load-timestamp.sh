@@ -5,10 +5,10 @@
 # use the timestamp instead.
 SYSTEMDATE=$(/bin/date -u "+%4Y%2m%2d%2H%2M")
 
-YEAR=$(cat /etc/timestamp | cut -b 9-12)
-MONTH=$(cat /etc/timestamp | cut -b 1-2)
-DAY=$(cat /etc/timestamp | cut -b 3-4)
-TIME=$(cat /etc/timestamp | cut -b 5-8)
+YEAR=$(cat /etc/timestamp | cut -b 1-4)
+MONTH=$(cat /etc/timestamp | cut -b 5-6)
+DAY=$(cat /etc/timestamp | cut -b 7-8)
+TIME=$(cat /etc/timestamp | cut -b 9-12)
 
 TIMESTAMP="$YEAR$MONTH$DAY$TIME"
 
@@ -18,5 +18,6 @@ if [ $SYSTEMDATE -lt $TIMESTAMP ]; then
 fi
 
 if [ "$1" = "--save" ] ; then
-	/bin/date -u +%2m%2d%2H%2M%4Y > /etc/timestamp
+	/bin/date -u +%4Y%2m%2d%2H%2M > /etc/timestamp
 fi
+
