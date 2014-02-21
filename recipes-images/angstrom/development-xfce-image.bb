@@ -21,7 +21,8 @@ IMAGE_INSTALL += " \
 	\
 	packagegroup-sdk-target \
 	\
-	pciutils \
+	bash \
+        pciutils \
 	usbutils \
 	i2c-tools \
 	parse-edid \
