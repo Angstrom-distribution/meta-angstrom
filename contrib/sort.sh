@@ -3,7 +3,9 @@
 # Angstrom feed sorting script
 # This must be run in unsorted/ directory 
 
-ipkg_tools_path="/home/angstrom/bin"
+export PATH=$PATH:~/bin/
+
+ipkg_tools_path="/home/koen/bin"
 
 if [ $(basename $PWD) != "unsorted" ] ; then
 	echo "Not in feed dir! Exiting"
@@ -36,11 +38,18 @@ cat files-duplicate | xargs rm -f
 
 for i in $(find . -name "*.ipk") ; do basename $i ; done > files-sorted-new
 
+if [ "$1" != "--skip-sorted-list" ]; then
+	echo "Updating list of sorted packages"
+	cat files-sorted files-sorted-new | sort | uniq > files-sorted-tmp
+	mv files-sorted-tmp files-sorted
+	rm files-sorted-*
+fi
+
 # Log remaining packages to a file 
 find . -name "*.ipk" |grep -v dbg | grep -v -- -dev | grep -v -- -doc | grep -v -- -static | grep -v angstrom-version | grep -v locale > new-files.txt
 for newfile in $(cat new-files.txt | sed s:./::g) ; do
-    echo "$(date -u +%s) $newfile $(basename ${PWD})" >> ../upload-full.txt
-done    
+		echo "$(date -u +%s) $newfile $(basename ${PWD})" >> ../upload-full.txt
+done		
 tail -n 100 ../upload-full.txt > ../upload.txt
 
 do_sort() {
@@ -49,6 +58,8 @@ archdir=$arch
 case "$arch" in
 	"486sx")
 			machines="vortex86sx" ;;
+	"aarch64")
+			machines="genericarmv8" ;;
 	"armv4")
 			machines="collie h3600 h3800 htcwallaby jornada56x jornada7xx shark simpad" ;;
 	"armv4t")
@@ -73,13 +84,25 @@ case "$arch" in
  ronetix-pm9263 sgh-i900 sheevaplug spitz stamp9g20evb topas910 tosa
  triton ts409 tsx09 tx25 tx27" ;;
 	"armv5teb")
-			machines="fsg3be ixp4xxbe nslu2be" ;;
+			machines="fsg3be ixp4xxbe" ;;
+	"xscaleteb")
+			machines="nslu2be";;
 	"armv6")
 			machines="bug iphone mx31ads mx31moboard mini6410 nokia800 omap2420h4 omap2430sdp pcm043 smartq5 smartqv7 smdk6410" ;;
+	"armv6-vfp")
+			machines="raspberrypi" ;;
 	"armv6-novfp")
 			machines="htcblackstone htcdiamond htcdream htckaiser htcnike htcpolaris htcraphael htctitan htcvogue" ;;
-	"armv7a")
-			machines="am3517-evm am3517-crane am45x-evm archos5 archos5it archosa32 beagleboard beaglebone bug20 cm-t35 dm37x-evm am37x-evm am387x-evm am389x-evm babbage c6a814x-evm c6a816x-evm dm814x-evm efikamx htcleo igep0020 nokia900 omap3517-evm omap3evm omap3-pandora omap3-touchbook omap4430-sdp omapzoom omapzoom2 omapzoom36x overo palmpre pandaboard omap4430-panda usrp-embedded usrp-e1xx" ;;
+	"armv7ahf-vfp-neon")
+			machines="am335x-evm am3517-evm am37x-evm beagleboard beaglebone cubieboard cubieboard2 dra7xx-evm efikamx genericarmv7a hpveer htcleo keystone-evm nexusone nokia900 olinuxino-a10s olinuxino-a13 omap3evm omap5-evm om-gta04 overo pandaboard wandboard-solo wandboard-dual" ;;
+	"armv7ahf-vfp-neon-mx5")
+			archdir="armv7ahf-vfp-neon"
+			machines="" ;;
+	"armv7ahf-vfp-neon-mx6")
+			archdir="armv7ahf-vfp-neon"
+			machines="" ;;
+	"armv7ahfb-vfp-neon")
+			machine="genericarmv7ab" ;;
 	"armv7a-vfp")
 			machines="ac100" ;;
 	"avr32")
@@ -87,17 +110,22 @@ case "$arch" in
 	"bfin")
 			archdir="blackfin"
 			machines="adsp-bf537-stamp" ;;
+	"cortexa9hf-vfp-neon")
+			machines="" ;;
+	"cortexa9hf-vfp-neon-mx6")
+			archdir="cortexa9hf-vfp-neon"
+			machine="" ;;
 	"geode")
 			machines="alix geodegx geodelx iei-nanogx-466 xo" ;;
 	"i486")
 			machines="wrap" ;;
 	"i586")
-			machines="d201gly2 epia i586-generic netvisa progear x86 x86-uml" ;;
+			machines="d201gly2 epia i586-generic netvisa progear qemux86 x86 x86-uml" ;;
 	"i686")
-			machines="eee701 i686-generic guinness progear ion qemux86 vmware x86-32-nocona x86-prescott" ;;
+			machines="eee701 i686-generic guinness progear ion vmware x86-32-nocona x86-prescott" ;;
 	"iwmmxt")
 			machines="" ;;
-	"mips")
+	"mips32")
 			machines="qemumips" ;;
 	"mipsel")
 			machines="ben-nanonote db1200 lsmipsel mtx-1 mtx-2 qemumipsel rb500 stb225 wgt634u wl500g wrt54" ;;
@@ -108,7 +136,7 @@ case "$arch" in
 	"ppc440e")
 			machines="canyonlands sequoia xilinx-ml507" ;;
 	"ppc603e")
-			machines="efika lite5200 lsppchd lsppchg n1200 qemuppc storcenter" ;;
+			machines="efika lite5200 lsppchd lsppchg n1200 storcenter qemuppc" ;;
 	"ppce300c2")
 			machines="mpc8323e-rdb" ;;
 	"ppce300c3")
@@ -126,9 +154,12 @@ case "$arch" in
 	"x86")
 			machines="colinux" ;;
 	"x86_64")
-			machines="qemux86_64" ;;
+			machines="qemux86_64 sugarbay jasperforest beast" ;;
 	"core2")
-			machines="fri2-noemgd" ;;
+			machines="crownbay-noemgd emenlow-noemgd fri2-noemgd" ;;
+	"core2-emgd")
+			archdir="core2"
+			machines="crownbay emenlow fri2 minnow n450" ;;
 
 esac
 
@@ -138,14 +169,30 @@ else
 	export SORTFEED=0
 fi
 
-echo "Sorting $arch"
+sortmachines=""
+for machine in $((echo $machines ; echo $machines | sed s:-:_:g) | sed -e s:\ :\\n:g | sort | uniq) ;  do
+	if [ $(find . -name  "*_$machine.ipk"| wc -l) -gt 0 ] ; then
+		export sortmachines="$sortmachines $machine"
+	fi
+done
+
+if [ -n "$sortmachines" ] ; then
+	echo "Sorting $arch and the following machines: $sortmachines"
+else
+	echo "Sorting $arch"
+fi
 
 mkdir -p ../$archdir/base/ || true
-for i in `find . -name  "*_$arch.ipk"` ; do mv $i ../$archdir/base/ ; done
-        for machine in $((echo $machines ; echo $machines | sed s:-:_:g) | sed -e s:\ :\\n: | sort | uniq) ;  do
-                for i in `find . -name  "*_$machine.ipk"| grep $machine` ; do mkdir -p ../$archdir/machine/$machine || true ;mv $i ../$archdir/machine/$machine ; done
-	done
+for ipk in `find . -name  "*_$arch.ipk"` ; do
+	mv $ipk ../$archdir/base/
+ done
+
+for machine in $sortmachines ; do
+	 for machineipk in $(find . -name  "*_$machine.ipk" | grep $machine) ; do mkdir -p ../$archdir/machine/$machine || true ; mv $machineipk ../$archdir/machine/$machine ; done
+done
+
 ( cd ../$archdir && do_index )
+
 }
 
 do_index() {
@@ -154,53 +201,52 @@ echo "Processing $(basename $PWD) packages...."
 BPWD=`pwd`
 
 if [ "${SORTFEED}" -eq 1 ] ; then
-mkdir -p base
-cd base
+	mkdir -p base
+	cd base
 
-mkdir -p ../debug ../perl ../python ../gstreamer ../locales/en || true
+	mkdir -p ../debug ../perl ../python ../gstreamer ../locales/en || true
 
-#split the feeds based on names
-mv python* ../python/ >& /dev/null
-mv perl* ../perl/ >& /dev/null
-mv *-dbg* ../debug/ >& /dev/null
-mv gst* ../gstreamer >& /dev/null
+	#split the feeds based on names
+	mv python* ../python/ >& /dev/null
+	mv perl* ../perl/ >& /dev/null
+	mv *-dbg* ../debug/ >& /dev/null
+	mv gst* ../gstreamer >& /dev/null
 
-for i in ../* ; do
-  if [ -d $i ]; then
-      cd $i
-      echo -n "building index for $i:" |sed s:\.\./::
-      ${ipkg_tools_path}/opkg-make-index -m -p Packages -l Packages.filelist  -L ../locales  . >& /tmp/index-log
-      echo " DONE"
-  fi
-done
+	for i in ../* ; do
+		if [ -d $i ]; then
+				cd $i
+				echo -n "building index for $i:" |sed s:\.\./::
+				${ipkg_tools_path}/opkg-make-index -m -p Packages -l Packages.filelist  -L ../locales  . >& /tmp/index-log
+				echo " DONE"
+		fi
+	done
 
-mkdir -p ${BPWD}/locales/en/
-cd ${BPWD}/locales/en/
-echo -n "building index for locales:"
-for i in ../* ; do
-  if [ -d $i ]; then
-   echo -n " $i" |sed s:\.\./::
-   ${ipkg_tools_path}/opkg-make-index -m -p Packages -l Packages.filelist . >& /dev/null;
-   cd $i
-  fi
- done
-echo " DONE"
-
+	mkdir -p ${BPWD}/locales/en/
+	cd ${BPWD}/locales/en/
+	echo -n "building index for locales:"
+	for i in ../* ; do
+		if [ -d $i ]; then
+		 echo -n " $i" |sed s:\.\./::
+		 ${ipkg_tools_path}/opkg-make-index -m -p Packages -l Packages.filelist . >& /dev/null;
+		 cd $i
+		fi
+	 done
+	echo " DONE"
 fi
+
 mkdir -p  ${BPWD}/machine
 cd ${BPWD}/machine
 
-for i in ./* ; do
-  if [ -d $i ]; then
-     cd $i
-     echo -n "building index for machine $i:"
-     ${ipkg_tools_path}/opkg-make-index -m -p Packages -l Packages.filelist . >& /dev/null
-     echo " DONE"
-     cd ../
-  fi
+for i in $sortmachines ; do
+	if [ -d $i ]; then
+		 cd $i
+		 echo -n "building index for machine $i:"
+		 ${ipkg_tools_path}/opkg-make-index -m -p Packages -l Packages.filelist . >& /dev/null
+		 echo " DONE"
+		 cd ../
+	fi
 done
 cd ${BPWD} 
-
 }
 
 echo "Processing 'all' feed"
@@ -210,16 +256,9 @@ for i in `find . -name  "*.ipk"| grep _all` ; do mkdir -p ../all/ || true ;mv $i
 mkdir -p ../sdk ; mv *sdk.ipk ../sdk/ || true
  (mkdir -p ../sdk ; cd ../sdk && ${ipkg_tools_path}/opkg-make-index -p Packages -m . >& /dev/null ; touch Packages.sig )
 
-for arch in 486sx armv4t armv4 armv5teb armv5te armv6-novfp armv6 armv7a-vfp armv7a avr32 bfin geode i486 i586 i686 iwmmxt mips mipsel powerpc ppc405 ppc440e ppc603e ppce300c2 ppce300c3 ppce500v2 ppce500 ppce600 sh4 sparc x86_64 x86 core2; do
+for arch in 486sx aarch64 armv4t armv4 armv5teb xscaleteb armv5te armv6-vfp armv6-novfp armv6 armv7a-vfp armv7a-vfp-neon armv7ahf-vfp-neon armv7ahf-vfp-neon-mx5 armv7ahf-vfp-neon-mx6 avr32 bfin cortexa8hf-vfp-neon cortexa9hf-vfp-neon-mx6 cortexa9hf-vfp-neon geode i486 i586 i686 iwmmxt mips32 mipsel powerpc ppc405 ppc440e ppc603e ppce300c2 ppce300c3 ppce500v2 ppce500 ppce600 sh4 sparc x86_64 x86 core2-emgd core2; do
 	do_sort
 done
-
-if [ "$1" != "--skip-sorted-list" ]; then
-    echo "Updating list of sorted packages"
-	cat files-sorted files-sorted-new | sort | uniq > files-sorted-tmp
-	mv files-sorted-tmp files-sorted
-	rm files-sorted-*
-fi
 
 if [ "$1" != "--skip-repo-update" ]; then
 	( cd ~/website/repo-updater ; rm -f feeds.db* ; php update.php ; rm ../repo/feeds.db* ; cp feeds.db* ../repo )
