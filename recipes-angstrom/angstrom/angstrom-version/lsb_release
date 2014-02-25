@@ -13,6 +13,9 @@ case $1 in
 		echo "Distributor ID: Angstrom"
 	fi
 	;;
+"-is")
+	echo "Angstrom"
+	;;
 "-si")
 	echo "Angstrom"
 	;;
@@ -27,6 +30,9 @@ case $1 in
 	;;
 "-d")
 	echo "Description:    Angstrom GNU/Linux $VERSION ($CODENAME)"
+	;;
+"-ds")
+	echo "Angstrom GNU/Linux $VERSION ($CODENAME)"
 	;;
 "-sd")
 	echo "Angstrom GNU/Linux $VERSION ($CODENAME)"
