@@ -6,7 +6,6 @@ PRINC := "${@int(PRINC) + 15}"
 # We don't any of those in volatiles, so:
 volatiles = ""
 dirs755 += "${localstatedir}/cache \
-            ${localstatedir}/run \
             ${localstatedir}/log \
             ${localstatedir}/lock \
             ${localstatedir}/lock/subsys \
