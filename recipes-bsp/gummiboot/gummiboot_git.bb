@@ -10,7 +10,7 @@ inherit autotools
 inherit deploy
 
 PV = "43"
-SRCREV = "48e0a4872a54b5601716665056a9889bb4121632"
+SRCREV = "4062c51075ba054d4949c714fe06123f9ad3097d"
 SRC_URI = "git://anongit.freedesktop.org/gummiboot"
 
 S = "${WORKDIR}/git"
