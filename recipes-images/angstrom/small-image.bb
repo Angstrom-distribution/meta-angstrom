@@ -12,6 +12,7 @@ CONMANPKGS ?= ""
 CONMANPKGS_libc-uclibc = ""
 
 IMAGE_INSTALL += " \
+	base-files \
 	${ROOTFS_PKGMANAGE_PKGS} update-alternatives-cworth \
 	dropbear \
 "
