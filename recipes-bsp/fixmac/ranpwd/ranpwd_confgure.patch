@@ -1,0 +1,45 @@
+Fix configure errors e.g.
+
+| /home/kraj/work/angstrom-repo/build/tmp-angstrom_next-eglibc/work/armv7at2hf-vfp-neon-angstrom-linux-gnueabi/ranpwd/1.2+gitAUTOINC+b62aab579e-r0/git/configure: line 2866: syntax error near unexpected token `-Wall'
+| /home/kraj/work/angstrom-repo/build/tmp-angstrom_next-eglibc/work/armv7at2hf-vfp-neon-angstrom-linux-gnueabi/ranpwd/1.2+gitAUTOINC+b62aab579e-r0/git/configure: line 2866: `PA_ADD_CFLAGS(-Wall)'
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+Upstream-Status: Pending
+Index: git/Makefile.am
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ git/Makefile.am	2014-04-25 10:39:58.217987489 -0700
+@@ -0,0 +1,4 @@
++bin_PROGRAMS = ranpwd
++man_MANS = ranpwd.1
++ranpwd_SOURCES = ranpwd.c
++TESTS = ranpwd
+Index: git/configure.in
+===================================================================
+--- git.orig/configure.in	2014-04-25 10:28:04.544650560 -0700
++++ git/configure.in	2014-04-25 10:39:58.217987489 -0700
+@@ -12,23 +12,10 @@
+ 
+ AC_INIT(ranpwd, 1.2)
+ AC_PREREQ(2.59)
++AM_INIT_AUTOMAKE
+ 
+ AC_PROG_CC
+ 
+-PA_ADD_CFLAGS(-Wall)
+-PA_ADD_CFLAGS(-W)
+-PA_ADD_CFLAGS(-Wpointer-arith)
+-PA_ADD_CFLAGS(-Wbad-function-cast)
+-PA_ADD_CFLAGS(-Wcast-equal)
+-PA_ADD_CFLAGS(-Wstrict-prototypes)
+-PA_ADD_CFLAGS(-Wmissing-prototypes)
+-PA_ADD_CFLAGS(-Wmissing-declarations)
+-PA_ADD_CFLAGS(-Wnested-externs)
+-PA_ADD_CFLAGS(-Winline)
+-PA_ADD_CFLAGS(-Wshadow)
+-PA_ADD_CFLAGS(-Wcast-align)
+-PA_ADD_CFLAGS(-pipe)
+-
+ AC_CHECK_HEADERS(getopt.h)
+ AC_CHECK_FUNCS(getopt_long)
+ 
