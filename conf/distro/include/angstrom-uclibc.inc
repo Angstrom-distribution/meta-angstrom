@@ -1,6 +1,5 @@
 # uclibc:
 
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}binutils = "binutils-cross-${TARGET_ARCH}"
 PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers"
 
 # The things uclibc can provide.  We default to wanting uclibc to provide them.
