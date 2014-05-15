@@ -51,7 +51,7 @@ TOOLCHAIN_SYSPATH ?= "${TOOLCHAIN_PATH}/${TARGET_SYS}"
 
 # Package manager selection, angstrom uses ANGSTROM_PKG_FORMAT
 
-PACKAGE_CLASSES = " "
+PACKAGE_CLASSES = "package_ipk"
 
 # Image.bbclass stuff:
 
