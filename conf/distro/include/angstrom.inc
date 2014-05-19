@@ -170,6 +170,29 @@ VIRTUAL-RUNTIME_init_manager = "systemd"
 # Uncomment to completely disable support for sysv scripts:
 #PACKAGECONFIG_pn-systemd = "xz"
 
+PACKAGECONFIG_pn-qtbase = " \
+    release \
+    dbus \
+    udev \
+    evdev \
+    widgets \
+    ${PACKAGECONFIG_OPENSSL} \
+    ${PACKAGECONFIG_GL} \
+    ${PACKAGECONFIG_FB} \
+    ${PACKAGECONFIG_X11} \
+    ${PACKAGECONFIG_FONTS} \
+    ${PACKAGECONFIG_SYSTEM} \
+    ${PACKAGECONFIG_MULTIMEDIA} \
+    ${PACKAGECONFIG_DISTRO} \
+    icu \
+    glib \
+    jpeg \
+    gstreamer \
+    linuxfb \
+    sql-sqlite \
+    alsa \
+"
+
 # USE-flag like features
 DISTRO_FEATURES += "tk"
 DISTRO_FEATURES += "x11"
