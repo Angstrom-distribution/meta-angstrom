@@ -72,6 +72,10 @@ IMAGE_INITSCRIPTS ?= "systemd-compat-units"
 #
 IMAGE_LOGIN_MANAGER ?= "busybox"
 
+# PACKAGECONFIG
+
+PACKAGECONFIG_pn-boost = "python"
+
 # set sane default for the SPLASH variable
 SPLASH ?= ""
 
