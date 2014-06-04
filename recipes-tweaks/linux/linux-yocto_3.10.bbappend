@@ -2,7 +2,9 @@
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-SRC_URI_append_fri2 = " file://bt.cfg "
+SRC_URI_append_fri2 = " file://bt.cfg \ 
+                        file://rtc-iio.cfg \
+                      "
 KERNEL_FEATURES_append_fri2 = " \
                                   features/netfilter/netfilter.scc \
                                   features/usb-net/usb-net.scc \
