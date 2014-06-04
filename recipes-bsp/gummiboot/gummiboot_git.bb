@@ -9,8 +9,8 @@ DEPENDS = "gnu-efi util-linux"
 inherit autotools
 inherit deploy
 
-PV = "43"
-SRCREV = "4062c51075ba054d4949c714fe06123f9ad3097d"
+PV = "45"
+SRCREV = "eb3daf2ca4cb1657cf1f780957485d690a552bf6"
 SRC_URI = "git://anongit.freedesktop.org/gummiboot"
 
 S = "${WORKDIR}/git"
