@@ -5,6 +5,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 SRC_URI_append_fri2 = " file://bt.cfg \ 
                         file://rtc-iio.cfg \
                         file://hwmon.cfg \
+                        file://iotop.cfg \
                       "
 KERNEL_FEATURES_append_fri2 = " \
                                   features/netfilter/netfilter.scc \
