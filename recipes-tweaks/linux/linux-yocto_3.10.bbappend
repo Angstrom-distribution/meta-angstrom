@@ -6,6 +6,7 @@ SRC_URI_append_fri2 = " file://bt.cfg \
                         file://rtc-iio.cfg \
                         file://hwmon.cfg \
                         file://iotop.cfg \
+                        file://no8042.cfg \
                       "
 KERNEL_FEATURES_append_fri2 = " \
                                   features/netfilter/netfilter.scc \
