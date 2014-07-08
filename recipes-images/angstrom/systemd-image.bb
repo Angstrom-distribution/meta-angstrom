@@ -22,6 +22,9 @@ IMAGE_INSTALL += " \
 	cpufreq-tweaks \
 "
 
+# Systemd journal is preffered
+BAD_RECOMMENDATIONS += "busybox-syslog"
+
 IMAGE_DEV_MANAGER   = "udev"
 IMAGE_INIT_MANAGER  = "systemd"
 IMAGE_INITSCRIPTS   = " "

@@ -23,8 +23,7 @@ IMAGE_INITSCRIPTS   = " "
 IMAGE_LOGIN_MANAGER = "busybox shadow"
 
 # Don't drag in X11 and fsck
-BAD_RECOMMENDATIONS = "dbus-launch udev-hwdb  util-linux-fsck e2fsprogs-e2fsck"
-
+BAD_RECOMMENDATIONS += "dbus-launch udev-hwdb util-linux-fsck e2fsprogs-e2fsck busybox-syslog"
 export IMAGE_BASENAME = "small-image"
 
 IMAGE_PREPROCESS_COMMAND += "do_delete_kernel ; do_delete_ldconfig ;"
