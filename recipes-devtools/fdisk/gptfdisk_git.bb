@@ -3,7 +3,7 @@ DESCRIPTION = "GPT fdisk is a disk partitioning tool loosely modeled on Linux fd
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552"
 
-DEPENDS = "util-linux ncurses"
+DEPENDS = "util-linux popt ncurses"
 
 PV = "0.8.10+git${SRCPV}"
 SRCREV = "a920398fa393f9d6301b32b191bc01e086ab8bc8"
