@@ -66,16 +66,16 @@ case "$arch" in
 			machines="acern30 amsdelta at2440evb cs-e9302 ep93xx eteng500 eten-m800 fic-gta01 fic-gta02 gesbc-9302 h1940 h6300 kb9202 ks8695 m8050 micro2440 mini2440 om-gta01 om-gta02 rx1950 rx3000 sarge-at91 simone smdk2440 smdk2443 topas910 ts72xx" ;;
 	"armv5te")
 			machines="a1200 a780 a910 afeb9260 afeb9260-180 akita am180x-evm
- asus620 asus730 at91cap9adk at91-l9260 at91sam9260ek at91sam9261ek
+ arietta-g25 asus620 asus730 at91cap9adk at91-l9260 at91sam9260ek at91sam9261ek
  at91sam9263ek at91sam9g10ek at91sam9g20ek at91sam9g45ek at91sam9g45ekes
- at91sam9rlek aximx50 aximx50v bd-neon c7x0 chumby chumby-falconwing cm-x270
+ at91sam9rlek at91sam9x5ek aximx50 aximx50v bd-neon c7x0 cfa10036 cfa10058 chumby chumby-falconwing cm-x270
  cm-x300 da830-omapl137-evm da850-omapl138-evm davinci-dvevm davinci-sffsdr
  devkitidp-pxa255 dm355-evm dm355-leopard dm357-evm dm365-evm dm368-evm
  dm6446-evm dm6467-evm dm6467t-evm dns323 dockstar e680 ea3250 em-x270 er0100
  eseries ghi270 gumstix gumstix-connex gumstix-custom-connex
  gumstix-custom-verdex gumstix-verdex h1910 h2200 h3900 h4000 h5000 hawkboard
  hipox htcalpine htcapache htcblueangel htchimalaya htcsable htctornado
- htcuniversal hx2000 hx4700 imote2 ixp4xxle kixrp435 kuropro logicpd-pxa270
+ htcuniversal hx2000 hx4700 imote2 imx233-olinuxino-micro ixp4xxle kixrp435 kuropro logicpd-pxa270
  looxc550 lspro magician mainstone mh355 mp900c mtx-3 mtx-3a mv2120 mx21ads
  mx27ads n2100 navman-icn330 netbook-pro neuros-osd neuros-osd2 nhk15 nokia770
  nslu2le omap1510inn omap1610h2 omap1710h3 omap5912osk openrd-base openrd-client
@@ -83,6 +83,12 @@ case "$arch" in
  palmz71 palmz72 poodle qemuarm rokre2 rokr-e2 rokre6 ronetix-pm9261
  ronetix-pm9263 sgh-i900 sheevaplug spitz stamp9g20evb topas910 tosa
  triton ts409 tsx09 tx25 tx27" ;;
+	"armv5te-mx23")
+			archdir="armv5te" 
+			machines="" ;;
+	"armv5te-mx28")
+			archdir="armv5te" 
+			machines="" ;;
 	"armv5teb")
 			machines="fsg3be ixp4xxbe" ;;
 	"xscaleteb")
@@ -93,12 +99,14 @@ case "$arch" in
 			machines="raspberrypi" ;;
 	"armv6-novfp")
 			machines="htcblackstone htcdiamond htcdream htckaiser htcnike htcpolaris htcraphael htctitan htcvogue" ;;
-	"armv7ahf-vfp-neon")
-			machines="am335x-evm am3517-evm am37x-evm beagleboard beaglebone cubieboard cubieboard2 dra7xx-evm efikamx genericarmv7a hpveer htcleo keystone-evm nexusone nokia900 olinuxino-a10s olinuxino-a13 omap3evm omap5-evm om-gta04 overo pandaboard wandboard-solo wandboard-dual" ;;
-	"armv7ahf-vfp-neon-mx5")
+	"armv7at2hf-vfp")
+			machines="sama5d3_xplained sama5d3xek" ;;
+	"armv7at2hf-vfp-neon")
+			machines="am335x-evm am3517-evm am37x-evm arndale arndale-octa beagleboard beaglebone chromebook-snow cubieboard cubieboard2 cubietruck dra7xx-evm efikamx genericarmv7a hpveer htcleo imx6qsabrelite keystone-evm nexusone nokia900 olinuxino-a10s olinuxino-a13 olinuxino-a20 omap3evm omap5-evm om-gta04 overo pandaboard wandboard-solo wandboard-dual wandboard-quad" ;;
+	"armv7at2hf-vfp-neon-mx5")
 			archdir="armv7ahf-vfp-neon"
 			machines="" ;;
-	"armv7ahf-vfp-neon-mx6")
+	"armv7at2hf-vfp-neon-mx6")
 			archdir="armv7ahf-vfp-neon"
 			machines="" ;;
 	"armv7ahfb-vfp-neon")
@@ -126,9 +134,9 @@ case "$arch" in
 	"iwmmxt")
 			machines="" ;;
 	"mips32")
-			machines="qemumips" ;;
+			machines="qemumips ben-nanonote" ;;
 	"mipsel")
-			machines="ben-nanonote db1200 lsmipsel mtx-1 mtx-2 qemumipsel rb500 stb225 wgt634u wl500g wrt54" ;;
+			machines="db1200 lsmipsel mtx-1 mtx-2 qemumipsel rb500 stb225 wgt634u wl500g wrt54" ;;
 	"powerpc")
 			machines="gamecube p2020ds" ;;
 	"ppc405")
@@ -153,13 +161,15 @@ case "$arch" in
 			machines="sun4cdm" ;;
 	"x86")
 			machines="colinux" ;;
-	"x86_64")
-			machines="qemux86_64 sugarbay jasperforest beast" ;;
-	"core2")
+	"corei7-64")
+			machines="sugarbay jasperforest beast" ;;
+	"core2-64")
+			machines="qemux86-64 dominion" ;;
+	"core2-32")
 			machines="crownbay-noemgd emenlow-noemgd fri2-noemgd" ;;
-	"core2-emgd")
-			archdir="core2"
-			machines="crownbay emenlow fri2 minnow n450" ;;
+	"core2-32-emgd")
+			archdir="core2-32"
+			machines="crownbay emenlow fri2 minnow n450 soekris-net6501" ;;
 
 esac
 
@@ -256,7 +266,8 @@ for i in `find . -name  "*.ipk"| grep _all` ; do mkdir -p ../all/ || true ;mv $i
 mkdir -p ../sdk ; mv *sdk.ipk ../sdk/ || true
  (mkdir -p ../sdk ; cd ../sdk && ${ipkg_tools_path}/opkg-make-index -p Packages -m . >& /dev/null ; touch Packages.sig )
 
-for arch in 486sx aarch64 armv4t armv4 armv5teb xscaleteb armv5te armv6-vfp armv6-novfp armv6 armv7a-vfp armv7a-vfp-neon armv7ahf-vfp-neon armv7ahf-vfp-neon-mx5 armv7ahf-vfp-neon-mx6 avr32 bfin cortexa8hf-vfp-neon cortexa9hf-vfp-neon-mx6 cortexa9hf-vfp-neon geode i486 i586 i686 iwmmxt mips32 mipsel powerpc ppc405 ppc440e ppc603e ppce300c2 ppce300c3 ppce500v2 ppce500 ppce600 sh4 sparc x86_64 x86 core2-emgd core2; do
+for arch in 486sx aarch64 armv4t armv4 armv5teb xscaleteb armv5te-mx23 armv5te-mx28 armv5te armv6-vfp armv6-novfp armv6 armv7a-vfp armv7a-vfp-neon armv7ahf-vfp-neon armv7ahf-vfp-neon-mx5 armv7ahf-vfp-neon-mx6 armv7ahf-vfp armv7at2hf-vfp armv7at2hf-vfp-neon armv7at2hf-vfp-mx5 armv7at2hf-vfp-mx6 avr32 bfin cortexa8hf-vfp-neon cortexa9hf-vfp-neon-mx6 cortexa9hf-vfp-neon geode i486 i586 i686 iwmmxt mips32 mipsel powerpc ppc405 ppc440e ppc603e ppce300c2 ppce300c3 ppce500v2 ppce500 ppce600 sh4 sparc corei7-64 x86 corei7-64 core2-64 core2-32 core2-32-emgd core2; do
+
 	do_sort
 done
 
