@@ -16,9 +16,11 @@ SRCREV = "b62aab579e288715b82d5575befaa2b8ff210c2b"
 S="${WORKDIR}/git"
 
 do_configure_prepend () {
+	( cd ${S} 
+	touch NEWS README AUTHORS ChangeLog
 	if [ ! -e acinclude.m4 -a -e aclocal.m4 ]; then
 		cp aclocal.m4 acinclude.m4
-	fi
+	fi )
 }
 
 do_install() {
