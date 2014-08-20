@@ -17,9 +17,9 @@ SECTION = "base/shell"
 
 inherit gtk-doc useradd pkgconfig autotools perlnative update-rc.d update-alternatives qemu systemd ptest gettext
 
-SRCREV = "cbfaff65cb086e3eb3709cf86dcf63b46622389b"
+SRCREV = "5d0ae62c665262c4c55536457e84e278c252cc0b"
 
-PV = "215+git${SRCPV}"
+PV = "216+git${SRCPV}"
 
 SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;branch=master;protocol=git \
            file://binfmt-install.patch \
@@ -28,7 +28,6 @@ SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;branch=master;protocol=
            file://systemd-pam-fix-fallocate.patch \
            file://systemd-pam-fix-mkostemp.patch \
            file://optional_secure_getenv.patch \
-           file://0001-uClibc-doesn-t-implement-pwritev-preadv.patch \
            file://uclibc-sysinfo_h.patch \
            file://uclibc-get-physmem.patch \
            file://0001-configure-disable-LTO.patch \
@@ -210,6 +209,7 @@ FILES_${PN} = " ${base_bindir}/* \
                 ${datadir}/dbus-1/services \
                 ${datadir}/dbus-1/system-services \
                 ${datadir}/polkit-1 \
+                ${datadir}/factory \
                 ${datadir}/${BPN} \
                 ${sysconfdir}/bash_completion.d/ \
                 ${sysconfdir}/dbus-1/ \
@@ -349,6 +349,28 @@ pkg_prerm_udev-hwdb () {
 	fi
 
 	rm -f ${sysconfdir}/udev/hwdb.bin
+}
+
+# Do not activate libnss-resolve by default, that needs more thought
+
+pkg_postinst_${PN} () {
+	sed -e '/^hosts:/s/\s*\<myhostname\>//' \
+		-e 's/\(^hosts:.*\)\(\<files\>\)\(.*\)\(\<dns\>\)\(.*\)/\1\2 myhostname \3\4\5/' \
+		-i $D${sysconfdir}/nsswitch.conf
+
+	sed -e '/^hosts:/s/\s*\<mymachine\>//' \
+		-e 's/\(^hosts:.*\)\(\<files\>\)\(.*\)\(\<dns\>\)\(.*\)/\1\2 mymachine \3\4\5/' \
+		-i $D${sysconfdir}/nsswitch.conf
+}
+
+pkg_prerm_${PN} () {
+	sed -e '/^hosts:/s/\s*\<myhostname\>//' \
+		-e '/^hosts:/s/\s*myhostname//' \
+		-i $D${sysconfdir}/nsswitch.conf
+
+	sed -e '/^hosts:/s/\s*\<mymachine\>//' \
+		-e '/^hosts:/s/\s*mymachine//' \
+		-i $D${sysconfdir}/nsswitch.conf
 }
 
 # As this recipe builds udev, respect systemd being in DISTRO_FEATURES so
