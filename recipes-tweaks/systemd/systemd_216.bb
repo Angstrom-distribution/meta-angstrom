@@ -17,7 +17,7 @@ SECTION = "base/shell"
 
 inherit gtk-doc useradd pkgconfig autotools perlnative update-rc.d update-alternatives qemu systemd ptest gettext
 
-SRCREV = "5d0ae62c665262c4c55536457e84e278c252cc0b"
+SRCREV = "e1ad6e245dcf63faa8f183063eb97678f4f9ac94"
 
 PV = "216+git${SRCPV}"
 
