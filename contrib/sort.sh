@@ -161,8 +161,12 @@ case "$arch" in
 			machines="sun4cdm" ;;
 	"x86")
 			machines="colinux" ;;
+	"corei7-64-intel-common")
+			archdir="corei7-64"
+			machines="" ;;
 	"corei7-64")
-			machines="sugarbay jasperforest beast" ;;
+            archdir="corei7-64"
+			machines="sugarbay jasperforest beast intel-corei7-64" ;;
 	"core2-64")
 			machines="qemux86-64 dominion" ;;
 	"core2-32")
@@ -266,7 +270,7 @@ for i in `find . -name  "*.ipk"| grep _all` ; do mkdir -p ../all/ || true ;mv $i
 mkdir -p ../sdk ; mv *sdk.ipk ../sdk/ || true
  (mkdir -p ../sdk ; cd ../sdk && ${ipkg_tools_path}/opkg-make-index -p Packages -m . >& /dev/null ; touch Packages.sig )
 
-for arch in 486sx aarch64 armv4t armv4 armv5teb xscaleteb armv5te-mx23 armv5te-mx28 armv5te armv6-vfp armv6-novfp armv6 armv7a-vfp armv7a-vfp-neon armv7ahf-vfp-neon armv7ahf-vfp-neon-mx5 armv7ahf-vfp-neon-mx6 armv7ahf-vfp armv7at2hf-vfp armv7at2hf-vfp-neon armv7at2hf-vfp-mx5 armv7at2hf-vfp-mx6 avr32 bfin cortexa8hf-vfp-neon cortexa9hf-vfp-neon-mx6 cortexa9hf-vfp-neon geode i486 i586 i686 iwmmxt mips32 mipsel powerpc ppc405 ppc440e ppc603e ppce300c2 ppce300c3 ppce500v2 ppce500 ppce600 sh4 sparc corei7-64 x86 corei7-64 core2-64 core2-32 core2-32-emgd core2; do
+for arch in 486sx aarch64 armv4t armv4 armv5teb xscaleteb armv5te-mx23 armv5te-mx28 armv5te armv6-vfp armv6-novfp armv6 armv7a-vfp armv7a-vfp-neon armv7ahf-vfp-neon armv7ahf-vfp-neon-mx5 armv7ahf-vfp-neon-mx6 armv7ahf-vfp armv7at2hf-vfp armv7at2hf-vfp-neon armv7at2hf-vfp-mx5 armv7at2hf-vfp-mx6 avr32 bfin cortexa8hf-vfp-neon cortexa9hf-vfp-neon-mx6 cortexa9hf-vfp-neon geode i486 i586 i686 iwmmxt mips32 mipsel powerpc ppc405 ppc440e ppc603e ppce300c2 ppce300c3 ppce500v2 ppce500 ppce600 sh4 sparc corei7-64-intel-common corei7-64 x86 corei7-64 core2-64 core2-32 core2-32-emgd core2; do
 
 	do_sort
 done
