@@ -6,14 +6,14 @@ PR = "r45"
 
 inherit packagegroup
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 XSERVER ?= "xserver-xorg \
             xf86-input-evdev \
             xf86-input-tslib \
             xf86-input-mouse \
             xf86-video-fbdev \
             xf86-input-keyboard"
-
-PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 DEPENDS = "virtual/xserver"
 
