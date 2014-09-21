@@ -33,11 +33,11 @@ MACHINEOVERRIDES .= ":${@bb.data.getVar('FEED_ARCH', d,1).replace('all','noarch'
 #INHERIT += "src_distribute_local"
 SRC_DIST_LOCAL ?= "symlink"
 
-# Can be "glibc", "eglibc" or "uclibc"
-TCLIBC ?= "eglibc"
+# Can be "glibc", "musl" or "uclibc"
+TCLIBC ?= "glibc"
 
 # The things *libc can provide.
-PREFERRED_PROVIDER_eglibc = "eglibc"
+PREFERRED_PROVIDER_eglibc = "glibc"
 
 PREFERRED_PROVIDER_virtual/gettext ??= "gettext"
 PREFERRED_PROVIDER_linux-libc-headers-nativesdk = "linux-libc-headers-nativesdk"
