@@ -47,10 +47,14 @@ do_install() {
 	echo "VERSION=\"${DISTRO_VERSION}\"" > ${D}${sysconfdir}/os-release
 	echo "NAME=\"Angstrom\"" >> ${D}${sysconfdir}/os-release
 	echo "ID=\"angstrom\"" >> ${D}${sysconfdir}/os-release
-	echo "PRETTY_NAME=\"The Ångström Distribution\"" >> ${D}${sysconfdir}/os-release
+	echo "PRETTY_NAME=\"The Ångström Distribution ${DISTRO_VERSION}\"" >> ${D}${sysconfdir}/os-release
 	echo "ANSI_COLOR=\"1;35\"" >> ${D}${sysconfdir}/os-release
 	echo "HOME_URL=\"http://www.angstrom-distribution.org\"" >> ${D}${sysconfdir}/os-release
 
 	install -d ${D}${bindir}
 	install -m 0755 ${WORKDIR}/lsb_release ${D}${bindir}/
 }
+
+RPROVIDES_${PN} = "os-release"
+RREPLACES_${PN} = "os-release"
+RCONFLICTS_${PN} = "os-release"
