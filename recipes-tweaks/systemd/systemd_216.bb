@@ -33,6 +33,9 @@ SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;branch=master;protocol=
            file://0001-add-support-for-executing-scripts-under-etc-rcS.d.patch \
            file://0001-missing.h-add-fake-__NR_memfd_create-for-MIPS.patch \
            file://0001-configure-disable-LTO.patch \
+           file://0001-logind-add-support-for-Triton2-Power-Button.patch \
+           file://0002-logind-add-support-for-TPS65217-Power-Button.patch \
+           file://0003-logind-add-support-for-gpio-keys-Power-Button.patch \
            file://touchscreen.rules \
            file://00-create-volatile.conf \
            file://init \
