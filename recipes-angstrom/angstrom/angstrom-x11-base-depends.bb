@@ -4,9 +4,9 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=4d92cd373abda3937c2bc47fbc49d
 
 PR = "r45"
 
-PACKAGE_ARCH = "${MACHINE_ARCH}"
-
 inherit packagegroup
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 XSERVER ?= "xserver-xorg \
             xf86-input-evdev \
