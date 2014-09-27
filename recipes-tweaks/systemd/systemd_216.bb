@@ -10,14 +10,14 @@ PROVIDES = "udev"
 
 PE = "1"
 
-DEPENDS = "curl kmod docbook-sgml-dtd-4.1-native intltool-native gperf-native acl readline dbus libcap libcgroup glib-2.0 qemu-native util-linux"
+DEPENDS = "kmod docbook-sgml-dtd-4.1-native intltool-native gperf-native acl readline dbus libcap libcgroup glib-2.0 qemu-native util-linux"
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'libpam', '', d)}"
 
 SECTION = "base/shell"
 
 inherit gtk-doc useradd pkgconfig autotools perlnative update-rc.d update-alternatives qemu systemd ptest gettext
 
-SRCREV = "e1ad6e245dcf63faa8f183063eb97678f4f9ac94"
+SRCREV = "5d0ae62c665262c4c55536457e84e278c252cc0b"
 
 PV = "216+git${SRCPV}"
 
@@ -30,6 +30,8 @@ SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;branch=master;protocol=
            file://optional_secure_getenv.patch \
            file://uclibc-sysinfo_h.patch \
            file://uclibc-get-physmem.patch \
+           file://0001-add-support-for-executing-scripts-under-etc-rcS.d.patch \
+           file://0001-missing.h-add-fake-__NR_memfd_create-for-MIPS.patch \
            file://0001-configure-disable-LTO.patch \
            file://touchscreen.rules \
            file://00-create-volatile.conf \
@@ -47,6 +49,7 @@ LDFLAGS_append_libc-uclibc = " -lrt"
 GTKDOC_DOCDIR = "${S}/docs/"
 
 PACKAGECONFIG ??= "xz"
+PACKAGECONFIG[journal-upload] = "--enable-libcurl,--disable-libcurl,curl"
 # Sign the journal for anti-tampering
 PACKAGECONFIG[gcrypt] = "--enable-gcrypt,--disable-gcrypt,libgcrypt"
 # regardless of PACKAGECONFIG, libgcrypt is always required to expand
@@ -56,6 +59,9 @@ DEPENDS += "libgcrypt"
 PACKAGECONFIG[xz] = "--enable-xz,--disable-xz,xz"
 PACKAGECONFIG[cryptsetup] = "--enable-libcryptsetup,--disable-libcryptsetup,cryptsetup"
 PACKAGECONFIG[microhttpd] = "--enable-microhttpd,--disable-microhttpd,libmicrohttpd"
+PACKAGECONFIG[elfutils] = "--enable-elfutils,--disable-elfutils,elfutils"
+PACKAGECONFIG[resolved] = "--enable-resolved,--disable-resolved"
+PACKAGECONFIG[networkd] = "--enable-networkd,--disable-networkd"
 
 CACHED_CONFIGUREVARS = "ac_cv_path_KILL=${base_bindir}/kill"
 
@@ -123,8 +129,26 @@ do_install() {
 		sed -i s%@UDEVD@%${rootlibexecdir}/systemd/systemd-udevd% ${D}${sysconfdir}/init.d/systemd-udevd
 	fi
 
+	# Move libgudev back to ${rootlibdir} to keep backward compatibility
+	[ ${rootlibdir} != ${libdir} ] && mv -t ${D}${rootlibdir} ${D}${libdir}/libgudev*
+
         # Delete journal README, as log can be symlinked inside volatile.
         rm -f ${D}/${localstatedir}/log/README
+
+	# Create symlinks for systemd-update-utmp-runlevel.service
+	install -d ${D}${systemd_unitdir}/system/graphical.target.wants
+	install -d ${D}${systemd_unitdir}/system/multi-user.target.wants
+	install -d ${D}${systemd_unitdir}/system/poweroff.target.wants
+	install -d ${D}${systemd_unitdir}/system/reboot.target.wants
+	install -d ${D}${systemd_unitdir}/system/rescue.target.wants
+	ln -sf ../systemd-update-utmp-runlevel.service ${D}${systemd_unitdir}/system/graphical.target.wants/systemd-update-utmp-runlevel.service
+	ln -sf ../systemd-update-utmp-runlevel.service ${D}${systemd_unitdir}/system/multi-user.target.wants/systemd-update-utmp-runlevel.service
+	ln -sf ../systemd-update-utmp-runlevel.service ${D}${systemd_unitdir}/system/poweroff.target.wants/systemd-update-utmp-runlevel.service
+	ln -sf ../systemd-update-utmp-runlevel.service ${D}${systemd_unitdir}/system/reboot.target.wants/systemd-update-utmp-runlevel.service
+	ln -sf ../systemd-update-utmp-runlevel.service ${D}${systemd_unitdir}/system/rescue.target.wants/systemd-update-utmp-runlevel.service
+
+	# Enable journal to forward message to syslog daemon
+	sed -i -e 's/.*ForwardToSyslog.*/ForwardToSyslog=yes/' ${D}${sysconfdir}/systemd/journald.conf
 }
 
 do_install_ptest () {
@@ -145,9 +169,7 @@ do_install_ptest () {
 
 python populate_packages_prepend (){
     systemdlibdir = d.getVar("rootlibdir", True)
-    prefixlibdir = d.getVar("libdir", True)
     do_split_packages(d, systemdlibdir, '^lib(.*)\.so\.*', 'lib%s', 'Systemd %s library', extra_depends='', allow_links=True)
-    do_split_packages(d, prefixlibdir, '^lib(.*)\.so\.*', 'lib%s', 'Systemd %s library', extra_depends='', allow_links=True)
 }
 PACKAGES_DYNAMIC += "^lib(udev|gudev|systemd).*"
 
@@ -194,7 +216,7 @@ FILES_${PN}-binfmt = "${sysconfdir}/binfmt.d/ \
                       ${systemd_unitdir}/system/systemd-binfmt.service"
 RRECOMMENDS_${PN}-binfmt = "kernel-module-binfmt-misc"
 
-RRECOMMENDS_${PN}-vconsole-setup = "kbd kbd-consolefonts"
+RRECOMMENDS_${PN}-vconsole-setup = "kbd kbd-consolefonts kbd-keymaps"
 
 CONFFILES_${PN} = "${sysconfdir}/systemd/journald.conf \
                 ${sysconfdir}/systemd/logind.conf \
@@ -209,8 +231,8 @@ FILES_${PN} = " ${base_bindir}/* \
                 ${datadir}/dbus-1/services \
                 ${datadir}/dbus-1/system-services \
                 ${datadir}/polkit-1 \
-                ${datadir}/factory \
                 ${datadir}/${BPN} \
+                ${datadir}/factory \
                 ${sysconfdir}/bash_completion.d/ \
                 ${sysconfdir}/dbus-1/ \
                 ${sysconfdir}/machine-id \
@@ -223,8 +245,7 @@ FILES_${PN} = " ${base_bindir}/* \
                 ${rootlibexecdir}/systemd/* \
                 ${systemd_unitdir}/* \
                 ${base_libdir}/security/*.so \
-                ${libdir}/libnss_*.so.* \
-                ${libdir}/sysusers.d \
+                ${libdir}/libnss_* \
                 /cgroup \
                 ${bindir}/systemd* \
                 ${bindir}/busctl \
@@ -237,6 +258,7 @@ FILES_${PN} = " ${base_bindir}/* \
                 ${exec_prefix}/lib/systemd \
                 ${exec_prefix}/lib/modules-load.d \
                 ${exec_prefix}/lib/sysctl.d \
+                ${exec_prefix}/lib/sysusers.d \
                 ${localstatedir} \
                 /lib/udev/rules.d/70-uaccess.rules \
                 /lib/udev/rules.d/71-seat.rules \
@@ -254,7 +276,7 @@ RDEPENDS_${PN} += "volatile-binds"
 RRECOMMENDS_${PN} += "systemd-serialgetty systemd-compat-units udev-hwdb\
                       util-linux-agetty \
                       util-linux-fsck e2fsprogs-e2fsck \
-                      kernel-module-autofs4 kernel-module-unix kernel-module-ipv6 \
+                      kernel-module-autofs4 kernel-module-unix kernel-module-ipv6 os-release \
 "
 
 PACKAGES =+ "udev-dbg udev udev-hwdb"
