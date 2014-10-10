@@ -35,6 +35,8 @@ MACHINEOVERRIDES[vardepsexclude] += "SOC_FAMILY"
 PREFERRED_PROVIDER_opkg-collateral = "angstrom-feed-configs"
 EXTRA_IMAGE_FEATURES ?= "package-management"
 
+PREFERRED_PROVIDER_os-release = "angstrom-version"
+
 # Prefer libjpeg-turbo
 PREFERRED_PROVIDER_jpeg = "libjpeg-turbo"
 PREFERRED_PROVIDER_jpeg-native = "libjpeg-turbo-native"
