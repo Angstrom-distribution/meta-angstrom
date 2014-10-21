@@ -7,7 +7,7 @@ PR = "r0"
 
 inherit autotools
 
-SRC_URI = "git://git.zytor.com/utils/ranpwd.git"
+SRC_URI = "git://github.com/koenkooi/ranpwd.git;protocol=https"
 SRCREV = "b62aab579e288715b82d5575befaa2b8ff210c2b"
 
 S="${WORKDIR}/git"
