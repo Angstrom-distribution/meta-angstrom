@@ -32,6 +32,9 @@ MACHINEOVERRIDES[vardepsexclude] += "SOC_FAMILY"
 # but that needs a coordinated effort
 #PKGARCHCOMPAT_ARMV7A = "True"
 
+# On-target gcc 4.9 fails to build for armeb with thumb errors
+ARM_INSTRUCTION_SET_pn-gcc_armeb = "arm"
+
 # Providers
 
 # opkg
