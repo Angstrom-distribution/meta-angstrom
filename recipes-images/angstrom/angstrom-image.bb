@@ -22,7 +22,7 @@ IMAGE_INIT_MANAGER  = "systemd"
 IMAGE_INITSCRIPTS   = " "
 IMAGE_LOGIN_MANAGER = "busybox shadow"
 
-export IMAGE_BASENAME = "Angstrom-base-image"
+export IMAGE_BASENAME = "base-image"
 
 IMAGE_PREPROCESS_COMMAND += "do_systemd_network ; "
 
