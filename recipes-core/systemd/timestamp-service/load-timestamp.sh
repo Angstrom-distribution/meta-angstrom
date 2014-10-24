@@ -5,16 +5,11 @@
 # use the timestamp instead.
 SYSTEMDATE=$(/bin/date -u "+%4Y%2m%2d%2H%2M")
 
-YEAR=$(cat /etc/timestamp | cut -b 1-4)
-MONTH=$(cat /etc/timestamp | cut -b 5-6)
-DAY=$(cat /etc/timestamp | cut -b 7-8)
-TIME=$(cat /etc/timestamp | cut -b 9-12)
+TIMESTAMP=$(/bin/cat /etc/timestamp 2>/dev/null)
 
-TIMESTAMP="$YEAR$MONTH$DAY$TIME"
-
-if [ $SYSTEMDATE -lt $TIMESTAMP ]; then 
+if [ $SYSTEMDATE -lt $TIMESTAMP ] 2>/dev/null ; then
 	echo "Update systemtime from /etc/timestamp"
-	date -u $(cat /etc/timestamp)
+	/bin/date -u ${TIMESTAMP#????}${TIMESTAMP%????????}
 fi
 
 if [ "$1" = "--save" ] ; then
