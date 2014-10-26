@@ -102,7 +102,7 @@ case "$arch" in
 	"armv7at2hf-vfp")
 			machines="sama5d3_xplained sama5d3xek" ;;
 	"armv7at2hf-vfp-neon")
-			machines="am335x-evm am3517-evm am37x-evm arndale arndale-octa beagleboard beaglebone chromebook-snow cubieboard cubieboard2 cubietruck dra7xx-evm efikamx genericarmv7a hpveer htcleo imx6qsabrelite keystone-evm nexusone nokia900 olinuxino-a10s olinuxino-a13 olinuxino-a20 omap3evm omap5-evm om-gta04 overo pandaboard wandboard-solo wandboard-dual wandboard-quad" ;;
+			machines="am335x-evm am3517-evm am37x-evm arndale arndale-octa beagleboard beaglebone chromebook-snow cubieboard cubieboard2 cubietruck dra7xx-evm efikamx genericarmv7a hpveer htcleo ifc6410 imx6qsabrelite keystone-evm nexusone nokia900 olinuxino-a10s olinuxino-a13 olinuxino-a20 omap3evm omap5-evm om-gta04 overo pandaboard wandboard-solo wandboard-dual wandboard-quad" ;;
 	"armv7at2hf-vfp-neon-mx5")
 			archdir="armv7ahf-vfp-neon"
 			machines="" ;;
@@ -132,6 +132,9 @@ case "$arch" in
 	"i686")
 			machines="eee701 i686-generic guinness progear ion vmware x86-32-nocona x86-prescott" ;;
 	"iwmmxt")
+			machines="" ;;
+	"mips32r2")
+			archdir="mips32"
 			machines="" ;;
 	"mips32")
 			machines="qemumips ben-nanonote" ;;
@@ -171,6 +174,9 @@ case "$arch" in
 			machines="qemux86-64 dominion" ;;
 	"core2-32")
 			machines="crownbay-noemgd emenlow-noemgd fri2-noemgd" ;;
+	"core2-32-intel-common")
+			archdir="core2-32"
+			machines="" ;;
 	"core2-32-emgd")
 			archdir="core2-32"
 			machines="crownbay emenlow fri2 minnow n450 soekris-net6501" ;;
@@ -270,7 +276,7 @@ for i in `find . -name  "*.ipk"| grep _all` ; do mkdir -p ../all/ || true ;mv $i
 mkdir -p ../sdk ; mv *sdk.ipk ../sdk/ || true
  (mkdir -p ../sdk ; cd ../sdk && ${ipkg_tools_path}/opkg-make-index -p Packages -m . >& /dev/null ; touch Packages.sig )
 
-for arch in 486sx aarch64 armv4t armv4 armv5teb xscaleteb armv5te-mx23 armv5te-mx28 armv5te armv6-vfp armv6-novfp armv6 armv7a-vfp armv7a-vfp-neon armv7ahf-vfp-neon armv7ahf-vfp-neon-mx5 armv7ahf-vfp-neon-mx6 armv7ahf-vfp armv7at2hf-vfp armv7at2hf-vfp-neon armv7at2hf-vfp-mx5 armv7at2hf-vfp-mx6 avr32 bfin cortexa8hf-vfp-neon cortexa9hf-vfp-neon-mx6 cortexa9hf-vfp-neon geode i486 i586 i686 iwmmxt mips32 mipsel powerpc ppc405 ppc440e ppc603e ppce300c2 ppce300c3 ppce500v2 ppce500 ppce600 sh4 sparc corei7-64-intel-common corei7-64 x86 corei7-64 core2-64 core2-32 core2-32-emgd core2; do
+for arch in 486sx aarch64 armv4t armv4 armv5teb xscaleteb armv5te-mx23 armv5te-mx28 armv5te armv6-vfp armv6-novfp armv6 armv7a-vfp armv7a-vfp-neon armv7ahf-vfp-neon armv7ahf-vfp-neon-mx5 armv7ahf-vfp-neon-mx6 armv7ahf-vfp armv7at2hf-vfp armv7at2hf-vfp-neon armv7at2hf-vfp-mx5 armv7at2hf-vfp-mx6 avr32 bfin cortexa8hf-vfp-neon cortexa9hf-vfp-neon-mx6 cortexa9hf-vfp-neon geode i486 i586 i686 iwmmxt mips32r2 mips32 mipsel powerpc ppc405 ppc440e ppc603e ppce300c2 ppce300c3 ppce500v2 ppce500 ppce600 sh4 sparc corei7-64-intel-common corei7-64 x86 corei7-64 core2-64 core2-32-intel-common core2-32 core2-32-emgd core2; do
 
 	do_sort
 done
