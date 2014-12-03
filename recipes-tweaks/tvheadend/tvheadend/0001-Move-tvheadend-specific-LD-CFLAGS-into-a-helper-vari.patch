@@ -1,0 +1,137 @@
+From e56e244f901ae04e8c681c848d06c1b96b67ca58 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Fri, 21 Dec 2012 10:15:42 +0100
+Subject: [PATCH] Move tvheadend specific LD/CFLAGS into a helper variable to
+ avoid being overwritten
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+
+Upstream-Status: Inappropriate [OE specific]
+---
+ Makefile              | 44 ++++++++++++++++++++++----------------------
+ support/configure.inc |  8 ++++----
+ 2 files changed, 26 insertions(+), 26 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 9931635..5e4aebf 100644
+--- a/Makefile
++++ b/Makefile
+@@ -27,45 +27,45 @@ PROG    := $(BUILDDIR)/tvheadend
+ # Common compiler flags
+ #
+ 
+-CFLAGS  += -g -O2 -Wunused-result
+-CFLAGS  += -Wall -Werror -Wwrite-strings -Wno-deprecated-declarations
+-CFLAGS  += -Wmissing-prototypes
+-CFLAGS  += -fms-extensions -funsigned-char -fno-strict-aliasing
+-CFLAGS  += -D_FILE_OFFSET_BITS=64
+-CFLAGS  += -I${BUILDDIR} -I${ROOTDIR}/src -I${ROOTDIR}
++TVH_CFLAGS  += -g -O2 -Wunused-result
++TVH_CFLAGS  += -Wall -Werror -Wwrite-strings -Wno-deprecated-declarations
++TVH_CFLAGS  += -Wmissing-prototypes
++TVH_CFLAGS  += -fms-extensions -funsigned-char -fno-strict-aliasing
++TVH_CFLAGS  += -D_FILE_OFFSET_BITS=64
++TVH_CFLAGS  += -I${BUILDDIR} -I${ROOTDIR}/src -I${ROOTDIR}
+ ifeq ($(CONFIG_ANDROID),yes)
+-LDFLAGS += -ldl -lm
++TVH_LDFLAGS += -ldl -lm
+ else
+-LDFLAGS += -ldl -lpthread -lm
++TVH_LDFLAGS += -ldl -lpthread -lm
+ endif
+ ifeq ($(CONFIG_LIBICONV),yes)
+-LDFLAGS += -liconv
++TVH_LDFLAGS += -liconv
+ endif
+ ifeq ($(PLATFORM), darwin)
+-LDFLAGS += -framework CoreServices
++TVH_LDFLAGS += -framework CoreServices
+ else
+ ifeq ($(CONFIG_ANDROID),no)
+-LDFLAGS += -lrt
++TVH_LDFLAGS += -lrt
+ endif
+ endif
+ 
+ ifeq ($(COMPILER), clang)
+-CFLAGS  += -Wno-microsoft -Qunused-arguments -Wno-unused-function
+-CFLAGS  += -Wno-unused-value -Wno-tautological-constant-out-of-range-compare
+-CFLAGS  += -Wno-parentheses-equality -Wno-incompatible-pointer-types
++TVH_CFLAGS  += -Wno-microsoft -Qunused-arguments -Wno-unused-function
++TVH_CFLAGS  += -Wno-unused-value -Wno-tautological-constant-out-of-range-compare
++TVH_CFLAGS  += -Wno-parentheses-equality -Wno-incompatible-pointer-types
+ endif
+ 
+ ifeq ($(CONFIG_LIBFFMPEG_STATIC),yes)
+-CFLAGS  += -I${ROOTDIR}/libav_static/build/ffmpeg/include
+-LDFLAGS += -L${ROOTDIR}/libav_static/build/ffmpeg/lib -Wl,-Bstatic \
++TVH_CFLAGS  += -I${ROOTDIR}/libav_static/build/ffmpeg/include
++TVH_LDFLAGS += -L${ROOTDIR}/libav_static/build/ffmpeg/lib -Wl,-Bstatic \
+            -lavresample -lswresample -lswscale \
+            -lavutil -lavformat -lavcodec -lavutil \
+            -lvorbisenc -lvorbis -logg -lx264 -lvpx \
+            -Wl,-Bdynamic
+ endif
+ ifeq ($(CONFIG_HDHOMERUN_STATIC),yes)
+-CFLAGS  += -I${ROOTDIR}/libhdhomerun_static
+-LDFLAGS += -L${ROOTDIR}/libhdhomerun_static/libhdhomerun \
++TVH_CFLAGS  += -I${ROOTDIR}/libhdhomerun_static
++TVH_LDFLAGS += -L${ROOTDIR}/libhdhomerun_static/libhdhomerun \
+            -Wl,-Bstatic -lhdhomerun -Wl,-Bdynamic
+ endif
+ 
+@@ -340,8 +340,8 @@ SRCS-yes += src/descrambler/ffdecsa/ffdecsa_interface.c \
+ 	    src/descrambler/ffdecsa/ffdecsa_int.c
+ SRCS-${CONFIG_MMX}  += src/descrambler/ffdecsa/ffdecsa_mmx.c
+ SRCS-${CONFIG_SSE2} += src/descrambler/ffdecsa/ffdecsa_sse2.c
+-${BUILDDIR}/src/descrambler/ffdecsa/ffdecsa_mmx.o  : CFLAGS += -mmmx
+-${BUILDDIR}/src/descrambler/ffdecsa/ffdecsa_sse2.o : CFLAGS += -msse2
++${BUILDDIR}/src/descrambler/ffdecsa/ffdecsa_mmx.o  : TVH_TVH_CFLAGS += -mmmx
++${BUILDDIR}/src/descrambler/ffdecsa/ffdecsa_sse2.o : TVH_TVH_CFLAGS += -msse2
+ endif
+ 
+ # libaesdec
+@@ -402,12 +402,12 @@ reconfigure:
+ 
+ # Binary
+ ${PROG}: check_config $(OBJS) $(ALLDEPS)
+-	$(CC) -o $@ $(OBJS) $(CFLAGS) $(LDFLAGS)
++	$(CC) -o $@ $(OBJS) $(TVH_CFLAGS) $(TVH_LDFLAGS) $(TVH_CFLAGS) $(TVH_LDFLAGS) $(TVH_CFLAGS) $(TVH_LDFLAGS) $(TVH_CFLAGS) $(TVH_LDFLAGS) $(CFLAGS) $(LDFLAGS)
+ 
+ # Object
+ ${BUILDDIR}/%.o: %.c
+ 	@mkdir -p $(dir $@)
+-	$(CC) -MD -MP $(CFLAGS) -c -o $@ $<
++	$(CC) -MD -MP $(TVH_CFLAGS) $(TVH_CFLAGS) $(TVH_CFLAGS) $(TVH_CFLAGS) $(CFLAGS) -c -o $@ $<
+ 
+ # Add-on
+ ${BUILDDIR}/%.so: ${SRCS_EXTRA}
+diff --git a/support/configure.inc b/support/configure.inc
+index f7cfcd3..e3a2dd7 100755
+--- a/support/configure.inc
++++ b/support/configure.inc
+@@ -455,8 +455,8 @@ ifeq (\$(origin CC),default)
+ CC        = ${CC}
+ endif
+ PYTHON   ?= ${PYTHON}
+-CFLAGS   += ${CFLAGS}
+-LDFLAGS  += ${LDFLAGS}
++TVH_CFLAGS   += ${CFLAGS}
++TVH_LDFLAGS  += ${LDFLAGS}
+ prefix    = ${prefix}
+ bindir    = ${bindir}
+ mandir    = ${mandir}
+@@ -478,8 +478,8 @@ EOF
+   # Add package config
+   for pkg in ${PACKAGES[*]}; do
+     cat >>"${CONFIG_MK}" <<EOF
+-LDFLAGS += $(pkg-config --libs $pkg)
+-CFLAGS  += $(pkg-config --cflags $pkg)
++TVH_LDFLAGS += $(pkg-config --libs $pkg)
++TVH_CFLAGS  += $(pkg-config --cflags $pkg)
+ EOF
+   done
+ 
+-- 
+1.9.0
+
