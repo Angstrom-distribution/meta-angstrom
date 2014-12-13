@@ -12,11 +12,11 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=fcb02dc552a041dee27e4b85c7396067"
 SECTION = "base"
 DEPENDS = "util-linux attr e2fsprogs lzo acl"
 
-SRCREV = "44cdb62d3478c834f41c87ea79d261b9c8982dce"
+SRCREV = "e4c12281c27e166ebec6e030cdfb85fd40ded13b"
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git"
 S = "${WORKDIR}/git"
 
-PV = "3.17"
+PV = "3.17.3"
 
 EXTRA_OEMAKE = "DISABLE_DOCUMENTATION=1 'CC=${CC}' 'AR=${AR}' 'CFLAGS=${CFLAGS}' V=1"
 
