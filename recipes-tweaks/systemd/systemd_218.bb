@@ -17,24 +17,19 @@ SECTION = "base/shell"
 
 inherit gtk-doc useradd pkgconfig autotools perlnative update-rc.d update-alternatives qemu systemd ptest gettext
 
-SRCREV = "5d0ae62c665262c4c55536457e84e278c252cc0b"
+SRCREV = "ee05e7795bb9ad7d1212dd49ad362f3e9603c4fd"
 
-PV = "216+git${SRCPV}"
+PV = "218+git${SRCPV}"
 
 SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;branch=master;protocol=git \
            file://binfmt-install.patch \
            file://systemd-pam-configure-check-uclibc.patch \
            file://systemd-pam-fix-execvpe.patch \
-           file://systemd-pam-fix-fallocate.patch \
            file://systemd-pam-fix-mkostemp.patch \
            file://optional_secure_getenv.patch \
-           file://uclibc-sysinfo_h.patch \
            file://uclibc-get-physmem.patch \
            file://0001-add-support-for-executing-scripts-under-etc-rcS.d.patch \
-           file://0001-missing.h-add-fake-__NR_memfd_create-for-MIPS.patch \
            file://0001-configure-disable-LTO.patch \
-           file://0001-logind-add-support-for-Triton2-Power-Button.patch \
-           file://0002-logind-add-support-for-TPS65217-Power-Button.patch \
            file://0003-logind-add-support-for-gpio-keys-Power-Button.patch \
            file://touchscreen.rules \
            file://00-create-volatile.conf \
@@ -267,6 +262,8 @@ FILES_${PN} = " ${base_bindir}/* \
                 /lib/udev/rules.d/71-seat.rules \
                 /lib/udev/rules.d/73-seat-late.rules \
                 /lib/udev/rules.d/99-systemd.rules \
+                /lib/udev/rules.d/70-mouse.rules \
+                /lib/udev/rules.d/90-vconsole.rules \
                 ${@bb.utils.contains('DISTRO_FEATURES', 'pam', '${sysconfdir}/pam.d', '', d)} \
                "
 

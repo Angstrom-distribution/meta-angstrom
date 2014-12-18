@@ -12,13 +12,13 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  1 file changed, 4 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 43b6eef..68006b5 100644
+index 45dd230..988db36 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -199,10 +199,6 @@ CC_CHECK_FLAGS_APPEND([with_cflags], [CFLAGS], [\
-         -fstack-protector-strong \
-         -fPIE \
-         --param=ssp-buffer-size=4])
+@@ -224,10 +224,6 @@ AS_CASE([$CC], [*clang*],
+                -Wno-gnu-variable-sized-type-not-at-end \
+         ])])
+ 
 -AS_CASE([$CFLAGS], [*-O[[12345\ ]]*],
 -        [CC_CHECK_FLAGS_APPEND([with_cflags], [CFLAGS], [\
 -               -flto -ffat-lto-objects])],
@@ -26,6 +26,3 @@ index 43b6eef..68006b5 100644
  AC_SUBST([OUR_CFLAGS], "$with_cflags $sanitizer_cflags")
  
  AS_CASE([$CFLAGS], [*-O[[12345\ ]]*],
--- 
-1.9.0
-

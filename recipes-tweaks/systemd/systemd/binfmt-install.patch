@@ -1,3 +1,6 @@
+From: Ross Burton <ross.burton@intel.com>
+Subject: fix binfmt install
+
 Don't install dependency links at install time for the binfmt services, use
 [Install] blocks so that they get created when the service is enabled like a
 traditional service.
@@ -9,11 +12,13 @@ however can do that in a postinst.
 Upstream-Status: Denied
 Signed-off-by: Ross Burton <ross.burton@intel.com>
 
+--
+
 diff --git a/Makefile.am b/Makefile.am
-index 7933de6..78acb6f 100644
+index ab07d3b..3271f8a 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -3133,10 +3133,6 @@ INSTALL_DIRS += \
+@@ -4521,10 +4521,6 @@ INSTALL_DIRS += \
  	$(prefix)/lib/binfmt.d \
  	$(sysconfdir)/binfmt.d
  
@@ -36,7 +41,7 @@ index 6be3893..709adef 100644
 +[Install]
 +WantedBy=sysinit.target
 diff --git a/units/systemd-binfmt.service.in b/units/systemd-binfmt.service.in
-index 02dfe77..86d3481 100644
+index 34a5d52..1e4a809 100644
 --- a/units/systemd-binfmt.service.in
 +++ b/units/systemd-binfmt.service.in
 @@ -11,6 +11,7 @@ Documentation=man:systemd-binfmt.service(8) man:binfmt.d(5)
@@ -44,7 +49,7 @@ index 02dfe77..86d3481 100644
  DefaultDependencies=no
  Conflicts=shutdown.target
 +Wants=proc-sys-fs-binfmt_misc.automount
- After=systemd-readahead-collect.service systemd-readahead-replay.service proc-sys-fs-binfmt_misc.automount
+ After=proc-sys-fs-binfmt_misc.automount
  Before=sysinit.target shutdown.target
  ConditionPathIsReadWrite=/proc/sys/
 @@ -24,3 +25,6 @@ ConditionDirectoryNotEmpty=|/run/binfmt.d
