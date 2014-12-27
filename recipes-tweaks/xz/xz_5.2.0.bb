@@ -30,9 +30,6 @@ SRC_URI[sha256sum] = "231ef369982240bb20ed7cffa52bb12a4a297ce6871f480ab85e8a7ba9
 
 inherit autotools gettext
 
-EXTRA_OECONF_x86 = " --enable-assembler=x86"
-EXTRA_OECONF_x86-84 = " --enable-assembler=x86_64"
-
 PACKAGES =+ "liblzma liblzma-dev liblzma-staticdev liblzma-dbg"
 
 FILES_liblzma = "${libdir}/liblzma*${SOLIBS}"
