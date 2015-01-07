@@ -10,7 +10,7 @@ SRC_URI = "git://github.com/tvheadend/tvheadend.git;name=tvh \
            git://linuxtv.org/dtv-scan-tables.git;name=dvb;destsuffix=git/data/dvb-scan \
            file://0001-Move-tvheadend-specific-LD-CFLAGS-into-a-helper-vari.patch \
 "
-SRCREV_tvh = "b0e030b326c04c5c16e7a1bac59e0540fb8bb2d5"
+SRCREV_tvh = "1afee1663a0d407b420ce98316e6d0b0849c954c"
 SRCREV_dvb = "82115b4a1f1039d5a2f93f2b7ddc4b2d2713b7ae"
 SRCREV_FORMAT = "tvh"
 
@@ -35,3 +35,5 @@ do_install() {
 }
 
 FILES_${PN} += "${datadir}/${BPN}"
+# builtin archival code chokes on busybox stuff
+RDEPENDS_${PN} = "tar bzip2"
