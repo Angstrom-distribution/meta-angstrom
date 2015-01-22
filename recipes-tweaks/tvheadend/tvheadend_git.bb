@@ -14,7 +14,7 @@ SRCREV_tvh = "3077ffa4d38ac4ab9a5e3f26a5ab5848da8b546f"
 SRCREV_dvb = "b46a22ca4f51a43143ab0618ee1b3b0067fa4fd3"
 SRCREV_FORMAT = "tvh"
 
-PV = "3.9.2339+git${SRCPV}"
+PV = "3.9.2410+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
