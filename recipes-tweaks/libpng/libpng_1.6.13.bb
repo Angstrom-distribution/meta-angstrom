@@ -19,7 +19,7 @@ BINCONFIG = "${bindir}/libpng-config ${bindir}/libpng16-config"
 inherit autotools binconfig-disabled pkgconfig
 
 # Work around missing symbols
-EXTRA_OECONF_append = " ${@bb.utils.contains("TUNE_FEATURES", "neon", "--enable-arm-neon=on", "--enable-arm-neon=off" ,d)}"
+EXTRA_OECONF_append = " ${@bb.utils.contains("TUNE_FEATURES", "neon", "", "--enable-arm-neon=off" ,d)}"
 
 PACKAGES =+ "${PN}-tools"
 
