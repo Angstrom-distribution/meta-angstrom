@@ -1,4 +1,4 @@
-From e56e244f901ae04e8c681c848d06c1b96b67ca58 Mon Sep 17 00:00:00 2001
+From a22af402cbfef183afdc58e7dbe027a52c5283dd Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Fri, 21 Dec 2012 10:15:42 +0100
 Subject: [PATCH] Move tvheadend specific LD/CFLAGS into a helper variable to
@@ -13,7 +13,7 @@ Upstream-Status: Inappropriate [OE specific]
  2 files changed, 26 insertions(+), 26 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 9931635..5e4aebf 100644
+index 82dce3d..a45712d 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -27,45 +27,45 @@ PROG    := $(BUILDDIR)/tvheadend
@@ -70,7 +70,7 @@ index 9931635..5e4aebf 100644
             -lavresample -lswresample -lswscale \
             -lavutil -lavformat -lavcodec -lavutil \
             -lvorbisenc -lvorbis -logg -lx264 -lvpx \
-            -Wl,-Bdynamic
+            -Wl,-Bdynamic -ldl
  endif
  ifeq ($(CONFIG_HDHOMERUN_STATIC),yes)
 -CFLAGS  += -I${ROOTDIR}/libhdhomerun_static
@@ -80,7 +80,7 @@ index 9931635..5e4aebf 100644
             -Wl,-Bstatic -lhdhomerun -Wl,-Bdynamic
  endif
  
-@@ -340,8 +340,8 @@ SRCS-yes += src/descrambler/ffdecsa/ffdecsa_interface.c \
+@@ -345,8 +345,8 @@ SRCS-yes += src/descrambler/ffdecsa/ffdecsa_interface.c \
  	    src/descrambler/ffdecsa/ffdecsa_int.c
  SRCS-${CONFIG_MMX}  += src/descrambler/ffdecsa/ffdecsa_mmx.c
  SRCS-${CONFIG_SSE2} += src/descrambler/ffdecsa/ffdecsa_sse2.c
@@ -91,7 +91,7 @@ index 9931635..5e4aebf 100644
  endif
  
  # libaesdec
-@@ -402,12 +402,12 @@ reconfigure:
+@@ -407,12 +407,12 @@ reconfigure:
  
  # Binary
  ${PROG}: check_config $(OBJS) $(ALLDEPS)
