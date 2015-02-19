@@ -373,18 +373,6 @@ pkg_prerm_udev-hwdb () {
 	rm -f ${sysconfdir}/udev/hwdb.bin
 }
 
-# Do not activate libnss-resolve by default, that needs more thought
-
-pkg_postinst_${PN} () {
-	sed -e '/^hosts:/s/\s*\<myhostname\>//' \
-		-e 's/\(^hosts:.*\)\(\<files\>\)\(.*\)\(\<dns\>\)\(.*\)/\1\2 myhostname \3\4\5/' \
-		-i $D${sysconfdir}/nsswitch.conf
-
-	sed -e '/^hosts:/s/\s*\<mymachine\>//' \
-		-e 's/\(^hosts:.*\)\(\<files\>\)\(.*\)\(\<dns\>\)\(.*\)/\1\2 mymachine \3\4\5/' \
-		-i $D${sysconfdir}/nsswitch.conf
-}
-
 pkg_prerm_${PN} () {
 	sed -e '/^hosts:/s/\s*\<myhostname\>//' \
 		-e '/^hosts:/s/\s*myhostname//' \
