@@ -31,6 +31,7 @@ SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;branch=master;protocol=
            file://0001-add-support-for-executing-scripts-under-etc-rcS.d.patch \
            file://0001-configure-disable-LTO.patch \
            file://0003-logind-add-support-for-gpio-keys-Power-Button.patch \
+           file://syscall.patch \
            file://touchscreen.rules \
            file://00-create-volatile.conf \
            file://init \

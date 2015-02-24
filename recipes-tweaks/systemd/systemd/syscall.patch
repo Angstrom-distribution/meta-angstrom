@@ -1,0 +1,37 @@
+From 7fd68245a1778e187376736285fd89b968b9731c Mon Sep 17 00:00:00 2001
+From: Michael Olbrich <m.olbrich@pengutronix.de>
+Date: Mon, 26 Jan 2015 16:51:17 +0100
+Subject: missing: define correct syscall numbers for memfd_create() and
+ getrandom() on aarch64
+
+Upstream-status: backport
+
+--
+diff --git a/src/shared/missing.h b/src/shared/missing.h
+index 5b95b00..f8721e6 100644
+--- a/src/shared/missing.h
++++ b/src/shared/missing.h
+@@ -136,6 +136,8 @@ static inline int pivot_root(const char *new_root, const char *put_old) {
+ #    define __NR_memfd_create 319
+ #  elif defined __arm__
+ #    define __NR_memfd_create 385
++#  elif defined __aarch64__
++#    define __NR_memfd_create 279
+ #  elif defined _MIPS_SIM
+ #    if _MIPS_SIM == _MIPS_SIM_ABI32
+ #      define __NR_memfd_create 4354
+@@ -165,8 +167,10 @@ static inline int memfd_create(const char *name, unsigned int flags) {
+ #    define __NR_getrandom 318
+ #  elif defined(__i386__)
+ #    define __NR_getrandom 355
+-#  elif defined(__arm__) || defined(__aarch64__)
++#  elif defined(__arm__)
+ #    define __NR_getrandom 384
++# elif defined(__aarch64__)
++#    define __NR_getrandom 278
+ #  elif defined(__ia64__)
+ #    define __NR_getrandom 1339
+ #  elif defined(__m68k__)
+-- 
+cgit v0.10.2
+
