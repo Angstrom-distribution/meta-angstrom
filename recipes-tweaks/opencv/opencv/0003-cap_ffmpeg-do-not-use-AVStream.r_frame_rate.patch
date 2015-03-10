@@ -1,0 +1,45 @@
+From 67ba74de642c80f91fd5c59538d08c173930bc87 Mon Sep 17 00:00:00 2001
+From: Anton Khirnov <anton@khirnov.net>
+Date: Thu, 6 Feb 2014 09:46:58 +0100
+Subject: [PATCH 3/5] cap_ffmpeg: do not use AVStream.r_frame_rate
+
+r_frame_rate is a guessed number defined as "the least common multiple
+of all framerates in the stream". It has been deprecated and removed in
+new Libav releases.
+
+Use avg_frame_rate instead, which is the average framerate of the
+stream.
+---
+ modules/highgui/src/cap_ffmpeg_impl.hpp | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/modules/highgui/src/cap_ffmpeg_impl.hpp b/modules/highgui/src/cap_ffmpeg_impl.hpp
+index 5c35f6c..41fb0e8 100644
+--- a/modules/highgui/src/cap_ffmpeg_impl.hpp
++++ b/modules/highgui/src/cap_ffmpeg_impl.hpp
+@@ -719,7 +719,7 @@ double CvCapture_FFMPEG::getProperty( int property_id )
+     case CV_FFMPEG_CAP_PROP_FRAME_HEIGHT:
+         return (double)frame.height;
+     case CV_FFMPEG_CAP_PROP_FPS:
+-        return av_q2d(video_st->r_frame_rate);
++        return av_q2d(video_st->avg_frame_rate);
+     case CV_FFMPEG_CAP_PROP_FOURCC:
+         return (double)video_st->codec->codec_tag;
+     default:
+@@ -758,12 +758,7 @@ int CvCapture_FFMPEG::get_bitrate()
+ 
+ double CvCapture_FFMPEG::get_fps()
+ {
+-    double fps = r2d(ic->streams[video_stream]->r_frame_rate);
+-
+-    if (fps < eps_zero)
+-    {
+-        fps = r2d(ic->streams[video_stream]->avg_frame_rate);
+-    }
++    double fps = r2d(ic->streams[video_stream]->avg_frame_rate);
+ 
+     if (fps < eps_zero)
+     {
+-- 
+1.9.0
+
