@@ -48,6 +48,9 @@ require conf/distro/include/angstrom-${TCLIBC}.inc
 require conf/distro/include/angstrom-java.inc
 require conf/distro/include/angstrom-jalimo.conf
 
+# Mesa tweaks
+require conf/distro/include/angstrom-mesa-tweaks.inc
+
 # ARM920T and up can use thumb mode to decrease binary size at the expense of speed
 # (the complete story is a bit more nuanced due to cache starvation)
 # Angstrom turns on thumb for armv4t machine according to this RFC:
