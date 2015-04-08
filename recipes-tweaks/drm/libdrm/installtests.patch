@@ -1,0 +1,27 @@
+tests: also install tests app
+
+Upstream-Status: Inappropriate [configuration]
+
+Signed-off-by: Yu Ke <ke.yu@intel.com>
+
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index 10f54e3..275a650 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -27,7 +27,7 @@ AM_CFLAGS = \
+ 
+ LDADD = $(top_builddir)/libdrm.la
+ 
+-check_PROGRAMS = \
++bin_PROGRAMS = \
+ 	dristat \
+ 	drmstat
+ 
+@@ -61,6 +61,6 @@ TESTS =						\
+ 	updatedraw				\
+ 	name_from_fd
+ 
+-check_PROGRAMS += $(TESTS)
++check_PROGRAMS = $(TESTS)
+ 
+ endif
