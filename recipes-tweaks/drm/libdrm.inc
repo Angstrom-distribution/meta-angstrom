@@ -19,7 +19,7 @@ inherit autotools pkgconfig
 EXTRA_OECONF += "--disable-cairo-tests \
                  --enable-omap-experimental-api \
                  --enable-freedreno \
-		 --enable-install-test-programs \
+                 --enable-install-test-programs \
                  --disable-manpages \
                 "
 ALLOW_EMPTY_${PN}-drivers = "1"
