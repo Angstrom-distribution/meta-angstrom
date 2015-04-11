@@ -1,4 +1,4 @@
-From a22af402cbfef183afdc58e7dbe027a52c5283dd Mon Sep 17 00:00:00 2001
+From 664a43db43c656494d6bacc772aead8187d7207c Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Fri, 21 Dec 2012 10:15:42 +0100
 Subject: [PATCH] Move tvheadend specific LD/CFLAGS into a helper variable to
@@ -13,7 +13,7 @@ Upstream-Status: Inappropriate [OE specific]
  2 files changed, 26 insertions(+), 26 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 82dce3d..a45712d 100644
+index ff598ad..05a1fe3 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -27,45 +27,45 @@ PROG    := $(BUILDDIR)/tvheadend
@@ -80,7 +80,7 @@ index 82dce3d..a45712d 100644
             -Wl,-Bstatic -lhdhomerun -Wl,-Bdynamic
  endif
  
-@@ -345,8 +345,8 @@ SRCS-yes += src/descrambler/ffdecsa/ffdecsa_interface.c \
+@@ -353,8 +353,8 @@ SRCS-yes += src/descrambler/ffdecsa/ffdecsa_interface.c \
  	    src/descrambler/ffdecsa/ffdecsa_int.c
  SRCS-${CONFIG_MMX}  += src/descrambler/ffdecsa/ffdecsa_mmx.c
  SRCS-${CONFIG_SSE2} += src/descrambler/ffdecsa/ffdecsa_sse2.c
@@ -91,7 +91,7 @@ index 82dce3d..a45712d 100644
  endif
  
  # libaesdec
-@@ -407,12 +407,12 @@ reconfigure:
+@@ -415,12 +415,12 @@ reconfigure:
  
  # Binary
  ${PROG}: check_config $(OBJS) $(ALLDEPS)
@@ -107,7 +107,7 @@ index 82dce3d..a45712d 100644
  # Add-on
  ${BUILDDIR}/%.so: ${SRCS_EXTRA}
 diff --git a/support/configure.inc b/support/configure.inc
-index f7cfcd3..e3a2dd7 100755
+index 7c878fd..5f98978 100755
 --- a/support/configure.inc
 +++ b/support/configure.inc
 @@ -455,8 +455,8 @@ ifeq (\$(origin CC),default)
@@ -125,13 +125,13 @@ index f7cfcd3..e3a2dd7 100755
    # Add package config
    for pkg in ${PACKAGES[*]}; do
      cat >>"${CONFIG_MK}" <<EOF
--LDFLAGS += $(pkg-config --libs $pkg)
--CFLAGS  += $(pkg-config --cflags $pkg)
-+TVH_LDFLAGS += $(pkg-config --libs $pkg)
-+TVH_CFLAGS  += $(pkg-config --cflags $pkg)
+-LDFLAGS += $(${PKG_CONFIG} --libs $pkg)
+-CFLAGS  += $(${PKG_CONFIG} --cflags $pkg)
++TVH_LDFLAGS += $(${PKG_CONFIG} --libs $pkg)
++TVH_CFLAGS  += $(${PKG_CONFIG} --cflags $pkg)
  EOF
    done
  
 -- 
-1.9.0
+2.0.1
 
