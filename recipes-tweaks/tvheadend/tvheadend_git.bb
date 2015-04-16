@@ -1,7 +1,7 @@
 SUMMARY = "Tvheadend TV streaming server"
 HOMEPAGE = "https://www.lonelycoder.com/redmine/projects/tvheadend"
 
-DEPENDS = "avahi zlib openssl python-native libav"
+DEPENDS = "dvb-apps avahi zlib openssl python-native libav"
 
 LICENSE = "GPLv3+"
 LIC_FILES_CHKSUM = "file://LICENSE.md;md5=9cae5acac2e9ee2fc3aec01ac88ce5db"
