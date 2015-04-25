@@ -32,10 +32,10 @@ https://github.com/Angstrom-distribution/buildhistory
 
 When branching 'master' for a release ensure that:
 
-	1) conf/distro/angstrom-${VERSION}.conf is created
 	2) DISTRO_VERSION is set to vYYYY.MM (e.g. 2014.06)
+	1) FEED_BASEPATH is changed in angstrom.conf to use DISTRO_VERSION instead of 'next'
 	3) classes/angstrom-mirrors.bbclass is pointing to the correct source mirror
-	4) recipes-angstrom/angstrom/angstrom-feed-configs.bb has PV = "${DISTRO_VERSION}" 
+	4) recipes-angstrom/angstrom/angstrom-feed-configs.bb has PV = "${DISTRO_VERSION}"
 
 ==============================
           Patches
