@@ -10,11 +10,11 @@ SRC_URI = "git://github.com/tvheadend/tvheadend.git;name=tvh \
            git://linuxtv.org/dtv-scan-tables.git;name=dvb;destsuffix=git/data/dvb-scan \
            file://0001-Move-tvheadend-specific-LD-CFLAGS-into-a-helper-vari.patch \
 "
-SRCREV_tvh = "14f03b8efbc40b840eda8e203a6002d6c3f24250"
+SRCREV_tvh = "9ff5f430576c137287d2ad1cc5ffe693031e5570"
 SRCREV_dvb = "f2053b34a5ac6f263edc22888b0db4b1fa563fe4"
 SRCREV_FORMAT = "tvh"
 
-PV = "3.9.2690+git${SRCPV}"
+PV = "3.9.2791+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
