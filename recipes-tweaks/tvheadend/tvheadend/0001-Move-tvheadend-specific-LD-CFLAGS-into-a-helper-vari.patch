@@ -1,4 +1,4 @@
-From 664a43db43c656494d6bacc772aead8187d7207c Mon Sep 17 00:00:00 2001
+From 4b3bea10f9426e38065a3dc4c24cb7b0ec2808e6 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Fri, 21 Dec 2012 10:15:42 +0100
 Subject: [PATCH] Move tvheadend specific LD/CFLAGS into a helper variable to
@@ -13,7 +13,7 @@ Upstream-Status: Inappropriate [OE specific]
  2 files changed, 26 insertions(+), 26 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index ff598ad..05a1fe3 100644
+index 98b84ee..8ff0b52 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -27,45 +27,45 @@ PROG    := $(BUILDDIR)/tvheadend
@@ -80,18 +80,18 @@ index ff598ad..05a1fe3 100644
             -Wl,-Bstatic -lhdhomerun -Wl,-Bdynamic
  endif
  
-@@ -353,8 +353,8 @@ SRCS-yes += src/descrambler/ffdecsa/ffdecsa_interface.c \
+@@ -359,8 +359,8 @@ SRCS-yes += src/descrambler/ffdecsa/ffdecsa_interface.c \
  	    src/descrambler/ffdecsa/ffdecsa_int.c
  SRCS-${CONFIG_MMX}  += src/descrambler/ffdecsa/ffdecsa_mmx.c
  SRCS-${CONFIG_SSE2} += src/descrambler/ffdecsa/ffdecsa_sse2.c
 -${BUILDDIR}/src/descrambler/ffdecsa/ffdecsa_mmx.o  : CFLAGS += -mmmx
 -${BUILDDIR}/src/descrambler/ffdecsa/ffdecsa_sse2.o : CFLAGS += -msse2
-+${BUILDDIR}/src/descrambler/ffdecsa/ffdecsa_mmx.o  : TVH_TVH_CFLAGS += -mmmx
-+${BUILDDIR}/src/descrambler/ffdecsa/ffdecsa_sse2.o : TVH_TVH_CFLAGS += -msse2
++${BUILDDIR}/src/descrambler/ffdecsa/ffdecsa_mmx.o  : TVH_CFLAGS += -mmmx
++${BUILDDIR}/src/descrambler/ffdecsa/ffdecsa_sse2.o : TVH_CFLAGS += -msse2
  endif
  
  # libaesdec
-@@ -415,12 +415,12 @@ reconfigure:
+@@ -421,12 +421,12 @@ reconfigure:
  
  # Binary
  ${PROG}: check_config $(OBJS) $(ALLDEPS)
