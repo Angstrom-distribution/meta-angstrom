@@ -36,7 +36,7 @@ MACHINEOVERRIDES[vardepsexclude] += "SOC_FAMILY"
 
 # opkg
 PREFERRED_PROVIDER_opkg-collateral = "angstrom-feed-configs"
-EXTRA_IMAGE_FEATURES ?= "package-management"
+EXTRA_IMAGE_FEATURES ?= "package-management empty-root-password"
 
 PREFERRED_PROVIDER_os-release = "angstrom-version"
 
