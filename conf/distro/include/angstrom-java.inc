@@ -1,6 +1,6 @@
 # Set PREFFERED and VERSION stuff for working java runtime
 
-PREFERRED_VERSION_openjdk-7-jre = "03b21-2.1.8"
+PREFERRED_VERSION_openjdk-7-jre = "75b13-2.5.4"
 PREFERRED_VERSION_icedtea7-native = "2.1.3"
 
 # jamvm
