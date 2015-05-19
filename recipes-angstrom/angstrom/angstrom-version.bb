@@ -45,6 +45,7 @@ do_install() {
 	echo "${@get_layers(bb, d)}" > ${D}${sysconfdir}/angstrom-build-info
 
 	echo "VERSION=\"${DISTRO_VERSION}\"" > ${D}${sysconfdir}/os-release
+	echo "VERSION_ID=\"${DISTRO_VERSION}\"" > ${D}${sysconfdir}/os-release
 	echo "NAME=\"Angstrom\"" >> ${D}${sysconfdir}/os-release
 	echo "ID=\"angstrom\"" >> ${D}${sysconfdir}/os-release
 	echo "PRETTY_NAME=\"The Ångström Distribution\"" >> ${D}${sysconfdir}/os-release
