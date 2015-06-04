@@ -56,6 +56,9 @@ do_install() {
 	install -m 0755 ${WORKDIR}/lsb_release ${D}${bindir}/
 }
 
+INHIBIT_PACKAGE_STRIP = "1"
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
+
 RPROVIDES_${PN} = "os-release"
 RREPLACES_${PN} = "os-release"
 RCONFLICTS_${PN} = "os-release"
