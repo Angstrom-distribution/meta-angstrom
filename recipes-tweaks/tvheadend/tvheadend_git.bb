@@ -42,4 +42,6 @@ do_install() {
 
 FILES_${PN} += "${datadir}/${BPN}"
 # builtin archival code chokes on busybox stuff
-RDEPENDS_${PN} = "tar bzip2"
+# Something is wrong with dvb-apps shlibs code, so hack it here
+RDEPENDS_${PN} = "tar bzip2 \
+                  libdvbapi libdvben50221 libucsi"
