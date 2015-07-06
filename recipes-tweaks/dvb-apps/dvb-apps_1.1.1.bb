@@ -50,6 +50,8 @@ python populate_packages_prepend () {
     do_split_packages(d, dvb_libdir, '^lib(.*)\.so\.*', 'lib%s', 'DVB %s library', extra_depends='', allow_links=True)
 }
 
+PACKAGES_DYNAMIC = "libdvbapi libucsi libdvben50221"
+
 PACKAGES =+ "dvb-evtest dvb-evtest-dbg \
              dvbapp-tests dvbapp-tests-dbg \
              dvbdate dvbdate-dbg \
