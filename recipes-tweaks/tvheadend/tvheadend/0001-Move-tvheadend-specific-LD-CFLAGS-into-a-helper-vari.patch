@@ -1,32 +1,36 @@
-From 4b3bea10f9426e38065a3dc4c24cb7b0ec2808e6 Mon Sep 17 00:00:00 2001
+From d3ba4b2920959c342acdb0a2822bc22ffe92b7da Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Fri, 21 Dec 2012 10:15:42 +0100
-Subject: [PATCH] Move tvheadend specific LD/CFLAGS into a helper variable to
- avoid being overwritten
+Subject: [PATCH 1/2] Move tvheadend specific LD/CFLAGS into a helper variable
+ to avoid being overwritten
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 
 Upstream-Status: Inappropriate [OE specific]
 ---
- Makefile              | 44 ++++++++++++++++++++++----------------------
- support/configure.inc |  8 ++++----
- 2 files changed, 26 insertions(+), 26 deletions(-)
+ Makefile              | 70 +++++++++++++++++++++++++--------------------------
+ support/configure.inc |  8 +++---
+ 2 files changed, 39 insertions(+), 39 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 98b84ee..8ff0b52 100644
+index e183795..0a44cf7 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -27,45 +27,45 @@ PROG    := $(BUILDDIR)/tvheadend
+@@ -28,61 +28,61 @@ LANGUAGES ?= bg cs de en en_GB es fa fr he hr hu it nl pl pt sv
  # Common compiler flags
  #
  
--CFLAGS  += -g -O2 -Wunused-result
+-CFLAGS  += -g -O2
++TVH_CFLAGS  += -g -O2
+ ifeq ($(CONFIG_W_UNUSED_RESULT),yes)
+-CFLAGS  += -Wunused-result
++TVH_CFLAGS  += -Wunused-result
+ endif
 -CFLAGS  += -Wall -Werror -Wwrite-strings -Wno-deprecated-declarations
 -CFLAGS  += -Wmissing-prototypes
 -CFLAGS  += -fms-extensions -funsigned-char -fno-strict-aliasing
 -CFLAGS  += -D_FILE_OFFSET_BITS=64
 -CFLAGS  += -I${BUILDDIR} -I${ROOTDIR}/src -I${ROOTDIR}
-+TVH_CFLAGS  += -g -O2 -Wunused-result
 +TVH_CFLAGS  += -Wall -Werror -Wwrite-strings -Wno-deprecated-declarations
 +TVH_CFLAGS  += -Wmissing-prototypes
 +TVH_CFLAGS  += -fms-extensions -funsigned-char -fno-strict-aliasing
@@ -64,14 +68,39 @@ index 98b84ee..8ff0b52 100644
  
  ifeq ($(CONFIG_LIBFFMPEG_STATIC),yes)
 -CFLAGS  += -I${ROOTDIR}/libav_static/build/ffmpeg/include
--LDFLAGS += -L${ROOTDIR}/libav_static/build/ffmpeg/lib -Wl,-Bstatic \
 +TVH_CFLAGS  += -I${ROOTDIR}/libav_static/build/ffmpeg/include
-+TVH_LDFLAGS += -L${ROOTDIR}/libav_static/build/ffmpeg/lib -Wl,-Bstatic \
-            -lavresample -lswresample -lswscale \
-            -lavutil -lavformat -lavcodec -lavutil \
-            -lvorbisenc -lvorbis -logg -lx264 -lvpx \
-            -Wl,-Bdynamic -ldl
+ LDFLAGS_FFDIR = ${ROOTDIR}/libav_static/build/ffmpeg/lib
+-LDFLAGS += ${LDFLAGS_FFDIR}/libavresample.a
+-LDFLAGS += ${LDFLAGS_FFDIR}/libswresample.a
+-LDFLAGS += ${LDFLAGS_FFDIR}/libswscale.a
+-LDFLAGS += ${LDFLAGS_FFDIR}/libavutil.a
+-LDFLAGS += ${LDFLAGS_FFDIR}/libavformat.a
+-LDFLAGS += ${LDFLAGS_FFDIR}/libavcodec.a
+-LDFLAGS += ${LDFLAGS_FFDIR}/libavutil.a
+-LDFLAGS += ${LDFLAGS_FFDIR}/libvorbisenc.a
+-LDFLAGS += ${LDFLAGS_FFDIR}/libvorbis.a
+-LDFLAGS += ${LDFLAGS_FFDIR}/libogg.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libavresample.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libswresample.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libswscale.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libavutil.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libavformat.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libavcodec.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libavutil.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libvorbisenc.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libvorbis.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libogg.a
+ ifeq ($(CONFIG_LIBFFMPEG_STATIC_X264),yes)
+-LDFLAGS += ${LDFLAGS_FFDIR}/libx264.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libx264.a
+ else
+-LDFLAGS += -lx264
++TVH_LDFLAGS += -lx264
  endif
+-LDFLAGS += ${LDFLAGS_FFDIR}/libvpx.a
++TVH_LDFLAGS += ${LDFLAGS_FFDIR}/libvpx.a
+ endif
+ 
  ifeq ($(CONFIG_HDHOMERUN_STATIC),yes)
 -CFLAGS  += -I${ROOTDIR}/libhdhomerun_static
 -LDFLAGS += -L${ROOTDIR}/libhdhomerun_static/libhdhomerun \
@@ -80,7 +109,7 @@ index 98b84ee..8ff0b52 100644
             -Wl,-Bstatic -lhdhomerun -Wl,-Bdynamic
  endif
  
-@@ -359,8 +359,8 @@ SRCS-yes += src/descrambler/ffdecsa/ffdecsa_interface.c \
+@@ -436,8 +436,8 @@ SRCS-yes += src/descrambler/ffdecsa/ffdecsa_interface.c \
  	    src/descrambler/ffdecsa/ffdecsa_int.c
  SRCS-${CONFIG_MMX}  += src/descrambler/ffdecsa/ffdecsa_mmx.c
  SRCS-${CONFIG_SSE2} += src/descrambler/ffdecsa/ffdecsa_sse2.c
@@ -91,29 +120,29 @@ index 98b84ee..8ff0b52 100644
  endif
  
  # libaesdec
-@@ -421,12 +421,12 @@ reconfigure:
+@@ -517,12 +517,12 @@ reconfigure:
  
  # Binary
- ${PROG}: check_config $(OBJS) $(ALLDEPS)
+ ${PROG}: check_config make_webui $(OBJS)
 -	$(CC) -o $@ $(OBJS) $(CFLAGS) $(LDFLAGS)
-+	$(CC) -o $@ $(OBJS) $(TVH_CFLAGS) $(TVH_LDFLAGS) $(TVH_CFLAGS) $(TVH_LDFLAGS) $(TVH_CFLAGS) $(TVH_LDFLAGS) $(TVH_CFLAGS) $(TVH_LDFLAGS) $(CFLAGS) $(LDFLAGS)
++	$(CC) -o $@ $(OBJS) $(TVH_CFLAGS) $(TVH_LDFLAGS) $(CFLAGS) $(LDFLAGS)
  
  # Object
  ${BUILDDIR}/%.o: %.c
  	@mkdir -p $(dir $@)
 -	$(CC) -MD -MP $(CFLAGS) -c -o $@ $<
-+	$(CC) -MD -MP $(TVH_CFLAGS) $(TVH_CFLAGS) $(TVH_CFLAGS) $(TVH_CFLAGS) $(CFLAGS) -c -o $@ $<
++	$(CC) -MD -MP $(TVH_CFLAGS) $(CFLAGS) -c -o $@ $<
  
  # Add-on
  ${BUILDDIR}/%.so: ${SRCS_EXTRA}
 diff --git a/support/configure.inc b/support/configure.inc
-index 7c878fd..5f98978 100755
+index d331e37..62c20d4 100755
 --- a/support/configure.inc
 +++ b/support/configure.inc
-@@ -455,8 +455,8 @@ ifeq (\$(origin CC),default)
- CC        = ${CC}
- endif
- PYTHON   ?= ${PYTHON}
+@@ -485,8 +485,8 @@ GZIPCMD  ?= ${GZIPCMD}
+ BZIP2    ?= ${BZIP2}
+ XGETTEXT ?= ${XGETTEXT}
+ MSGMERGE ?= ${MSGMERGE}
 -CFLAGS   += ${CFLAGS}
 -LDFLAGS  += ${LDFLAGS}
 +TVH_CFLAGS   += ${CFLAGS}
@@ -121,7 +150,7 @@ index 7c878fd..5f98978 100755
  prefix    = ${prefix}
  bindir    = ${bindir}
  mandir    = ${mandir}
-@@ -478,8 +478,8 @@ EOF
+@@ -508,8 +508,8 @@ EOF
    # Add package config
    for pkg in ${PACKAGES[*]}; do
      cat >>"${CONFIG_MK}" <<EOF

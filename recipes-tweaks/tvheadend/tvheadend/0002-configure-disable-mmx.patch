@@ -1,0 +1,25 @@
+From bb6d2db57e63b071cb6364dce032b96a70ee4ec3 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Wed, 6 May 2015 09:15:28 +0200
+Subject: [PATCH 2/2] configure: disable mmx
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ configure | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/configure b/configure
+index 9503c54..f921df6 100755
+--- a/configure
++++ b/configure
+@@ -118,7 +118,6 @@ fi
+ # Valiate compiler
+ check_cc || die 'No C compiler found'
+ check_cc_header execinfo
+-check_cc_option mmx
+ check_cc_option sse2
+ check_cc_optionW unused-result
+ 
+-- 
+2.0.1
+
