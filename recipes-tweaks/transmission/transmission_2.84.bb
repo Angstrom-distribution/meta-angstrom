@@ -1,30 +1,39 @@
 DESCRIPTION = "Transmission is a BitTorrent client w/ a built-in Ajax-Powered Webif GUI."
 SECTION = "network"
 
-HOMEPAGE = "www.transmissionbt.com/"
+HOMEPAGE = "http://www.transmissionbt.com/"
 
 DEPENDS = "libevent gnutls openssl libtool intltool-native curl"
 
 LICENSE = "MIT & GPLv2"
-LIC_FILES_CHKSUM = "file://COPYING;md5=7ee657ac1dce0e7353033fc06c8087d2"
+LIC_FILES_CHKSUM = "file://COPYING;md5=a1923fe8f8ff37c33665716af0ec84f1"
 
 SRC_URI = "http://download.transmissionbt.com/files/transmission-${PV}.tar.xz"
-SRC_URI[md5sum] = "a5ef870c0410b12d10449c2d36fa4661"                                                                   
-SRC_URI[sha256sum] = "3996651087df67a85f1e1b4a92b1b518ddefdd84c654b8df6fbccb0b91f03522" 
+SRC_URI[md5sum] = "411aec1c418c14f6765710d89743ae42"
+SRC_URI[sha256sum] = "a9fc1936b4ee414acc732ada04e84339d6755cd0d097bcbd11ba2cfc540db9eb"
 
 inherit autotools gettext useradd systemd
 
 PACKAGECONFIG = "${@base_contains('DISTRO_FEATURES', 'x11', 'gtk', '', d)} \
                  ${@base_contains('DISTRO_FEATURES','systemd','systemd','',d)}"
 
-PACKAGECONFIG[gtk] = " --with-gtk,--without-gtk,gtk+,"
+PACKAGECONFIG[gtk] = " --with-gtk,--without-gtk,gtk+3,"
 PACKAGECONFIG[systemd] = "--with-systemd-daemon,--without-systemd-daemon,systemd,"
 
 # Configure aborts with:
 # config.status: error: po/Makefile.in.in was not created by intltoolize.
-do_configure_prepend() {
-    sed -i /AM_GLIB_GNU_GETTEXT/d ${S}/configure.ac
+# So let's run a subset of autogen.sh in do_configure_prepend
+do_configure() {
+  ( cd ${S} 
+    # Systemd libs are now concentrated in libsystemd.so
+    sed -i -e s:libsystemd-daemon:libsystemd:g ${S}/configure.ac
+    autoreconf -fi || true
+    touch aclocal.m4
+    echo no | glib-gettextize --force --copy 
+    chmod u+w aclocal.m4
     intltoolize --copy --force --automake
+  )
+  oe_runconf
 }
 
 do_install_append() {
