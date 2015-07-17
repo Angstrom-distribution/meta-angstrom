@@ -1,5 +1,14 @@
-SUMMARY = "System and service manager for Linux, replacing SysVinit"
+SUMMARY = "A System and service manager"
 HOMEPAGE = "http://www.freedesktop.org/wiki/Software/systemd"
+
+DESCRIPTION = "systemd is a system and service manager for Linux, compatible with \
+SysV and LSB init scripts. systemd provides aggressive parallelization \
+capabilities, uses socket and D-Bus activation for starting services, \
+offers on-demand starting of daemons, keeps track of processes using \
+Linux cgroups, supports snapshotting and restoring of the system \
+state, maintains mount and automount points and implements an \
+elaborate transactional dependency-based service control logic. It can \
+work as a drop-in replacement for sysvinit."
 
 LICENSE = "GPLv2 & LGPLv2.1 & MIT"
 LIC_FILES_CHKSUM = "file://LICENSE.GPL2;md5=751419260aa954499f7abaabaa882bbe \
@@ -10,28 +19,32 @@ PROVIDES = "udev"
 
 PE = "1"
 
-DEPENDS = "kmod docbook-sgml-dtd-4.1-native intltool-native gperf-native acl readline dbus libcap libcgroup glib-2.0 qemu-native util-linux libidn"
-DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'libpam', '', d)}"
+DEPENDS = "kmod docbook-sgml-dtd-4.1-native intltool-native gperf-native acl readline dbus libcap libcgroup glib-2.0 qemu-native util-linux"
 
 SECTION = "base/shell"
 
 inherit gtk-doc useradd pkgconfig autotools perlnative update-rc.d update-alternatives qemu systemd ptest gettext
 
-SRCREV = "8eebf6ad553adb22d7ea5d291de0b0da38606f4d"
+SRCREV = "85a6fabdd3e43cfab0fc6359e9f2a9e368d4a3ed"
 
-PV = "218+git${SRCPV}"
+PV = "219-stable+git${SRCPV}"
 
-SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;branch=master;protocol=git \
-           file://binfmt-install.patch \
-           file://systemd-pam-configure-check-uclibc.patch \
-           file://systemd-pam-fix-execvpe.patch \
-           file://systemd-pam-fix-mkostemp.patch \
-           file://optional_secure_getenv.patch \
-           file://uclibc-get-physmem.patch \
-           file://0001-add-support-for-executing-scripts-under-etc-rcS.d.patch \
-           file://0001-configure-disable-LTO.patch \
-           file://0003-logind-add-support-for-gpio-keys-Power-Button.patch \
-           file://syscall.patch \
+SRC_URI = "git://anongit.freedesktop.org/systemd/systemd-stable;branch=v219-stable;protocol=git \
+           file://0002-shared-missing.h-fall-back-to-insecure-getenv.patch \
+           file://0003-binfmt-Don-t-install-dependency-links-at-install-tim.patch \
+           file://0004-configure-Check-for-additional-features-that-uclibc-.patch \
+           file://0005-nspawn-Use-execvpe-only-when-libc-supports-it.patch \
+           file://0006-journal-Use-posix-fallocate-only-if-available.patch \
+           file://0007-util-Use-mkostemp-only-if-libc-supports-it.patch \
+           file://0008-util-bypass-unimplemented-_SC_PHYS_PAGES-system-conf.patch \
+           file://0009-sysv-generator-add-support-for-executing-scripts-und.patch \
+           file://0010-Make-root-s-home-directory-configurable.patch \
+           file://0011-systemd-user-avoid-using-system-auth.patch \
+           file://0012-systemd-tmpfiles.c-Honor-ordering-within-files-as-th.patch \
+           file://0014-Revert-rules-remove-firmware-loading-rules.patch \
+           file://0015-Revert-udev-remove-userspace-firmware-loading-suppor.patch \
+           file://tmpfiles-pam.patch \
+           file://0001-Revert-core-mount-add-dependencies-to-dynamically-mo.patch \
            file://touchscreen.rules \
            file://00-create-volatile.conf \
            file://init \
@@ -41,13 +54,18 @@ SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;branch=master;protocol=
 S = "${WORKDIR}/git"
 
 SRC_URI_append_libc-uclibc = "\
-                             file://systemd-pam-fix-getty-unit.patch \
-                            "
+            file://0001-units-Prefer-getty-to-agetty-in-console-setup-system.patch \
+           "
 LDFLAGS_append_libc-uclibc = " -lrt"
 
 GTKDOC_DOCDIR = "${S}/docs/"
 
-PACKAGECONFIG ??= "xz resolved networkd"
+PACKAGECONFIG ??= "xz ldconfig \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'xkbcommon', '', d)} \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux', '', d)} \
+                  "
+
 PACKAGECONFIG[journal-upload] = "--enable-libcurl,--disable-libcurl,curl"
 # Sign the journal for anti-tampering
 PACKAGECONFIG[gcrypt] = "--enable-gcrypt,--disable-gcrypt,libgcrypt"
@@ -61,8 +79,22 @@ PACKAGECONFIG[microhttpd] = "--enable-microhttpd,--disable-microhttpd,libmicroht
 PACKAGECONFIG[elfutils] = "--enable-elfutils,--disable-elfutils,elfutils"
 PACKAGECONFIG[resolved] = "--enable-resolved,--disable-resolved"
 PACKAGECONFIG[networkd] = "--enable-networkd,--disable-networkd"
+PACKAGECONFIG[libidn] = "--enable-libidn,--disable-libidn,libidn"
+PACKAGECONFIG[audit] = "--enable-audit,--disable-audit,audit"
+PACKAGECONFIG[manpages] = "--enable-manpages,--disable-manpages,libxslt-native xmlto-native docbook-xml-dtd4-native docbook-xsl-stylesheets-native"
+PACKAGECONFIG[pam] = "--enable-pam,--disable-pam,libpam"
+# Verify keymaps on locale change
+PACKAGECONFIG[xkbcommon] = "--enable-xkbcommon,--disable-xkbcommon,libxkbcommon"
+# Update NAT firewall rules
+PACKAGECONFIG[iptc] = "--enable-libiptc,--disable-libiptc,iptables"
+PACKAGECONFIG[ldconfig] = "--enable-ldconfig,--disable-ldconfig,,"
+PACKAGECONFIG[selinux] = "--enable-selinux,--disable-selinux,libselinux"
 
-CACHED_CONFIGUREVARS = "ac_cv_path_KILL=${base_bindir}/kill"
+CACHED_CONFIGUREVARS += "ac_cv_path_KILL=${base_bindir}/kill"
+CACHED_CONFIGUREVARS += "ac_cv_path_KMOD=${base_bindir}/kmod"
+CACHED_CONFIGUREVARS += "ac_cv_path_QUOTACHECK=${sbindir}/quotacheck"
+CACHED_CONFIGUREVARS += "ac_cv_path_QUOTAON=${sbindir}/quotaon"
+CACHED_CONFIGUREVARS += "ac_cv_path_SULOGIN=${base_sbindir}/sulogin"
 
 # Helper variables to clarify locations.  This mirrors the logic in systemd's
 # build system.
@@ -73,8 +105,7 @@ rootlibexecdir = "${rootprefix}/lib"
 # The gtk+ tools should get built as a separate recipe e.g. systemd-tools
 EXTRA_OECONF = " --with-rootprefix=${rootprefix} \
                  --with-rootlibdir=${rootlibdir} \
-                 ${@bb.utils.contains('DISTRO_FEATURES', 'pam', '--enable-pam', '--disable-pam', d)} \
-                 --disable-manpages \
+                 --with-roothomedir=${ROOT_HOME} \
                  --disable-coredump \
                  --disable-introspection \
                  --disable-kdbus \
@@ -82,7 +113,6 @@ EXTRA_OECONF = " --with-rootprefix=${rootprefix} \
                  --without-python \
                  --with-sysvrcnd-path=${sysconfdir} \
                  --with-firmware-path=/lib/firmware \
-                 ac_cv_path_KILL=${base_bindir}/kill \
                "
 # uclibc does not have NSS
 EXTRA_OECONF_append_libc-uclibc = " --disable-myhostname "
@@ -98,7 +128,6 @@ do_configure_prepend() {
 	else
 		cp -r ${S}/units ${S}/units.pre_sed
 	fi
-	sed -i -e 's:=/root:=${ROOT_HOME}:g' ${S}/units/*.service*
 	sed -i '/ln --relative --help/d' ${S}/configure.ac
 	sed -i -e 's:\$(LN_S) --relative -f:lnr:g' ${S}/Makefile.am
 	sed -i -e 's:\$(LN_S) --relative:lnr:g' ${S}/Makefile.am
@@ -118,6 +147,9 @@ do_install() {
 	# 20:12 < mezcalero> koen: you have three options: a) run systemd-machine-id-setup at install time, b) have / read-only and an empty file there (for stateless) and c) boot with / writable
 	touch ${D}${sysconfdir}/machine-id
 
+
+	install -d ${D}${sysconfdir}/udev/rules.d/
+	install -d ${D}${sysconfdir}/tmpfiles.d
 	install -m 0644 ${WORKDIR}/*.rules ${D}${sysconfdir}/udev/rules.d/
 
 	install -m 0644 ${WORKDIR}/00-create-volatile.conf ${D}${sysconfdir}/tmpfiles.d/
@@ -128,8 +160,7 @@ do_install() {
 		sed -i s%@UDEVD@%${rootlibexecdir}/systemd/systemd-udevd% ${D}${sysconfdir}/init.d/systemd-udevd
 	fi
 
-	# Move libgudev back to ${rootlibdir} to keep backward compatibility
-	[ ${rootlibdir} != ${libdir} ] && mv -t ${D}${rootlibdir} ${D}${libdir}/libgudev*
+	chown root:systemd-journal ${D}/${localstatedir}/log/journal
 
         # Delete journal README, as log can be symlinked inside volatile.
         rm -f ${D}/${localstatedir}/log/README
@@ -148,6 +179,11 @@ do_install() {
 
 	# Enable journal to forward message to syslog daemon
 	sed -i -e 's/.*ForwardToSyslog.*/ForwardToSyslog=yes/' ${D}${sysconfdir}/systemd/journald.conf
+	# this file is needed to exist if networkd is disabled but timesyncd is still in use since timesyncd checks it
+	# for existence else it fails
+	if [ -s ${D}${libdir}/tmpfiles.d/systemd.conf ]; then
+		${@bb.utils.contains('PACKAGECONFIG', 'networkd', ':', 'sed -i -e "\$ad /run/systemd/netif/links 0755 root root -" ${D}${libdir}/tmpfiles.d/systemd.conf', d)}
+	fi
 }
 
 do_install_ptest () {
@@ -170,16 +206,16 @@ python populate_packages_prepend (){
     systemdlibdir = d.getVar("rootlibdir", True)
     do_split_packages(d, systemdlibdir, '^lib(.*)\.so\.*', 'lib%s', 'Systemd %s library', extra_depends='', allow_links=True)
 }
-PACKAGES_DYNAMIC += "^lib(udev|gudev|systemd).*"
+PACKAGES_DYNAMIC += "^lib(udev|systemd).*"
 
 PACKAGES =+ "${PN}-gui ${PN}-vconsole-setup ${PN}-initramfs ${PN}-analyze ${PN}-kernel-install \
-             ${PN}-rpm-macros ${PN}-binfmt ${PN}-pam ${PN}-zsh"
+             ${PN}-rpm-macros ${PN}-binfmt ${PN}-pam ${PN}-zsh libgudev"
 
 SYSTEMD_PACKAGES = "${PN}-binfmt"
 SYSTEMD_SERVICE_${PN}-binfmt = "systemd-binfmt.service"
 
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM_${PN} += "--system systemd-journal-gateway"
+USERADD_PARAM_${PN} += "--system systemd-journal-gateway; --system systemd-timesync"
 GROUPADD_PARAM_${PN} = "-r lock; -r systemd-journal"
 
 FILES_${PN}-analyze = "${bindir}/systemd-analyze"
@@ -187,8 +223,9 @@ FILES_${PN}-analyze = "${bindir}/systemd-analyze"
 FILES_${PN}-initramfs = "/init"
 RDEPENDS_${PN}-initramfs = "${PN}"
 
-# The test cases need perl and bash to run correctly.
-RDEPENDS_${PN}-ptest += "perl bash"
+FILES_libgudev = "${libdir}/libgudev*${SOLIBS}"
+
+RDEPENDS_${PN}-ptest += "perl python bash"
 FILES_${PN}-ptest += "${libdir}/udev/rules.d"
 
 FILES_${PN}-dbg += "${libdir}/systemd/ptest/.debug"
@@ -199,6 +236,7 @@ FILES_${PN}-vconsole-setup = "${rootlibexecdir}/systemd/systemd-vconsole-setup \
                               ${systemd_unitdir}/system/systemd-vconsole-setup.service \
                               ${systemd_unitdir}/system/sysinit.target.wants/systemd-vconsole-setup.service"
 
+RDEPENDS_${PN}-kernel-install += "bash"
 FILES_${PN}-kernel-install = "${bindir}/kernel-install \
                               ${sysconfdir}/kernel/ \
                               ${exec_prefix}/lib/kernel \
@@ -220,10 +258,7 @@ RRECOMMENDS_${PN}-vconsole-setup = "kbd kbd-consolefonts kbd-keymaps"
 CONFFILES_${PN} = "${sysconfdir}/systemd/journald.conf \
                 ${sysconfdir}/systemd/logind.conf \
                 ${sysconfdir}/systemd/system.conf \
-                ${sysconfdir}/systemd/user.conf \
-                ${libdir}/sysusers.d/systemd.conf \
-                ${libdir}/sysusers.d/basic.conf \
-                "
+                ${sysconfdir}/systemd/user.conf"
 
 FILES_${PN} = " ${base_bindir}/* \
                 ${datadir}/bash-completion \
@@ -236,6 +271,7 @@ FILES_${PN} = " ${base_bindir}/* \
                 ${sysconfdir}/dbus-1/ \
                 ${sysconfdir}/machine-id \
                 ${sysconfdir}/modules-load.d/ \
+                ${sysconfdir}/pam.d/ \
                 ${sysconfdir}/sysctl.d/ \
                 ${sysconfdir}/systemd/ \
                 ${sysconfdir}/tmpfiles.d/ \
@@ -263,9 +299,6 @@ FILES_${PN} = " ${base_bindir}/* \
                 /lib/udev/rules.d/71-seat.rules \
                 /lib/udev/rules.d/73-seat-late.rules \
                 /lib/udev/rules.d/99-systemd.rules \
-                /lib/udev/rules.d/70-mouse.rules \
-                /lib/udev/rules.d/90-vconsole.rules \
-                ${@bb.utils.contains('DISTRO_FEATURES', 'pam', '${sysconfdir}/pam.d', '', d)} \
                "
 
 FILES_${PN}-dbg += "${rootlibdir}/.debug ${systemd_unitdir}/.debug ${systemd_unitdir}/*/.debug ${base_libdir}/security/.debug/"
@@ -301,14 +334,7 @@ FILES_udev += "${base_sbindir}/udevd \
                ${rootlibexecdir}/udev/scsi_id \
                ${rootlibexecdir}/udev/v4l_id \
                ${rootlibexecdir}/udev/keymaps \
-               ${rootlibexecdir}/udev/rules.d/4*.rules \
-               ${rootlibexecdir}/udev/rules.d/5*.rules \
-               ${rootlibexecdir}/udev/rules.d/6*.rules \
-               ${rootlibexecdir}/udev/rules.d/70-power-switch.rules \
-               ${rootlibexecdir}/udev/rules.d/75*.rules \
-               ${rootlibexecdir}/udev/rules.d/78*.rules \
-               ${rootlibexecdir}/udev/rules.d/8*.rules \
-               ${rootlibexecdir}/udev/rules.d/95*.rules \
+               ${rootlibexecdir}/udev/rules.d/*.rules \
                ${sysconfdir}/udev \
                ${sysconfdir}/init.d/systemd-udevd \
                ${systemd_unitdir}/system/*udev* \
@@ -372,16 +398,6 @@ pkg_prerm_udev-hwdb () {
 	fi
 
 	rm -f ${sysconfdir}/udev/hwdb.bin
-}
-
-pkg_prerm_${PN} () {
-	sed -e '/^hosts:/s/\s*\<myhostname\>//' \
-		-e '/^hosts:/s/\s*myhostname//' \
-		-i $D${sysconfdir}/nsswitch.conf
-
-	sed -e '/^hosts:/s/\s*\<mymachine\>//' \
-		-e '/^hosts:/s/\s*mymachine//' \
-		-i $D${sysconfdir}/nsswitch.conf
 }
 
 # As this recipe builds udev, respect systemd being in DISTRO_FEATURES so

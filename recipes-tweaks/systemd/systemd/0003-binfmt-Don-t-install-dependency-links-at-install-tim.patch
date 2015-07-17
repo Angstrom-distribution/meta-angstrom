@@ -1,24 +1,33 @@
-From: Ross Burton <ross.burton@intel.com>
-Subject: fix binfmt install
+From 184a89caacfa00f07e7275bca592bd7dda1b541e Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Fri, 20 Feb 2015 05:03:44 +0000
+Subject: [PATCH 03/11] binfmt: Don't install dependency links at install time
+ for the binfmt services
 
-Don't install dependency links at install time for the binfmt services, use
-[Install] blocks so that they get created when the service is enabled like a
-traditional service.
+use [Install] blocks so that they get created when the service is enabled
+like a traditional service.
 
-The [Install] blocks were rejected upstream as they don't have a way to "enable"
-it on install without static symlinks which can't be disabled, only masked.  We
+The [Install] blocks were rejected upstream as they don't have a way to
+"enable"
+it on install without static symlinks which can't be disabled, only
+masked.  We
 however can do that in a postinst.
 
 Upstream-Status: Denied
-Signed-off-by: Ross Burton <ross.burton@intel.com>
 
---
+Signed-off-by: Ross Burton <ross.burton@intel.com>
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ Makefile.am                             | 4 ----
+ units/proc-sys-fs-binfmt_misc.automount | 3 +++
+ units/systemd-binfmt.service.in         | 5 +++++
+ 3 files changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index ab07d3b..3271f8a 100644
+index ba63f68..0fb3f9f 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -4521,10 +4521,6 @@ INSTALL_DIRS += \
+@@ -4838,10 +4838,6 @@ INSTALL_DIRS += \
  	$(prefix)/lib/binfmt.d \
  	$(sysconfdir)/binfmt.d
  
@@ -41,21 +50,25 @@ index 6be3893..709adef 100644
 +[Install]
 +WantedBy=sysinit.target
 diff --git a/units/systemd-binfmt.service.in b/units/systemd-binfmt.service.in
-index 34a5d52..1e4a809 100644
+index 34a5d52..617462b 100644
 --- a/units/systemd-binfmt.service.in
 +++ b/units/systemd-binfmt.service.in
-@@ -11,6 +11,7 @@ Documentation=man:systemd-binfmt.service(8) man:binfmt.d(5)
+@@ -11,6 +11,8 @@ Documentation=man:systemd-binfmt.service(8) man:binfmt.d(5)
  Documentation=https://www.kernel.org/doc/Documentation/binfmt_misc.txt
  DefaultDependencies=no
  Conflicts=shutdown.target
 +Wants=proc-sys-fs-binfmt_misc.automount
++
  After=proc-sys-fs-binfmt_misc.automount
  Before=sysinit.target shutdown.target
  ConditionPathIsReadWrite=/proc/sys/
-@@ -24,3 +25,6 @@ ConditionDirectoryNotEmpty=|/run/binfmt.d
+@@ -24,3 +26,6 @@ ConditionDirectoryNotEmpty=|/run/binfmt.d
  Type=oneshot
  RemainAfterExit=yes
  ExecStart=@rootlibexecdir@/systemd-binfmt
 +
 +[Install]
 +WantedBy=sysinit.target
+-- 
+2.1.4
+
