@@ -22,6 +22,12 @@ PRINC ??= "0"
 # Shared state fixups
 MACHINEOVERRIDES[vardepsexclude] += "SOC_FAMILY"
 
+# insane looks across archs and breaks with:
+# foo 1.1-r1.1 for armv5te
+# foo 1.1-r1.0 for x86_64
+# The x86_64 build will fail due to foo going backwards, when it isn't
+ERROR_QA_remove = "version-going-backwards"
+
 # Tuning and package arch compatibility
 
 # Turn armv7a-vfp-neon into armv7a for compatibility reasons
