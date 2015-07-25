@@ -162,6 +162,9 @@ VIRTUAL-RUNTIME_init_manager = "systemd"
 # Uncomment to completely disable support for sysv scripts:
 #PACKAGECONFIG_pn-systemd = "xz"
 
+# Enable (lm)sensor support in collectd
+PACKAGECONFIG_pn-collectd_append = " sensors "
+
 # USE-flag like features
 DISTRO_FEATURES += "tk"
 DISTRO_FEATURES += "x11"
