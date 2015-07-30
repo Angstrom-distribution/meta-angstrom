@@ -159,6 +159,9 @@ VIRTUAL-RUNTIME_init_manager = "systemd"
 # Uncomment to completely disable support for sysv scripts:
 #PACKAGECONFIG_pn-systemd = "xz"
 
+# Enable systemd support in kernels
+KERNEL_ENABLE_CGROUPS = "1"
+
 # USE-flag like features
 DISTRO_FEATURES += "tk"
 DISTRO_FEATURES += "x11"
