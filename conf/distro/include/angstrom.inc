@@ -25,6 +25,9 @@ FEED_ARCH ?= "${TUNE_PKGARCH}"
 #blackfin machines
 FEED_ARCH_bfin          = "blackfin"
 
+# Linux-dummy doesn't provide modules
+PREFERRED_PROVIDER_virtual/kernel_genericarmv8 = "linux-linaro-aarch64"
+
 # Add FEED_ARCH to machine overrides so we get access to e.g. 'armv7a' and 'sh4'
 # Hopefully we'll never see a machine or arch with 'all' as substring
 MACHINEOVERRIDES .= ":${@bb.data.getVar('FEED_ARCH', d,1).replace('all','noarch')}"
