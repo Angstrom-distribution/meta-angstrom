@@ -48,7 +48,7 @@ do_compile_prepend_class-nativesdk() {
 }
 
 do_compile() {
-    sed -i -e 's:-implicit-function-declaration::g' ${S}/nss/coreconf/Linux.mk
+    sed -i -e 's:-implicit-function-declaration::g' -e 's:-Werror : :g' ${S}/nss/coreconf/Linux.mk
 
     export CROSS_COMPILE=1
     export NATIVE_CC="gcc"
