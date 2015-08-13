@@ -13,6 +13,7 @@ RDEPENDS_${PN} = " \
   packagegroup-gnome-perl \
   packagegroup-gnome-themes \
   packagegroup-gnome-xserver-base \
+  angstrom-skel-gnome2 \
 "
 
 RRECOMMENDS_${PN} = " \
