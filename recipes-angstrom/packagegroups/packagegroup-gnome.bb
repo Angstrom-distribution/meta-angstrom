@@ -22,6 +22,7 @@ RDEPENDS_${PN} = " \
   gpe-scap \
   bash \
   tzdata \
+  angstrom-skel-gnome2 \
 "
 
 RRECOMMENDS_${PN} = "ofono"
