@@ -8,6 +8,8 @@ IMAGE_PREPROCESS_COMMAND = "rootfs_update_timestamp ;"
 DISTRO_UPDATE_ALTERNATIVES ??= ""
 ROOTFS_PKGMANAGE_PKGS ?= '${@base_conditional("ONLINE_PACKAGE_MANAGEMENT", "none", "", "${ROOTFS_PKGMANAGE} ${DISTRO_UPDATE_ALTERNATIVES}", d)}'
 
+IMAGE_FEATURES += "empty-root-password allow-empty-password"
+
 IMAGE_INSTALL += " \
 	angstrom-packagegroup-boot \
 	packagegroup-basic \
@@ -15,6 +17,7 @@ IMAGE_INSTALL += " \
 	update-alternatives-opkg \
 	systemd-analyze \
 	cpufreq-tweaks \
+        fixmac \
 "
 
 IMAGE_DEV_MANAGER   = "udev"
