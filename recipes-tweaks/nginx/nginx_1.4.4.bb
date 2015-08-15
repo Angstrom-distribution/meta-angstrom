@@ -22,7 +22,7 @@ SRC_URI = " \
 SRC_URI[md5sum] = "5dfaba1cbeae9087f3949860a02caa9f"
 SRC_URI[sha256sum] = "7c989a58e5408c9593da0bebcd0e4ffc3d892d1316ba5042ddb0be5b0b4102b9"
 
-inherit update-rc.d useradd
+inherit update-rc.d useradd systemd
 
 do_configure () {
 	if [ "${SITEINFO_BITS}" = "64" ]; then
@@ -119,6 +119,10 @@ CONFFILES_${PN} = "${sysconfdir}/nginx/nginx.conf \
 
 INITSCRIPT_NAME = "nginx"
 INITSCRIPT_PARAMS = "defaults 92 20"
+
+NATIVE_SYSTEMD_SUPPORT = "1"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "nginx.service"
 
 USERADD_PACKAGES = "${PN}"
 USERADD_PARAM_${PN} = " \
