@@ -31,5 +31,4 @@ RDEPENDS_${PN} = " \
 	qtquick1-plugins \
 	qtwebkit \
 	qtwebkit-qmlplugins \
-	qmlbrowser \
 "
