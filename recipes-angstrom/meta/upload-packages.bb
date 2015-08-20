@@ -34,6 +34,7 @@ do_upload_packages() {
 
 	# create upload dir
 	mkdir -p upload-queue || true
+	touch files-local files-uniq files-trans || true
 
 	# Find and delete morgue dirs, we don't need them
 	echo "Deleting morgue directories"
@@ -47,7 +48,7 @@ do_upload_packages() {
 	echo "Getting file list from server"
 	ssh -C ${REMOTEM} 'mkdir -p ${REMOTED}/unsorted ; touch ${REMOTED}/unsorted/files-sorted'
 	scp -C ${REMOTEM}:${REMOTED}/unsorted/files-sorted files-remote
-	ls upload-queue/ | grep -v morgue > files-local
+	ls upload-queue/ | grep -v morgue > files-local || true
 
 	# Check for files already present on webserver
 	echo "Checking for duplicates"
