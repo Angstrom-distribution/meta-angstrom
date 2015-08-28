@@ -26,6 +26,10 @@ RDEPENDS_${PN} = " \
 	qtdeclarative \
 	qtdeclarative-qmlplugins \
 	qtdeclarative-plugins \
+	${QTWEBKIT} \
+"
+
+QTWEBKIT ??= "\
 	qtquick1 \
 	qtquick1-qmlplugins \
 	qtquick1-plugins \
