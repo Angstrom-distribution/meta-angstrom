@@ -6,8 +6,7 @@ Type=forking
 PIDFile=@SYSCONFDIR@/nginx/run/nginx.pid
 ExecStartPre=-/bin/mkdir -p @LOCALSTATEDIR@/log/nginx
 ExecStartPre=-/bin/mkdir -p @LOCALSTATEDIR@/run/nginx
-ExecStart=@SYSCONFDIR@/init.d/nginx start
-ExecStop=@SYSCONFDIR@/init.d/nginx stop
+ExecStart=/usr/sbin/nginx
 [Install]
 WantedBy=multi-user.target
 
