@@ -52,7 +52,8 @@ do_configure () {
 	--pid-path=/run/nginx/nginx.pid \
 	--prefix=${prefix} \
 	--with-http_ssl_module \
-	--with-http_gzip_static_module
+	--with-http_gzip_static_module \
+        ${@bb.utils.contains("DISTRO_FEATURES", "ipv6", "--with-ipv6", "", d)}
 }
 
 do_install () {
@@ -87,7 +88,8 @@ do_install () {
             install -d ${D}${systemd_unitdir}/system
             install -m 0644 ${WORKDIR}/nginx.service ${D}${systemd_unitdir}/system/
             sed -i -e 's,@SYSCONFDIR@,${sysconfdir},g' \
-                    -e 's,@LOCALSTATEDIR@,${localstatedir},g' \
+                   -e 's,@LOCALSTATEDIR@,${localstatedir},g' \
+                   -e 's,/usr/sbin,${sbindir},g' \
                     ${D}${systemd_unitdir}/system/nginx.service
         fi
 }
