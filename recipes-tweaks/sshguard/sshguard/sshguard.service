@@ -1,0 +1,12 @@
+[Unit]
+Description=SSHGuard
+After=network.service
+
+[Service]
+PIDFile=/run/sshguard.pid
+ExecStartPre=/usr/lib/sshguard/firewall enable
+ExecStopPost=/usr/lib/sshguard/firewall disable
+ExecStart=/usr/lib/sshguard/sshguard-journalctl -i /run/sshguard.pid -w $WHITELIST $ARGS
+
+[Install]
+WantedBy=multi-user.target
