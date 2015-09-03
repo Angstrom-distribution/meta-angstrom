@@ -1,2 +1,2 @@
 #!/bin/sh
-/bin/journalctl -fb --unit=ssh* | /usr/sbin/sshguard -l- "$@"
+/bin/journalctl -fb -t sshd -n100 | /usr/sbin/sshguard -l- "$@"
