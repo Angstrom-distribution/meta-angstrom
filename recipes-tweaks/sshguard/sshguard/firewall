@@ -1,0 +1,48 @@
+#!/bin/sh
+
+#
+# Function that enables firewall
+#
+do_enable_firewall()
+{
+	# creating sshguard chain
+	iptables -N sshguard 2> /dev/null
+	ip6tables -N sshguard 2> /dev/null
+	# block traffic from abusers
+	iptables -I INPUT -j sshguard 2> /dev/null
+	ip6tables -I INPUT -j sshguard 2> /dev/null
+}
+#
+# Function that disables firewall
+#
+do_disable_firewall()
+{
+	# flushes list of abusers
+	iptables -F sshguard 2> /dev/null
+	ip6tables -F sshguard 2> /dev/null
+	# removes sshguard firewall rules
+	iptables -D INPUT -j sshguard 2> /dev/null
+	ip6tables -D INPUT -j sshguard 2> /dev/null
+	# removing sshguard chain
+	iptables -X sshguard 2> /dev/null
+	ip6tables -X sshguard 2> /dev/null
+}
+
+case "$1" in
+    enable)
+	do_enable_firewall
+	;;
+    disable)
+	do_disable_firewall
+	;;
+    restart)
+	do_disable_firewall
+	do_enable_firewall
+	;;
+    *)
+	exit 1
+	;;
+esac
+	
+exit 0
+
