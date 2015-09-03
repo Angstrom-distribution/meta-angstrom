@@ -27,11 +27,11 @@ do_install_append() {
     install -m 0755 ${WORKDIR}/firewall ${D}${libdir}/sshguard
     install -m 0755 ${WORKDIR}/sshguard-journalctl ${D}${libdir}/sshguard
 
-    sed -i -e s:/bin:${bindir}:g -e s:/usr/sbin:${sbindir}:g ${D}${libdir}/sshguard/sshguard-journalctl
+    sed -i -e s:/bin:${base_bindir}:g -e s:/usr/sbin:${sbindir}:g ${D}${libdir}/sshguard/sshguard-journalctl
 
-    install -d ${D}${systemd_unitdir}/systemd
-    install -m 0644 ${WORKDIR}/sshguard.service ${D}${systemd_unitdir}/systemd
-    sed -i -e s:/usr/lib:${libdir}:g ${D}${systemd_unitdir}/systemd/sshguard.service 
+    install -d ${D}${systemd_unitdir}/system
+    install -m 0644 ${WORKDIR}/sshguard.service ${D}${systemd_unitdir}/system
+    sed -i -e s:/usr/lib:${libdir}:g ${D}${systemd_unitdir}/system/sshguard.service 
 }
 
 FILES_${PN} += "${systemd_unitdir}"
