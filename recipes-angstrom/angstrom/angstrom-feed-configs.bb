@@ -58,11 +58,6 @@ CONFFILES_${PN} += "${sysconfdir}/opkg/base-feed.conf \
 					${sysconfdir}/opkg/sdk-feed.conf \
 					"
 
-# Get rid of opkg-collateral
-RCONFLICTS_${PN} = "opkg-collateral"
-RREPLACES_${PN} = "opkg-collateral"
-RPROVIDES_${PN} = "opkg-collateral"
-
 RRECOMMENDS_${PN} += "opkg"
 
 python populate_packages_prepend () {
