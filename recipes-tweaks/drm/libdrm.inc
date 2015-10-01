@@ -11,9 +11,6 @@ SRC_URI = "http://dri.freedesktop.org/libdrm/libdrm-${PV}.tar.bz2"
 PROVIDES = "drm"
 DEPENDS = "libpthread-stubs udev"
 
-# be aware that libdrm_2.4.44.bb ignores this
-INC_PR = "r4"
-
 #libpciaccess is required starting from libdrm 2.4.26
 DEPENDS += " libpciaccess"
 
@@ -21,7 +18,8 @@ inherit autotools pkgconfig
 
 EXTRA_OECONF += "--disable-cairo-tests \
                  --enable-omap-experimental-api \
-                 --enable-install-test-programs \
+                 --enable-freedreno \
+		 --enable-install-test-programs \
                  --disable-manpages \
                 "
 ALLOW_EMPTY_${PN}-drivers = "1"
