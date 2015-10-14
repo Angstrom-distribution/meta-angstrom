@@ -15,6 +15,7 @@ BB_SIGNATURE_HANDLER ?= "OEBasicHash"
 # Empty commercial license, we want to build a superset for the default config
 COMMERCIAL_LICENSE = ""
 LICENSE_FLAGS_WHITELIST += "commercial"
+ACCEPT_QCOM_EULA = "1"
 
 # Unbreak multimachine builds
 LICENSE_DIRECTORY = "${DEPLOY_DIR}/licenses/${MACHINE_ARCH}"
