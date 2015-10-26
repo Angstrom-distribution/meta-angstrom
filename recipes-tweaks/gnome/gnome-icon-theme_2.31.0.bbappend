@@ -1,1 +1,2 @@
-DEPENDS += "intltool"
+inherit gettext
+
