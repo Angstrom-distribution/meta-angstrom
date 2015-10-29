@@ -10,7 +10,10 @@
 def arm_tune_handler(d):
     features = d.getVar('TUNE_FEATURES', True).split()
     if 'armv7a' in features:
-        tune = 'armv7athf'
+        if 'thumb' in features:
+            tune = 'armv7athf'
+        else:
+            tune = 'armv7ahf'
         if 'bigendian' in features:
             tune += 'b'
         if 'neon' in features:
@@ -19,4 +22,4 @@ def arm_tune_handler(d):
         tune = d.getVar('DEFAULTTUNE', True)
     return tune
 
-DEFAULTTUNE := "${@arm_tune_handler(d)}"
+DEFAULTTUNE_angstrom := "${@arm_tune_handler(d)}"
