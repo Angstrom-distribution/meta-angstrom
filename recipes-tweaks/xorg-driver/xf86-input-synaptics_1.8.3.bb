@@ -1,4 +1,4 @@
-require recipes-graphics/xorg-driver/xorg-driver-input.inc
+require xorg-driver-input.inc
 
 SUMMARY = "X.Org X server -- synaptics touchpad input driver"
 
