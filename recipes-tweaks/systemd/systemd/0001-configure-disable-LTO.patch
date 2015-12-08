@@ -1,0 +1,28 @@
+From a8c1816f2be50d8bf371f911ca093e09638fa404 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Thu, 24 Jul 2014 07:28:27 +0200
+Subject: [PATCH] configure: disable LTO
+
+Some compilers (e.g. linux gcc 4.9) can't handle it, so disable it.
+
+Upstream-Status: Pending
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ configure.ac | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 45dd230..988db36 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -224,10 +224,6 @@ AS_CASE([$CC], [*clang*],
+                -Wno-gnu-variable-sized-type-not-at-end \
+         ])])
+ 
+-AS_CASE([$CFLAGS], [*-O[[12345\ ]]*],
+-        [CC_CHECK_FLAGS_APPEND([with_cflags], [CFLAGS], [\
+-               -flto -ffat-lto-objects])],
+-        [AC_MSG_RESULT([skipping -flto, optimization not enabled])])
+ AC_SUBST([OUR_CFLAGS], "$with_cflags $sanitizer_cflags")
+ 
+ AS_CASE([$CFLAGS], [*-O[[12345\ ]]*],
