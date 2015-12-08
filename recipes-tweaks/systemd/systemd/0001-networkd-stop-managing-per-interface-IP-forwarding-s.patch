@@ -1,0 +1,228 @@
+From a2c1472edf77581a4c364c792be47d66d8f7e605 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 13 Nov 2015 12:49:15 +0100
+Subject: [PATCH] networkd: stop managing per-interface IP forwarding settings
+
+As it turns out the kernel does not support per-interface IPv6 packet
+forwarding controls (unlike as it does for IPv4), but only supports a
+global option (#1597). Also, the current per-interface management of the
+setting isn't really useful, as you want it to propagate to at least one
+more interface than the one you configure it on. This created much grief
+(#1411, #1808).
+
+Hence, let's roll this logic back and simplify this again, so that we
+can expose the same behaviour on IPv4 and IPv6 and things start to work
+automatically again for most folks: if a network with this setting set
+is set up we propagate the setting into the global setting, but this is
+strictly one-way: we never reset it again, and we do nothing for network
+interfaces where this setting is not enabled.
+
+Fixes: #1808, #1597.
+
+Conflicts:
+	man/systemd.network.xml
+	src/network/networkd-link.c
+---
+ man/systemd.network.xml     | 37 +++++++++++++------------
+ src/network/networkd-link.c | 66 ++++++++++++++++++++++-----------------------
+ src/network/networkd-util.c | 10 ++++++-
+ 3 files changed, 59 insertions(+), 54 deletions(-)
+
+diff --git a/man/systemd.network.xml b/man/systemd.network.xml
+index 2fb4733..990985f 100644
+--- a/man/systemd.network.xml
++++ b/man/systemd.network.xml
+@@ -356,29 +356,28 @@
+         </varlistentry>
+         <varlistentry>
+           <term><varname>IPForward=</varname></term>
+-          <listitem><para>Configures IP forwarding for the network
+-          interface. If enabled incoming packets on the network
+-          interface will be forwarded to other interfaces according to
+-          the routing table. Takes either a boolean argument, or the
+-          values <literal>ipv4</literal> or <literal>ipv6</literal>,
+-          which only enables IP forwarding for the specified address
+-          family, or <literal>kernel</literal>, which preserves existing sysctl settings.
+-          This controls the
+-          <filename>net.ipv4.conf.&lt;interface&gt;.forwarding</filename>
+-          and
+-          <filename>net.ipv6.conf.&lt;interface&gt;.forwarding</filename>
+-          sysctl options of the network interface (see <ulink
++          <listitem><para>Configures IP packet forwarding for the
++          system. If enabled, incoming packets on any network
++          interface will be forwarded to any other interfaces
++          according to the routing table. Takes either a boolean
++          argument, or the values <literal>ipv4</literal> or
++          <literal>ipv6</literal>, which only enable IP packet
++          forwarding for the specified address family.  This controls
++          the <filename>net.ipv4.ip_forward</filename> and
++          <filename>net.ipv6.conf.all.forwarding</filename> sysctl
++          options of the network interface (see <ulink
+           url="https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt">ip-sysctl.txt</ulink>
+           for details about sysctl options). Defaults to
+           <literal>no</literal>.</para>
+ 
+-         <para>Note: unless this option is turned on, or set to <literal>kernel</literal>,
+-          no IP forwarding is done on this interface, even if this is
+-          globally turned on in the kernel, with the
+-          <filename>net.ipv4.ip_forward</filename>,
+-          <filename>net.ipv4.conf.all.forwarding</filename>, and
+-          <filename>net.ipv6.conf.all.forwarding</filename> sysctl
+-          options.</para>
++          <para>Note: this setting controls a global kernel option,
++          and does so one way only: if a network that has this setting
++          enabled is set up the global setting is turned on.  However,
++          it is never turned off again, even after all networks with
++          this setting enabled are shut down again.</para>
++
++          <para>To allow IP packet forwarding only between specific
++          network interfaces use a firewall.</para>
+           </listitem>
+         </varlistentry>
+         <varlistentry>
+diff --git a/src/network/networkd-link.c b/src/network/networkd-link.c
+index 1dc9db0..db276f1 100644
+--- a/src/network/networkd-link.c
++++ b/src/network/networkd-link.c
+@@ -106,16 +106,26 @@ static bool link_ipv4_forward_enabled(Link *link) {
+         if (!link->network)
+                 return false;
+ 
++        if (link->network->ip_forward == _ADDRESS_FAMILY_BOOLEAN_INVALID)
++                return false;
++
+         return link->network->ip_forward & ADDRESS_FAMILY_IPV4;
+ }
+ 
+ static bool link_ipv6_forward_enabled(Link *link) {
++
++        if (!socket_ipv6_is_supported())
++                return false;
++
+         if (link->flags & IFF_LOOPBACK)
+                 return false;
+ 
+         if (!link->network)
+                 return false;
+ 
++        if (link->network->ip_forward == _ADDRESS_FAMILY_BOOLEAN_INVALID)
++                return false;
++
+         return link->network->ip_forward & ADDRESS_FAMILY_IPV6;
+ }
+ 
+@@ -1707,55 +1717,43 @@ static int link_enter_join_netdev(Link *link) {
+ }
+ 
+ static int link_set_ipv4_forward(Link *link) {
+-        const char *p = NULL, *v;
+         int r;
+ 
+-        if (link->flags & IFF_LOOPBACK)
+-                return 0;
+-
+-        if (link->network->ip_forward == _ADDRESS_FAMILY_BOOLEAN_INVALID)
++        if (!link_ipv4_forward_enabled(link))
+                 return 0;
+ 
+-        p = strjoina("/proc/sys/net/ipv4/conf/", link->ifname, "/forwarding");
+-        v = one_zero(link_ipv4_forward_enabled(link));
+-
+-        r = write_string_file(p, v, 0);
+-        if (r < 0) {
+-                /* If the right value is set anyway, don't complain */
+-                if (verify_one_line_file(p, v) > 0)
+-                        return 0;
++        /* We propagate the forwarding flag from one interface to the
++         * global setting one way. This means: as long as at least one
++         * interface was configured at any time that had IP forwarding
++         * enabled the setting will stay on for good. We do this
++         * primarily to keep IPv4 and IPv6 packet forwarding behaviour
++         * somewhat in sync (see below). */
+ 
+-                log_link_warning_errno(link, r, "Cannot configure IPv4 forwarding for interface %s: %m", link->ifname);
+-        }
++        r = write_string_file("/proc/sys/net/ipv4/ip_forward", "1", WRITE_STRING_FILE_VERIFY_ON_FAILURE);
++        if (r < 0)
++                log_link_warning_errno(link, r, "Cannot turn on IPv4 packet forwarding, ignoring: %m");
+ 
+         return 0;
+ }
+ 
+ static int link_set_ipv6_forward(Link *link) {
+-        const char *p = NULL, *v = NULL;
+         int r;
+ 
+-        /* Make this a NOP if IPv6 is not available */
+-        if (!socket_ipv6_is_supported())
++        if (!link_ipv6_forward_enabled(link))
+                 return 0;
+ 
+-        if (link->flags & IFF_LOOPBACK)
+-                return 0;
++        /* On Linux, the IPv6 stack does not not know a per-interface
++         * packet forwarding setting: either packet forwarding is on
++         * for all, or off for all. We hence don't bother with a
++         * per-interface setting, but simply propagate the interface
++         * flag, if it is set, to the global flag, one-way. Note that
++         * while IPv4 would allow a per-interface flag, we expose the
++         * same behaviour there and also propagate the setting from
++         * one to all, to keep things simple (see above). */
+ 
+-        if (link->network->ip_forward == _ADDRESS_FAMILY_BOOLEAN_INVALID)
+-                return 0;
+-
+-        p = strjoina("/proc/sys/net/ipv6/conf/", link->ifname, "/forwarding");
+-        v = one_zero(link_ipv6_forward_enabled(link));
+-
+-        r = write_string_file(p, v, 0);
+-        if (r < 0) {
+-                /* If the right value is set anyway, don't complain */
+-                if (verify_one_line_file(p, v) > 0)
+-                        return 0;
+-
+-                log_link_warning_errno(link, r, "Cannot configure IPv6 forwarding for interface: %m");
+-        }
++        r = write_string_file("/proc/sys/net/ipv6/conf/all/forwarding", "1", WRITE_STRING_FILE_VERIFY_ON_FAILURE);
++        if (r < 0)
++                log_link_warning_errno(link, r, "Cannot configure IPv6 packet forwarding, ignoring: %m");
+ 
+         return 0;
+ }
+diff --git a/src/network/networkd-util.c b/src/network/networkd-util.c
+index a41cd86..ae107f8 100644
+--- a/src/network/networkd-util.c
++++ b/src/network/networkd-util.c
+@@ -77,10 +77,18 @@ int config_parse_address_family_boolean_with_kernel(
+         assert(rvalue);
+         assert(data);
+ 
++        /* This function is mostly obsolete now. It simply redirects
++         * "kernel" to "no". In older networkd versions we used to
++         * distuingish IPForward=off from IPForward=kernel, where the
++         * former would explicitly turn off forwarding while the
++         * latter would simply not touch the setting. But that logic
++         * is gone, hence silently accept the old setting, but turn it
++         * to "no". */
++
+         s = address_family_boolean_from_string(rvalue);
+         if (s < 0) {
+                 if (streq(rvalue, "kernel"))
+-                        s = _ADDRESS_FAMILY_BOOLEAN_INVALID;
++                        s = ADDRESS_FAMILY_NO;
+                 else {
+                         log_syntax(unit, LOG_ERR, filename, line, s, "Failed to parse IPForwarding= option, ignoring: %s", rvalue);
+                         return 0;
+
+diff --git a/src/basic/fileio.h b/src/basic/fileio.h
+index 2e8148f..7862d6a 100644
+--- a/src/basic/fileio.h
++++ b/src/basic/fileio.h
+@@ -29,6 +29,7 @@ typedef enum {
+         WRITE_STRING_FILE_CREATE = 1,
+         WRITE_STRING_FILE_ATOMIC = 2,
+         WRITE_STRING_FILE_AVOID_NEWLINE = 4,
++        WRITE_STRING_FILE_VERIFY_ON_FAILURE = 8,
+ } WriteStringFileFlags;
+ 
+ int write_string_stream(FILE *f, const char *line, bool enforce_newline);
