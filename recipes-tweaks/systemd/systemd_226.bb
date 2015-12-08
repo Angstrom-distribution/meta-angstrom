@@ -10,51 +10,51 @@ state, maintains mount and automount points and implements an \
 elaborate transactional dependency-based service control logic. It can \
 work as a drop-in replacement for sysvinit."
 
-LICENSE = "GPLv2 & LGPLv2.1 & MIT"
+LICENSE = "GPLv2 & LGPLv2.1"
 LIC_FILES_CHKSUM = "file://LICENSE.GPL2;md5=751419260aa954499f7abaabaa882bbe \
-                    file://LICENSE.LGPL2.1;md5=4fbd65380cdd255951079008b364516c \
-                    file://LICENSE.MIT;md5=544799d0b492f119fa04641d1b8868ed"
+                    file://LICENSE.LGPL2.1;md5=4fbd65380cdd255951079008b364516c"
 
 PROVIDES = "udev"
 
 PE = "1"
 
-DEPENDS = "kmod docbook-sgml-dtd-4.1-native intltool-native gperf-native acl readline dbus libcap libcgroup glib-2.0 qemu-native util-linux"
+DEPENDS = "kmod docbook-sgml-dtd-4.1-native intltool-native gperf-native acl readline dbus libcap libcgroup qemu-native util-linux"
 
 SECTION = "base/shell"
 
-inherit gtk-doc useradd pkgconfig autotools perlnative update-rc.d update-alternatives qemu systemd ptest gettext
+inherit useradd pkgconfig autotools perlnative update-rc.d update-alternatives qemu systemd ptest gettext
 
-SRCREV = "85a6fabdd3e43cfab0fc6359e9f2a9e368d4a3ed"
+SRCREV = "4211d5bd135ae4c43bd2012ae5f327b1cc1596c0"
 
-PV = "219-stable+git${SRCPV}"
+PV = "226+git${SRCPV}"
 
-SRC_URI = "git://anongit.freedesktop.org/systemd/systemd-stable;branch=v219-stable;protocol=git \
-           file://0002-shared-missing.h-fall-back-to-insecure-getenv.patch \
+SRC_URI = "git://github.com/systemd/systemd.git;protocol=git \
            file://0003-binfmt-Don-t-install-dependency-links-at-install-tim.patch \
            file://0004-configure-Check-for-additional-features-that-uclibc-.patch \
-           file://0005-nspawn-Use-execvpe-only-when-libc-supports-it.patch \
            file://0006-journal-Use-posix-fallocate-only-if-available.patch \
            file://0007-util-Use-mkostemp-only-if-libc-supports-it.patch \
            file://0008-util-bypass-unimplemented-_SC_PHYS_PAGES-system-conf.patch \
            file://0009-sysv-generator-add-support-for-executing-scripts-und.patch \
            file://0010-Make-root-s-home-directory-configurable.patch \
            file://0011-systemd-user-avoid-using-system-auth.patch \
-           file://0012-systemd-tmpfiles.c-Honor-ordering-within-files-as-th.patch \
+           file://0012-implment-systemd-sysv-install-for-OE.patch \
            file://0014-Revert-rules-remove-firmware-loading-rules.patch \
            file://0015-Revert-udev-remove-userspace-firmware-loading-suppor.patch \
-           file://tmpfiles-pam.patch \
-           file://0001-Revert-core-mount-add-dependencies-to-dynamically-mo.patch \
+           file://0001-networkd-stop-managing-per-interface-IP-forwarding-s.patch \
            file://touchscreen.rules \
            file://00-create-volatile.conf \
            file://init \
            file://run-ptest \
+           file://rules-whitelist-hd-devices.patch \
           "
+SRC_URI_append_qemuall = " file://qemuall_io_latency-core-device.c-Change-the-default-device-timeout-to-2.patch"
 
 S = "${WORKDIR}/git"
 
 SRC_URI_append_libc-uclibc = "\
             file://0001-units-Prefer-getty-to-agetty-in-console-setup-system.patch \
+            file://0022-Use-getenv-when-secure-versions-are-not-available.patch \
+            file://0001-fix-build-on-uClibc-exp10.patch \
            "
 LDFLAGS_append_libc-uclibc = " -lrt"
 
@@ -89,6 +89,8 @@ PACKAGECONFIG[xkbcommon] = "--enable-xkbcommon,--disable-xkbcommon,libxkbcommon"
 PACKAGECONFIG[iptc] = "--enable-libiptc,--disable-libiptc,iptables"
 PACKAGECONFIG[ldconfig] = "--enable-ldconfig,--disable-ldconfig,,"
 PACKAGECONFIG[selinux] = "--enable-selinux,--disable-selinux,libselinux"
+PACKAGECONFIG[valgrind] = "ac_cv_header_valgrind_memcheck_h=yes ac_cv_header_valgrind_valgrind_h=yes ,ac_cv_header_valgrind_memcheck_h=no ac_cv_header_valgrind_valgrind_h=no ,valgrind"
+PACKAGECONFIG[qrencode] = "--enable-qrencode,--disable-qrencode,qrencode"
 
 CACHED_CONFIGUREVARS += "ac_cv_path_KILL=${base_bindir}/kill"
 CACHED_CONFIGUREVARS += "ac_cv_path_KMOD=${base_bindir}/kmod"
@@ -102,23 +104,34 @@ rootprefix ?= "${base_prefix}"
 rootlibdir ?= "${base_libdir}"
 rootlibexecdir = "${rootprefix}/lib"
 
-# The gtk+ tools should get built as a separate recipe e.g. systemd-tools
+CACHED_CONFIGUREVARS_class-target = "\
+                         ac_cv_path_MOUNT_PATH=${base_bindir}/mount \
+                         ac_cv_path_UMOUNT_PATH=${base_bindir}/umount \
+                         ac_cv_path_KMOD=${base_bindir}/kmod \
+                         ac_cv_path_KILL=${base_bindir}/kill \
+                         ac_cv_path_SULOGIN=${base_sbindir}/sulogin \
+                         ac_cv_path_KEXEC=${sbindir}/kexec \
+                         ac_cv_path_QUOTACHECK=${sbindir}/quotacheck \
+                         ac_cv_path_QUOTAON=${sbindir}/quotaon \
+			 "
+
 EXTRA_OECONF = " --with-rootprefix=${rootprefix} \
                  --with-rootlibdir=${rootlibdir} \
                  --with-roothomedir=${ROOT_HOME} \
                  --disable-coredump \
-                 --disable-introspection \
-                 --disable-kdbus \
                  --enable-split-usr \
                  --without-python \
                  --with-sysvrcnd-path=${sysconfdir} \
                  --with-firmware-path=/lib/firmware \
+                 --disable-kdbus \
                "
 # uclibc does not have NSS
 EXTRA_OECONF_append_libc-uclibc = " --disable-myhostname "
 
+# disable problematic GCC 5.2 optimizations [YOCTO #8291]
+FULL_OPTIMIZATION_append_arm = " -fno-schedule-insns -fno-schedule-insns2"
+
 do_configure_prepend() {
-	export CPP="${HOST_PREFIX}cpp ${TOOLCHAIN_OPTIONS} ${HOST_CC_ARCH}"
 	export NM="${HOST_PREFIX}gcc-nm"
 	export AR="${HOST_PREFIX}gcc-ar"
 	export RANLIB="${HOST_PREFIX}gcc-ranlib"
@@ -181,9 +194,10 @@ do_install() {
 	sed -i -e 's/.*ForwardToSyslog.*/ForwardToSyslog=yes/' ${D}${sysconfdir}/systemd/journald.conf
 	# this file is needed to exist if networkd is disabled but timesyncd is still in use since timesyncd checks it
 	# for existence else it fails
-	if [ -s ${D}${libdir}/tmpfiles.d/systemd.conf ]; then
-		${@bb.utils.contains('PACKAGECONFIG', 'networkd', ':', 'sed -i -e "\$ad /run/systemd/netif/links 0755 root root -" ${D}${libdir}/tmpfiles.d/systemd.conf', d)}
+	if [ -s ${D}${exec_prefix}/lib/tmpfiles.d/systemd.conf ]; then
+		${@bb.utils.contains('PACKAGECONFIG', 'networkd', ':', 'sed -i -e "\$ad /run/systemd/netif/links 0755 root root -" ${D}${exec_prefix}/lib/tmpfiles.d/systemd.conf', d)}
 	fi
+	install -Dm 0755 ${S}/src/systemctl/systemd-sysv-install.SKELETON ${D}${systemd_unitdir}/systemd-sysv-install
 }
 
 do_install_ptest () {
@@ -209,7 +223,7 @@ python populate_packages_prepend (){
 PACKAGES_DYNAMIC += "^lib(udev|systemd).*"
 
 PACKAGES =+ "${PN}-gui ${PN}-vconsole-setup ${PN}-initramfs ${PN}-analyze ${PN}-kernel-install \
-             ${PN}-rpm-macros ${PN}-binfmt ${PN}-pam ${PN}-zsh libgudev"
+             ${PN}-rpm-macros ${PN}-binfmt ${PN}-pam ${PN}-zsh ${PN}-xorg-xinitrc"
 
 SYSTEMD_PACKAGES = "${PN}-binfmt"
 SYSTEMD_SERVICE_${PN}-binfmt = "systemd-binfmt.service"
@@ -222,8 +236,6 @@ FILES_${PN}-analyze = "${bindir}/systemd-analyze"
 
 FILES_${PN}-initramfs = "/init"
 RDEPENDS_${PN}-initramfs = "${PN}"
-
-FILES_libgudev = "${libdir}/libgudev*${SOLIBS}"
 
 RDEPENDS_${PN}-ptest += "perl python bash"
 FILES_${PN}-ptest += "${libdir}/udev/rules.d"
@@ -243,6 +255,8 @@ FILES_${PN}-kernel-install = "${bindir}/kernel-install \
                              "
 FILES_${PN}-rpm-macros = "${exec_prefix}/lib/rpm \
                          "
+
+FILES_${PN}-xorg-xinitrc = "${sysconfdir}/X11/xinit/xinitrc.d/*"
 
 FILES_${PN}-zsh = "${datadir}/zsh/site-functions"
 
@@ -295,27 +309,28 @@ FILES_${PN} = " ${base_bindir}/* \
                 ${exec_prefix}/lib/sysctl.d \
                 ${exec_prefix}/lib/sysusers.d \
                 ${localstatedir} \
-                /lib/udev/rules.d/70-uaccess.rules \
-                /lib/udev/rules.d/71-seat.rules \
-                /lib/udev/rules.d/73-seat-late.rules \
-                /lib/udev/rules.d/99-systemd.rules \
+                ${nonarch_base_libdir}/udev/rules.d/70-uaccess.rules \
+                ${nonarch_base_libdir}/udev/rules.d/71-seat.rules \
+                ${nonarch_base_libdir}/udev/rules.d/73-seat-late.rules \
+                ${nonarch_base_libdir}/udev/rules.d/99-systemd.rules \
                "
 
 FILES_${PN}-dbg += "${rootlibdir}/.debug ${systemd_unitdir}/.debug ${systemd_unitdir}/*/.debug ${base_libdir}/security/.debug/"
 FILES_${PN}-dev += "${base_libdir}/security/*.la ${datadir}/dbus-1/interfaces/ ${sysconfdir}/rpm/macros.systemd"
 
 RDEPENDS_${PN} += "kmod dbus util-linux-mount udev (= ${EXTENDPKGV})"
-RDEPENDS_${PN} += "volatile-binds"
+RDEPENDS_${PN} += "volatile-binds update-rc.d"
 
-RRECOMMENDS_${PN} += "systemd-serialgetty systemd-compat-units udev-hwdb\
-                      util-linux-agetty \
-                      util-linux-fsck e2fsprogs-e2fsck \
-                      kernel-module-autofs4 kernel-module-unix kernel-module-ipv6 os-release \
+RRECOMMENDS_${PN} += "systemd-serialgetty systemd-vconsole-setup \
+                      systemd-compat-units udev-hwdb \
+                      util-linux-agetty  util-linux-fsck e2fsprogs-e2fsck \
+                      kernel-module-autofs4 kernel-module-unix kernel-module-ipv6 \
+                      os-release \
 "
 
 PACKAGES =+ "udev-dbg udev udev-hwdb"
 
-FILES_udev-dbg += "/lib/udev/.debug"
+FILES_udev-dbg += "${nonarch_base_libdir}/udev/.debug"
 
 RPROVIDES_udev = "hotplug"
 
