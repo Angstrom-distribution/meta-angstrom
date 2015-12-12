@@ -213,6 +213,16 @@ index a41cd86..ae107f8 100644
                  else {
                          log_syntax(unit, LOG_ERR, filename, line, s, "Failed to parse IPForwarding= option, ignoring: %s", rvalue);
                          return 0;
--- 
-2.0.1
 
+diff --git a/src/basic/fileio.h b/src/basic/fileio.h
+index 2e8148f..7862d6a 100644
+--- a/src/basic/fileio.h
++++ b/src/basic/fileio.h
+@@ -29,6 +29,7 @@ typedef enum {
+         WRITE_STRING_FILE_CREATE = 1,
+         WRITE_STRING_FILE_ATOMIC = 2,
+         WRITE_STRING_FILE_AVOID_NEWLINE = 4,
++        WRITE_STRING_FILE_VERIFY_ON_FAILURE = 8,
+ } WriteStringFileFlags;
+ 
+ int write_string_stream(FILE *f, const char *line, bool enforce_newline);
