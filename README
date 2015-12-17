@@ -14,7 +14,7 @@ revision: HEAD
            Setup
 ==============================
 
-It is recommended to follow the instruction at http://www.angstrom-distribution.org/building-angstrom
+It is recommended to follow the instruction at https://github.com/Angstrom-distribution/angstrom-manifest
 
 This will set it up for the OpenEmbedded-core layout needed for this layer instead of the old OpenEmbedded-dev layout.
 
