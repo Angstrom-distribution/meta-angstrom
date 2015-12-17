@@ -1,0 +1,1 @@
+DEPENDS_append = " libgudev"
