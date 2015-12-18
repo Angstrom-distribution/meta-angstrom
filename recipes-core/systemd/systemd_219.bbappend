@@ -1,0 +1,5 @@
+DEFAULT_PREFERENCE = "-1000"
+EXCLUDE_FROM_WORLD = "1"
+
+PROVIDES_remove = "libgudev"
+
