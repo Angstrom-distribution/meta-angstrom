@@ -111,7 +111,7 @@ case "$arch" in
 	"armv7at2hf-vfp")
 			machines="sama5d3_xplained sama5d3xek colibri-vf" ;;
 	"armv7at2hf-vfp-neon")
-			machines="am335x-evm am3517-evm am37x-evm arndale arndale-octa bananapi beagleboard beaglebone chromebook-snow cubieboard cubieboard2 cubietruck dra7xx-evm efikamx forfun-q88db genericarmv7a hpveer htcleo ifc6410 imx6qsabrelite keystone-evm mele meleg nexusone nokia900 olinuxino-a10 olinuxino-a10s olinuxino-a13 olinuxino-a20 olinuxino-a20lime olinuxino-a20som  omap3evm omap5-evm om-gta04 overo pandaboard raspberrypi2 wandboard-solo wandboard-dual wandboard-quad" ;;
+			machines="am335x-evm am3517-evm am37x-evm arndale arndale-octa bananapi beagleboard beaglebone chromebook-snow cubieboard cubieboard2 cubietruck dra7xx-evm efikamx forfun-q88db genericarmv7a hpveer htcleo ifc6410 imx6qsabrelite keystone-evm mele meleg nexusone nokia900 olinuxino-a10 olinuxino-a10lime olinuxino-a10s olinuxino-a13 olinuxino-a20 olinuxino-a20lime olinuxino-a20som  omap3evm omap5-evm om-gta04 overo pandaboard raspberrypi2 wandboard-solo wandboard-dual wandboard-quad" ;;
 	"armv7at2hf-vfp-neon-mx5")
 			archdir="armv7ahf-vfp-neon"
 			machines="" ;;
@@ -186,7 +186,7 @@ case "$arch" in
             archdir="corei7-64"
 			machines="sugarbay jasperforest beast intel-corei7-64" ;;
 	"core2-64")
-			machines="qemux86-64 dominion" ;;
+			machines="qemux86-64 dominion macbook" ;;
 	"core2-32")
 			machines="crownbay-noemgd emenlow-noemgd fri2-noemgd edison" ;;
 	"core2-32-intel-common")
