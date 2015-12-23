@@ -11,6 +11,11 @@ BB_SIGNATURE_HANDLER ?= "OEBasicHash"
 #PRSERV_HOST ?= "localhost"
 #PRSERV_PORT ?= "0"
  
+# Remove 'version-going-backwards', that doesn't play well with multi machine builds.
+ERROR_QA = "dev-so debug-deps dev-deps debug-files arch pkgconfig la \
+             perms dep-cmp pkgvarcheck perm-config perm-line perm-link \
+             split-strip packages-list pkgv-undefined var-undefined \
+            "
 
 # Empty commercial license, we want to build a superset for the default config
 COMMERCIAL_LICENSE = ""
