@@ -1,4 +1,4 @@
-PACKAGECONFIG_x86-64 = " egl gles dri dri3 x11 xa r600 gallium gallium-llvm xvmc"
+PACKAGECONFIG_x86-64 = " egl gles dri dri3 x11 xa r600 gallium gallium-llvm"
 
 GALLIUMDRIVERS_LLVM33 = "${@bb.utils.contains('PACKAGECONFIG', 'r600', 'r600', '', d)}"
 
@@ -11,5 +11,3 @@ PACKAGECONFIG_append_armv7a = " gallium \
 PACKAGECONFIG_append_aarch64 = " gallium \
                          ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'xa', '', d)} \
                        "
-
-FILES_mesa-megadriver += "${libdir}/libXvMC*.so.*"
