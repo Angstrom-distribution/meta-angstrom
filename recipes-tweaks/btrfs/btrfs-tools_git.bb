@@ -12,16 +12,19 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=fcb02dc552a041dee27e4b85c7396067"
 SECTION = "base"
 DEPENDS = "util-linux attr e2fsprogs lzo acl"
 
-SRCREV = "e4c12281c27e166ebec6e030cdfb85fd40ded13b"
-SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git"
-S = "${WORKDIR}/git"
+PV = "4.3.1+git${SRCPV}"
+SRCREV = "0ab3d31aa784b71900f0fd0a8bd9ef15b715e9de"
+SRC_URI = "git://github.com/kdave/btrfs-progs.git;protocol=https;branch=devel \
+          "
 
-PV = "3.17.3"
+inherit autotools-brokensep pkgconfig
 
-EXTRA_OEMAKE = "DISABLE_DOCUMENTATION=1 'CC=${CC}' 'AR=${AR}' 'CFLAGS=${CFLAGS}' V=1"
+EXTRA_OECONF += "--disable-documentation"
 
-do_install () {
-	oe_runmake 'DESTDIR=${D}' install
+do_configure_prepend() {
+      sh autogen.sh
 }
+
+S = "${WORKDIR}/git"
 
 BBCLASSEXTEND = "native"
