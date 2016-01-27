@@ -4,12 +4,10 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=4d92cd373abda3937c2bc47fbc49d
 AUTHOR = " Graeme 'XorA' Gregory, Koen Kooi"
 
 # Angstrom webserver
-#REMOTEM = "angstrom@eu.feeds.angstrom-distribution.org"
-REMOTEM = "koen@beast.local"
+REMOTEM = "angstrom@eu.feeds.angstrom-distribution.org"
 
 # Feed dir we want to upload to
-#REMOTED = "website/${FEED_BASEPATH}"
-REMOTED = "/data/www/angstrom/${FEED_BASEPATH}"
+REMOTED = "website/${FEED_BASEPATH}"
 
 # set some vars to get rid of spurious deps
 INHIBIT_DEFAULT_DEPS = "1"
@@ -63,7 +61,7 @@ do_upload_packages() {
 
 	# Copy over non-duplicate files
 	echo "Starting rsync..."
-	rsync -v --partial --copy-links --progress --files-from=files-trans upload-queue/ ${REMOTEM}:${REMOTED}/unsorted/
+	rsync -vz --partial --copy-links --progress --files-from=files-trans upload-queue/ ${REMOTEM}:${REMOTED}/unsorted/
 
 	# Clean up temporary files
 	echo "Removing upload queue"
