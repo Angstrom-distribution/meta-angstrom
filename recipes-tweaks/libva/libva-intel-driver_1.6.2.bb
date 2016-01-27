@@ -15,7 +15,7 @@ DEPENDS = "libva libdrm"
 
 SRCREV = "2110b3a0bca6cecb42defd0b01d32530f5807b04"
 
-SRC_URI = "git://anongit.freedesktop.org/git/vaapi/libva.git;protocol=http;branch=v1.6-branch"
+SRC_URI = "git://anongit.freedesktop.org/git/vaapi/intel-driver.git;protocol=http;branch=v1.6-branch"
 
 S = "${WORKDIR}/git"
 
