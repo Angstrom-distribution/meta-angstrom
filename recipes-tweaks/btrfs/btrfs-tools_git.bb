@@ -12,9 +12,9 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=fcb02dc552a041dee27e4b85c7396067"
 SECTION = "base"
 DEPENDS = "util-linux attr e2fsprogs lzo acl"
 
-PV = "4.3.1+git${SRCPV}"
-SRCREV = "0ab3d31aa784b71900f0fd0a8bd9ef15b715e9de"
-SRC_URI = "git://github.com/kdave/btrfs-progs.git;protocol=https;branch=devel \
+PV = "4.4+git${SRCPV}"
+SRCREV = "21258fab2caeade405a15ba932d373b364aa6e8c"
+SRC_URI = "git://github.com/kdave/btrfs-progs.git;protocol=https \
           "
 
 inherit autotools-brokensep pkgconfig
