@@ -1,1 +1,1 @@
-PACKAGECONFIG = "sensors libatasmart snmp"
+PACKAGECONFIG = "sensors libatasmart"
