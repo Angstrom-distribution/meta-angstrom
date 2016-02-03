@@ -13,7 +13,7 @@ do_compile() {
 	mkdir -p ${S}/${sysconfdir}/opkg
 
 	for feed in base debug perl python gstreamer ; do
-		rm ${S}/${sysconfdir}/opkg/${feed}-feed.conf
+		rm -f ${S}/${sysconfdir}/opkg/${feed}-feed.conf
 		for feed_arch in ${FEED_ARCHS} ; do
 			echo "src/gz ${feed}-${feed_arch} ${ANGSTROM_URI}/${FEED_BASEPATH}${feed_arch}/${feed}" >> ${S}/${sysconfdir}/opkg/${feed}-feed.conf
 		done
