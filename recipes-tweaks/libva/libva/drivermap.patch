@@ -1,0 +1,28 @@
+From 1f026dec91ce7d3d0efc9c572687ea31d49a8678 Mon Sep 17 00:00:00 2001
+From: Julien Isorce <j.isorce@samsung.com>
+Date: Fri, 27 Nov 2015 08:53:45 +0000
+Subject: driver_name_map: add nouveau and radeon for Mesa Gallium
+
+This patch allows va_getDriverName to succeed.
+It is useful in vaInitialize to select the vaapi
+driver provided by Mesa Gallium:
+lib/dri/gallium_drv_video.so
+
+Signed-off-by: Julien Isorce <j.isorce@samsung.com>
+
+diff --git a/va/drm/va_drm_utils.c b/va/drm/va_drm_utils.c
+index 71091fd..041be79 100644
+--- a/va/drm/va_drm_utils.c
++++ b/va/drm/va_drm_utils.c
+@@ -41,6 +41,8 @@ static const struct driver_name_map g_driver_name_map[] = {
+     { "pvrsrvkm",   8, "pvr"    }, // Intel UMG PVR driver
+     { "emgd",       4, "emgd"   }, // Intel ECG PVR driver
+     { "hybrid",     6, "hybrid" }, // Intel OTC Hybrid driver
++    { "nouveau",    7, "gallium" }, // Mesa Gallium driver
++    { "radeon",     6, "gallium" }, // Mesa Gallium driver
+     { NULL, }
+ };
+ 
+-- 
+cgit v0.10.2
+
