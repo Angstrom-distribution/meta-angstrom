@@ -153,6 +153,12 @@ do_configure_prepend() {
 
 do_install() {
 	autotools_do_install
+
+	# Downstream tools like dracut get confused by /usr/lib/systemd being only partially there
+	mv ${D}${libdir}/systemd/{catalog,user-generators} ${D}${base_libdir}/systemd/
+	rm -rf ${D}${libdir}/systemd 
+	( cd ${D}${libdir} && ln -sf ../../lib/systemd systemd || true )
+
 	install -d ${D}/${base_sbindir}
 	# Provided by a separate recipe
 	rm ${D}${systemd_unitdir}/system/serial-getty* -f
