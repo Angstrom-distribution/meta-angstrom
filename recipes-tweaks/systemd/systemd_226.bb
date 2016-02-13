@@ -60,7 +60,11 @@ LDFLAGS_append_libc-uclibc = " -lrt"
 
 GTKDOC_DOCDIR = "${S}/docs/"
 
+SYSTEMDBOOT ?= ""
+SYSTEMDBOOT_x86-64 = "gnuefi"
+
 PACKAGECONFIG ??= "xz ldconfig networkd resolved iptc libidn \
+                   ${SYSTEMDBOOT} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'xkbcommon', '', d)} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux', '', d)} \
