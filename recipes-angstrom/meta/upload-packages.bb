@@ -15,7 +15,6 @@ INHIBIT_DEFAULT_DEPS = "1"
 do_fetch[noexec] = "1"
 do_unpack[noexec] = "1"
 do_patch[noexec] = "1"
-do_configure[noexec] = "1"
 do_compile[noexec] = "1"
 do_install[noexec] = "1"
 do_package[noexec] = "1"
@@ -27,6 +26,10 @@ do_populate_sysroot[noexec] = "1"
 
 do_upload_packages[nostamp] = "1"
 do_upload_packages[dirs] = "${DEPLOY_DIR_IPK}"
+
+do_configure() {
+	install -d ${S}/placeholder
+}
 
 do_upload_packages() {
 
