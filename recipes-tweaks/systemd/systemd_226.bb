@@ -159,7 +159,7 @@ do_install() {
 	for i in boot catalog user-generators ; do 
 		install -d ${D}${libdir}/systemd/${i}
 		mv ${D}${libdir}/systemd/${i} ${D}${base_libdir}/systemd/
-	fi
+	done
 	rm -rf ${D}${libdir}/systemd 
 	( cd ${D}${libdir} && ln -sf ../../lib/systemd systemd || true )
 
