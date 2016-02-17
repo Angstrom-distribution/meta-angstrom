@@ -155,7 +155,11 @@ do_install() {
 	autotools_do_install
 
 	# Downstream tools like dracut get confused by /usr/lib/systemd being only partially there
-	mv ${D}${libdir}/systemd/{catalog,user-generators} ${D}${base_libdir}/systemd/
+	# Also create the dirs we move first because 'boot' depends in PACKAGECONFIG
+	for i in boot catalog user-generators ; do 
+		install -d ${D}${libdir}/systemd/${i}
+		mv ${D}${libdir}/systemd/${i} ${D}${base_libdir}/systemd/
+	fi
 	rm -rf ${D}${libdir}/systemd 
 	( cd ${D}${libdir} && ln -sf ../../lib/systemd systemd || true )
 
