@@ -94,6 +94,9 @@ INHERIT += "angstrom-mirrors"
 INHERIT += "insane"
 QA_LOG = "1"
 
+# Don't error out on versions going backwards, using PRSERV in multimachine builds gives a ton of false-positives
+ERROR_QA_remove = "version-going-backwards"
+
 # Log information on images and packages
 # https://github.com/Angstrom-distribution/buildhistory/
 INHERIT += "buildhistory"
