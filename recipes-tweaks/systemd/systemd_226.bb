@@ -160,8 +160,8 @@ do_install() {
 		install -d ${D}${libdir}/systemd/${i}
 		mv ${D}${libdir}/systemd/${i} ${D}${base_libdir}/systemd/
 	done
-	rm -rf ${D}${libdir}/systemd 
-	( cd ${D}${libdir} && ln -sf ../../lib/systemd systemd || true )
+	rm -rf ${D}${libdir}/systemd/*
+	( cd ${D}${libdir}/systemd && ln -sf ../../../lib/systemd/* . || true )
 
 	install -d ${D}/${base_sbindir}
 	# Provided by a separate recipe
