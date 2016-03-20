@@ -19,6 +19,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=2e48940f94acb0af582e5ef03537800f"
 
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/libva/${BP}.tar.bz2 \
            file://drivermap.patch \
+           file://gl3.patch \
           "
 
 SRC_URI[md5sum] = "430cc2742df60204f121409c06039d09"
