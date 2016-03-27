@@ -46,6 +46,14 @@ Name=eth*
 [Network]
 DHCP=yes
 EOF
+
+	cat << EOF > ${IMAGE_ROOTFS}${sysconfdir}/systemd/network/12-nspawn.network
+[Match]
+Name=host*
+
+[Network]
+DHCP=yes
+EOF
 }
 
 inherit image
