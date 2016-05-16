@@ -6,7 +6,6 @@ inherit packagegroup
 
 RDEPENDS_${PN} = " \
 	qtbase \
-	qtbase-fonts \
 	qtbase-plugins \
 	qtbase-tools \
 	qtmultimedia \
