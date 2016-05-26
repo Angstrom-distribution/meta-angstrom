@@ -28,7 +28,7 @@ RDEPENDS_${PN} = "\
     gpe-icons \
     gpe-confd \
     gpe-autostarter \
-    ${@base_contains("MACHINE_FEATURES", "touchscreen", "libgtkstylus", "",d)} \
+    ${@bb.utils.contains("MACHINE_FEATURES", "touchscreen", "libgtkstylus", "",d)} \
     suspend-desktop \
     teleport \
     xauth \
@@ -37,7 +37,7 @@ RDEPENDS_${PN} = "\
     gdk-pixbuf-loader-jpeg \
     pango-module-basic-x \
     pango-module-basic-fc \
-    ${@base_contains("COMBINED_FEATURES", "bluetooth", "gnome-bluetooth", "",d)} \
+    ${@bb.utils.contains("COMBINED_FEATURES", "bluetooth", "gnome-bluetooth", "",d)} \
     "
 
 RRECOMMENDS_${PN} = " \
