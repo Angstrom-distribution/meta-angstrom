@@ -12,7 +12,7 @@ IMAGE_INSTALL += " \
 	packagegroup-qt5-qtcreator-debug \
 	packagegroup-qt5 \
 	packagegroup-qt5-apps \
-	${@base_contains('DISTRO_FEATURES', 'wayland', 'qtwayland-plugins', '', d)} \
+	${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'qtwayland-plugins', '', d)} \
 	systemd-analyze \
 	weston \
 	weston-init \
