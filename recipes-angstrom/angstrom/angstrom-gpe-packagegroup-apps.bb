@@ -18,9 +18,9 @@ RDEPENDS_${PN} = "\
     gpe-watch \
     gpe-what \
     matchbox-panel-hacks \
-    ${@base_contains("COMBINED_FEATURES", "wifi", "gpe-aerial", "",d)} \
+    ${@bb.utils.contains("COMBINED_FEATURES", "wifi", "gpe-aerial", "",d)} \
     gpe-soundbite \
-    ${@base_contains("MACHINE_FEATURES", "touchscreen", "rosetta", "",d)} \
+    ${@bb.utils.contains("MACHINE_FEATURES", "touchscreen", "rosetta", "",d)} \
     gpe-scap \
     gpe-windowlist"
 
