@@ -15,7 +15,15 @@ BB_SIGNATURE_HANDLER ?= "OEBasicHash"
 # Empty commercial license, we want to build a superset for the default config
 COMMERCIAL_LICENSE = ""
 LICENSE_FLAGS_WHITELIST += "commercial"
+
 ACCEPT_QCOM_EULA = "1"
+
+ACCEPT_EULA_dragonboard-410c-32 = "1"
+ACCEPT_EULA_dragonboard-410c = "1"
+ACCEPT_EULA_dragonboard-820c = "1"
+ACCEPT_EULA_ifc6410 = "1"
+ACCEPT_EULA_sd-600eval = "1"
+
 
 # Unbreak multimachine builds
 LICENSE_DIRECTORY = "${DEPLOY_DIR}/licenses/${MACHINE_ARCH}"
