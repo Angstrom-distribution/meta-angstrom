@@ -24,6 +24,7 @@ ACCEPT_EULA_dragonboard-820c = "1"
 ACCEPT_EULA_ifc6410 = "1"
 ACCEPT_EULA_sd-600eval = "1"
 
+ACCEPT_FSL_EULA = "1"
 
 # Unbreak multimachine builds
 LICENSE_DIRECTORY = "${DEPLOY_DIR}/licenses/${MACHINE_ARCH}"
