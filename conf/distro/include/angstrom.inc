@@ -1,17 +1,3 @@
-#@TYPE: Distribution
-#@NAME: Angstrom 
-#@DESCRIPTION: Release independent distribution configuration for Angstrom
-
-# Preserve original DISTRO value
-USERDISTRO := "${DISTRO}"
-DISTRO = "angstrom"
-DISTRO_NAME = "Angstrom"
-
-BUILDNAME = "Angstrom ${DISTRO_VERSION}"
-
-TARGET_VENDOR = "-angstrom"
-SDK_VENDOR = "-angstromsdk"
-
 SOC_FAMILY ?= ""
 
 # Yocto work around for missing ONLINE_PACKAGE_MANAGEMENT support
@@ -154,30 +140,8 @@ DISTRO_CHECK := "${@bb.data.getVar("DISTRO_VERSION",d,1) or bb.fatal('Remove thi
 # We want images supporting the following features (for packagegroup(-core)-base)
 DISTRO_FEATURES = "alsa argp bluetooth ext2 ipv4 ipv6 irda largefile nfs pam pci pcmcia ppp smbfs systemd usbgadget usbhost vfat wifi xattr zeroconf"
 
-# Disable sysvinit for recipes with systemd support
+# Disable sysvinit for recipes with systemd or non-sysvinit support
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
-VIRTUAL-RUNTIME_init_manager = "systemd"
-# Uncomment to completely disable support for sysv scripts:
-#PACKAGECONFIG_pn-systemd = "xz"
-
-# Enable systemd support in kernels
-KERNEL_ENABLE_CGROUPS = "1"
-
-# USE-flag like features
-DISTRO_FEATURES += "tk"
-DISTRO_FEATURES += "x11"
-DISTRO_FEATURES += "3g"
-DISTRO_FEATURES += "pulseaudio"
-
-# OpenGL support
-DISTRO_FEATURES += "opengl"
-
-# Enable wayland
-DISTRO_FEATURES += "wayland"
-
-
-# Inherit the default LIBC features superset from OE-core
-DISTRO_FEATURES += "${DISTRO_FEATURES_LIBC}"
 
 # EFL tweaks
 include conf/distro/include/efl-from-svn.inc
