@@ -36,6 +36,7 @@ do_systemd_network () {
 Name=en*
 
 [Network]
+LLDP=yes
 DHCP=yes
 EOF
 
@@ -44,6 +45,7 @@ EOF
 Name=eth*
 
 [Network]
+LLDP=yes
 DHCP=yes
 EOF
 }
