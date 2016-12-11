@@ -6,10 +6,10 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
 DEPENDS = "curl boost expat zlib libebml libmatroska libogg libvorbis bzip2 lzo file ruby-native"
 
-PV = "8.9.0+git${SRCPV}"
-SRCREV_mkvtoolnix = "54e6b52b3dde07f89da4542997ef059e18802128"
-SRCREV_libebml = "580add661fdcd76b056a179df83dd89ff6f35167"
-SRCREV_libmatroska = "2619e001cbca8a22b849326470bfb9164ee9efde"
+PV = "9.5.0+git${SRCPV}"
+SRCREV_mkvtoolnix = "4f467853361dcf911221ac3a46974071d1e01c09"
+SRCREV_libebml = "41ffa101238e55e2443518949e343c470307d36d"
+SRCREV_libmatroska = "0608160087577d8cfed46e262d93b593ebd1f004"
 SRCREV_FORMAT = "mkvtoolnix"
 SRC_URI = " \
            git://github.com/mbunkus/mkvtoolnix.git;name=mkvtoolnix \
