@@ -10,7 +10,9 @@ BB_SIGNATURE_HANDLER ?= "OEBasicHash"
 # Set to other values to use remote PRService.
 #PRSERV_HOST ?= "localhost"
 #PRSERV_PORT ?= "0"
- 
+
+NOISO = "1"
+NOHDD = "1"
 
 # Empty commercial license, we want to build a superset for the default config
 COMMERCIAL_LICENSE = ""
