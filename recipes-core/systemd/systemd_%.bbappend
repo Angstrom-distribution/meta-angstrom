@@ -37,3 +37,6 @@ PACKAGECONFIG   = " \
 do_install_append() {
         cp ${WORKDIR}/journald.conf ${D}${sysconfdir}/systemd
 }
+
+# fix pager corruption with busybox less/more
+RRECOMMENDS_${PN} += "less"
