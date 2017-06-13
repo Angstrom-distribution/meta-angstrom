@@ -2,8 +2,8 @@ DESCRIPTION = "Configuration files for online package repositories aka feeds"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=4d92cd373abda3937c2bc47fbc49d690"
 
-#PV = "${DISTRO_VERSION}"
-PR = "r16"
+PV = "${DISTRO_VERSION}"
+PR = "r17"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 FEED_BASEPATH ?= "unstable/feed/"
