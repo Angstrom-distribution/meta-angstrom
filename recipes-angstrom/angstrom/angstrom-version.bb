@@ -11,7 +11,7 @@ PACKAGES = "${PN}"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 def get_layers(bb, d):
-    layers = (bb.data.getVar("BBLAYERS", d, 1) or "").split()
+    layers = (d.getVar("BBLAYERS", 1) or "").split()
     layers_branch_rev = ["%-17s = \"%s:%s\"" % (os.path.basename(i), \
         base_get_metadata_git_branch(i, None).strip().strip('()'), \
         base_get_metadata_git_revision(i, None)) \

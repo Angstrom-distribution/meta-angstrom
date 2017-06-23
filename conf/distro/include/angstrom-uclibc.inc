@@ -17,7 +17,7 @@ PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-initial-nativesdk  = "nativesdk-egl
 PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-nativesdk  = "nativesdk-eglibc"
 PREFERRED_PROVIDER_virtual/${SDK_PREFIX}libc-for-gcc-nativesdk  = "nativesdk-eglibc"
 # libc settings
-DISTRO_FEATURES += "${@['', ' nls'][bb.data.getVar('ENABLE_BINARY_LOCALE_GENERATION', d, 1) == '1']}"
+DISTRO_FEATURES += "${@['', ' nls'][d.getVar('ENABLE_BINARY_LOCALE_GENERATION', 1) == '1']}"
 # FIXME: We enable IPv4 per default to avoid alot of breakage.
 # FIXME: Figure out an acceptable way to negotiate either
 # FIXME: desired features or hard requirements, either top-down or bottom-up.
@@ -39,4 +39,4 @@ TARGET_OS_bfin = "uclinux-uclibc"
 #Note that this testing was done without the gcc-pr32889.patch.
 FULL_OPTIMIZATION_avr32 = "-Os -pipe ${DEBUG_FLAGS}"
 
-TARGET_LINK_HASH_STYLE = "${@['-Wl,--hash-style=gnu',''][bb.data.getVar('TARGET_ARCH',d,1) in ['mips', 'mipsel', 'mips64', 'mips64el', 'avr32']]}"
+TARGET_LINK_HASH_STYLE = "${@['-Wl,--hash-style=gnu',''][d.getVar('TARGET_ARCH',1) in ['mips', 'mipsel', 'mips64', 'mips64el', 'avr32']]}"
