@@ -25,14 +25,9 @@ SRC_URI += " \
            file://0013-Make-root-s-home-directory-configurable.patch \
            file://0014-Revert-rules-remove-firmware-loading-rules.patch \
            file://0015-Revert-udev-remove-userspace-firmware-loading-suppor.patch \
-           file://0016-make-test-dir-configurable.patch \
            file://0017-remove-duplicate-include-uchar.h.patch \
            file://0018-check-for-uchar.h-in-configure.patch \
            file://0019-socket-util-don-t-fail-if-libc-doesn-t-support-IDN.patch \
-           file://0020-back-port-233-don-t-use-the-unified-hierarchy-for-the-systemd.patch \
-           file://0021-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch \
-           file://0022-parse-util-Do-not-include-unneeded-xlocale.h.patch \
-           file://0001-core-load-fragment-refuse-units-with-errors-in-certa.patch \
            "
 SRC_URI_append_qemuall = " file://0001-core-device.c-Change-the-default-device-timeout-to-2.patch"
 
