@@ -64,7 +64,7 @@ do_upload_packages() {
 
 	# Copy over non-duplicate files
 	echo "Starting rsync..."
-	rsync -vz --partial --copy-links --progress --files-from=files-trans upload-queue/ ${REMOTEM}:${REMOTED}/unsorted/
+	/usr/bin/rsync -vz --partial --copy-links --progress --files-from=files-trans upload-queue/ ${REMOTEM}:${REMOTED}/unsorted/
 
 	# Clean up temporary files
 	echo "Removing upload queue"
