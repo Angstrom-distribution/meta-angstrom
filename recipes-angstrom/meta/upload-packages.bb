@@ -29,6 +29,8 @@ do_upload_packages[dirs] = "${DEPLOY_DIR_IPK}"
 
 do_configure() {
 	install -d ${S}/placeholder
+	install -d ${WORKDIR}
+	install -d ${D}
 }
 
 do_upload_packages() {
