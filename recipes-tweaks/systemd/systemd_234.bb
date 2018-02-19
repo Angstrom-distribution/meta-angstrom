@@ -133,7 +133,7 @@ CACHED_CONFIGUREVARS += "ac_cv_path_SULOGIN=${base_sbindir}/sulogin"
 
 # Helper variables to clarify locations.  This mirrors the logic in systemd's
 # build system.
-rootprefix ?= "${root_prefix}"
+rootprefix ?= "${base_prefix}"
 rootlibdir ?= "${base_libdir}"
 rootlibexecdir = "${rootprefix}/lib"
 
@@ -448,6 +448,7 @@ CONFFILES_${PN} = "${sysconfdir}/machine-id \
 FILES_${PN} = " ${base_bindir}/* \
                 ${datadir}/dbus-1/services \
                 ${datadir}/dbus-1/system-services \
+                ${datadir}/dbus-1/system.d \
                 ${datadir}/polkit-1 \
                 ${datadir}/${BPN} \
                 ${datadir}/factory \
@@ -464,6 +465,7 @@ FILES_${PN} = " ${base_bindir}/* \
                 ${rootlibexecdir}/systemd/* \
                 ${systemd_unitdir}/* \
                 ${base_libdir}/security/*.so \
+                ${libdir}/environment.d \
                 /cgroup \
                 ${bindir}/systemd* \
                 ${bindir}/busctl \
