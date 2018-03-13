@@ -1,0 +1,30 @@
+From 33d14d124730cb3062d36979f595745612e061a7 Mon Sep 17 00:00:00 2001
+From: Alexander Kanavin <alex.kanavin@gmail.com>
+Date: Mon, 7 Aug 2017 14:10:38 +0300
+Subject: [PATCH] Makefile: build mktables using native gcc
+
+It's a throwaway helper binary used during build, and so it needs to
+be native.
+
+Upstream-Status: Inappropriate [oe specific]
+Signed-off-by: Alexander Kanavin <alex.kanavin@gmail.com>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 92cfe7b..3a6f93f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -347,7 +347,7 @@ version.h: version.h.in configure.ac
+ 
+ mktables: kernel-lib/mktables.c
+ 	@echo "    [CC]     $@"
+-	$(Q)$(CC) $(CFLAGS) $< -o $@
++	$(Q)$(BUILD_CC) $(BUILD_CFLAGS) $< -o $@
+ 
+ # the target can be regenerated manually using mktables, but a local copy is
+ # kept so the build process is simpler
+-- 
+2.9.5
+
