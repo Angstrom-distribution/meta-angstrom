@@ -19,7 +19,7 @@ LIC_FILES_CHKSUM = "file://README.licensing;md5=1715f5ee3e01203ca1e1e0b9ee65918c
                     file://libblkid/COPYING;md5=fb93f01d4361069c5616327705373b16"
 
 #gtk-doc is not enabled as it requires xmlto which requires util-linux
-inherit autotools gettext pkgconfig systemd update-alternatives python3-dir bash-completion ptest
+inherit autotools gettext pkgconfig systemd update-alternatives python3-dir ptest
 DEPENDS = "zlib ncurses"
 DEPENDS_append_class-native = " lzo-native"
 DEPENDS_append_class-nativesdk = " lzo-native"
@@ -193,6 +193,8 @@ do_install () {
 		# and thus prevents the operation.
 		ln -s su ${D}${sysconfdir}/pam.d/su-l
 	fi
+
+	rm -f ${D}${datadir}/bash-completion/completions/rfkill || true
 }
 
 # nologin causes a conflict with shadow-native
@@ -282,6 +284,10 @@ ALTERNATIVE_LINK_NAME[sulogin] = "${base_sbindir}/sulogin"
 
 ALTERNATIVE_util-linux-mountpoint = "mountpoint"
 ALTERNATIVE_LINK_NAME[mountpoint] = "${base_bindir}/mountpoint"
+
+RPROVIDES_util-linux-rfkill += "rfkill"
+RREPLACES_util-linux-rfkill += "rfkill"
+RCONFLICTS_util-linux-rfkill += "rfkill"
 
 BBCLASSEXTEND = "native nativesdk"
 
