@@ -20,7 +20,7 @@ LIC_FILES_CHKSUM = "file://README.licensing;md5=1715f5ee3e01203ca1e1e0b9ee65918c
 
 #gtk-doc is not enabled as it requires xmlto which requires util-linux
 inherit autotools gettext pkgconfig systemd update-alternatives python3-dir bash-completion ptest
-DEPENDS = "zlib ncurses virtual/crypt"
+DEPENDS = "zlib ncurses"
 DEPENDS_append_class-native = " lzo-native"
 DEPENDS_append_class-nativesdk = " lzo-native"
 
@@ -54,7 +54,7 @@ SHARED_EXTRA_OECONF = "--disable-use-tty-group \
 
 EXTRA_OECONF = "${SHARED_EXTRA_OECONF} --libdir=${base_libdir}"
 
-PACKAGECONFIG_class-target ?= "${@bb.utils.filter('DISTRO_FEATURES', 'pam', d)}"
+PACKAGECONFIG_class-target ?= "${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)}"
 PACKAGECONFIG[pam] = "--enable-su --enable-runuser,--disable-su --disable-runuser, libpam,"
 
 # Respect the systemd feature for uuidd
@@ -182,12 +182,12 @@ do_install () {
 
 	rm -f ${D}${bindir}/chkdupexe
 
-	if [ "${@bb.utils.filter('DISTRO_FEATURES', 'pam', d)}" ]; then
+	if [ "${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)}" ]; then
 		install -d ${D}${sysconfdir}/pam.d
 		install -m 0644 ${WORKDIR}/runuser.pamd ${D}${sysconfdir}/pam.d/runuser
 		install -m 0644 ${WORKDIR}/runuser-l.pamd ${D}${sysconfdir}/pam.d/runuser-l
 	fi
-	if [ "${@bb.utils.filter('PACKAGECONFIG', 'pam', d)}" ]; then
+	if [ "${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)}" ]; then
 		# Required for "su -" aka "su --login" because
 		# otherwise it uses "other", which has "auth pam_deny.so"
 		# and thus prevents the operation.
@@ -286,7 +286,7 @@ ALTERNATIVE_LINK_NAME[mountpoint] = "${base_bindir}/mountpoint"
 BBCLASSEXTEND = "native nativesdk"
 
 python do_package_prepend () {
-    if '--enable-su' in d.getVar('EXTRA_OECONF').split():
+    if '--enable-su' in d.getVar('EXTRA_OECONF', True).split():
         d.appendVar(d.expand('ALTERNATIVE_${PN}'), ' su')
         d.appendVar(d.expand('ALTERNATIVE_${PN}-doc'), ' su.1')
 
