@@ -18,6 +18,7 @@ IMAGE_INSTALL += " \
 	systemd-analyze \
 	cpufreq-tweaks \
         fixmac \
+        iproute2-tc \
 "
 
 IMAGE_DEV_MANAGER   = "udev"
