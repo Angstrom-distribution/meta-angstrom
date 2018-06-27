@@ -134,7 +134,7 @@ DEPLOY_DIR_IMAGE = "${DEPLOY_DIR}/images/${MACHINE}"
 SDIMG_ROOTFS_TYPE = "ext4"
 
 # Angstrom *always* has some form of release config, so error out if someone thinks he knows better 
-DISTRO_CHECK := "${@bb.data.getVar("DISTRO_VERSION",d,1) or bb.fatal('Remove this line or set a dummy DISTRO_VERSION if you really want to build an unversioned distro')}"
+DISTRO_CHECK := "${@d.getVar("DISTRO_VERSION",1) or bb.fatal('Remove this line or set a dummy DISTRO_VERSION if you really want to build an unversioned distro')}"
 
 # We want images supporting the following features (for packagegroup(-core)-base)
 DISTRO_FEATURES = "alsa argp bluetooth ext2 ipv4 ipv6 irda largefile nfs pam pci pcmcia ppp smbfs systemd usbgadget usbhost vfat wifi xattr zeroconf"

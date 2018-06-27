@@ -28,8 +28,9 @@ ACCEPT_EULA_sd-600eval = "1"
 
 ACCEPT_FSL_EULA = "1"
 
-# Unbreak multimachine builds
-LICENSE_DIRECTORY = "${DEPLOY_DIR}/licenses/${MACHINE_ARCH}"
+# Copy licenses into rootfs
+COPY_LIC_MANIFEST = "1"
+COPY_LIC_DIRS = "1"
 
 # Preset set this or bbappends break
 PRINC ??= "0"
