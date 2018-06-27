@@ -14,6 +14,8 @@ inherit useradd pkgconfig meson perlnative update-rc.d update-alternatives qemu 
 # that we don't build both udev and systemd in world builds.
 REQUIRED_DISTRO_FEATURES = "systemd"
 
+PATCHTOOL = "git"
+
 SRC_URI += "file://touchscreen.rules \
            file://00-create-volatile.conf \
            file://init \
