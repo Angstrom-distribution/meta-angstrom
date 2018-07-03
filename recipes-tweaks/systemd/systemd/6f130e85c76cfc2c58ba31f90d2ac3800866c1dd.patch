@@ -1,0 +1,34 @@
+From 6f130e85c76cfc2c58ba31f90d2ac3800866c1dd Mon Sep 17 00:00:00 2001
+From: "Thomas H. P. Andersen" <phomes@gmail.com>
+Date: Thu, 31 May 2018 13:30:10 +0200
+Subject: [PATCH] sysctl.d: request ECN on both in and outgoing connections
+ (#9143)
+
+To further avoid bufferbloat Explicit Congestion Notification (ECN)
+should be enabled for both in and outgoing connections. The kernel
+default is to enable it when requested for incoming connections, but
+not to request it on outgoing connections. This patch enables it for
+both.
+
+A long time ago enabling these was causing problems, but these issues
+have since been dealt with.
+
+Fixes #9087.
+---
+ sysctl.d/50-default.conf | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/sysctl.d/50-default.conf b/sysctl.d/50-default.conf
+index e263cf06284..b67ae87ca6b 100644
+--- a/sysctl.d/50-default.conf
++++ b/sysctl.d/50-default.conf
+@@ -33,6 +33,9 @@ net.ipv4.conf.all.promote_secondaries = 1
+ # Fair Queue CoDel packet scheduler to fight bufferbloat
+ net.core.default_qdisc = fq_codel
+ 
++# Request Explicit Congestion Notification (ECN) on both in and outgoing connections
++net.ipv4.tcp_ecn = 1
++
+ # Enable hard and soft link protection
+ fs.protected_hardlinks = 1
+ fs.protected_symlinks = 1
