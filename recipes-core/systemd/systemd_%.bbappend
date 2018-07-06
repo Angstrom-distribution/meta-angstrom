@@ -2,26 +2,12 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 SRC_URI += "file://journald.conf"
 
-PACKAGECONFIG   = " \
-                   ldconfig \
-                   ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
-                   ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'xkbcommon', '', d)} \
-                   ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux', '', d)} \
-                   ${@bb.utils.contains('DISTRO_FEATURES', 'wifi', 'rfkill', '', d)} \
-                   ${@bb.utils.contains('MACHINE_FEATURES', 'efi', 'efi', '', d)} \
-                   binfmt \
-                   randomseed \
+PACKAGECONFIG_append   = " \
                    machined \
-                   backlight \
-                   quotacheck \
                    hostnamed \
-                   ${@bb.utils.contains('TCLIBC', 'glibc', 'myhostname sysusers', '', d)} \
-                   hibernate \
                    timedated \
                    timesyncd \
                    localed \
-                   ima \
-                   smack \
                    logind \
                    firstboot \
                    utmp \
@@ -40,3 +26,10 @@ do_install_append() {
 
 # fix pager corruption with busybox less/more
 RRECOMMENDS_${PN} += "less"
+
+
+pkg_postinst_${PN}_append () {
+        sed -e '/^hosts:/s/\s*\<myhostname\>//' \
+                -e '/^hosts:/s/\s*myhostname//' \
+                -i $D${sysconfdir}/nsswitch.conf
+}
