@@ -1,5 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+DEPENDS += "glib-2.0"
+
 SRC_URI += "file://journald.conf"
 
 PACKAGECONFIG_append   = " \
@@ -16,6 +18,12 @@ PACKAGECONFIG_append   = " \
                    iptc \
                    libidn \
                    lz4 \
+                   importd \
+                   journal-upload \
+                   xz \
+                   zlib \
+                   bzip2 \
+                   gcrypt \
 "
 
 do_install_append() {
