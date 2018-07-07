@@ -1,5 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+DEPENDS += "glib-2.0"
+
 SRC_URI += "file://journald.conf"
 
 PACKAGECONFIG_append   = " \
@@ -17,8 +19,19 @@ PACKAGECONFIG_append   = " \
                    resolved \
                    iptc \
                    libidn \
+                   \
                    lz4 \
+                   importd \
+                   journal-upload \
+                   zlib \
+                   bzip2 \
+                   xz \
+                   gcrypt \
 "
+
+do_compile_prepend_libc-musl() {
+	sed -i -e 's:strptime_l:strptime:g' -e 's:, loc::g' ${S}/src/import/curl-util.c
+}
 
 do_install_append() {
         cp ${WORKDIR}/journald.conf ${D}${sysconfdir}/systemd
