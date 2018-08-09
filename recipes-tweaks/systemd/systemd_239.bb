@@ -83,6 +83,7 @@ PACKAGECONFIG ??= " \
     networkd \
     nss \
     polkit \
+    portabled \
     quotacheck \
     randomseed \
     resolved \
