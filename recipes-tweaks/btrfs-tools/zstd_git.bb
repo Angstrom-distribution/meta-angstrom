@@ -13,10 +13,4 @@ inherit cmake
 
 OECMAKE_SOURCEPATH = "${S}/build/cmake"
 
-do_install_append() {
-	sed -i -e s:${prefix}/${libdir}:${libdir}:g ${D}${prefix}${libdir}/pkgconfig/*.pc
-	mv ${D}${prefix}${libdir}/pkgconfig ${D}${libdir}
-	rm -rf ${D}${prefix}${libdir}
-}
-
 BBCLASSEXTEND = "native"
