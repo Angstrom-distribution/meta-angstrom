@@ -11,6 +11,8 @@ S = "${WORKDIR}/git"
 
 inherit cmake
 
+EXTRA_OECMAKE = "-DTHREADS_PTHREAD_ARG=2"
+
 OECMAKE_SOURCEPATH = "${S}/build/cmake"
 
 BBCLASSEXTEND = "native"
