@@ -13,14 +13,8 @@ def arm_tune_handler(d):
         tune = 'armv7athf'
         if 'bigendian' in features:
             tune += 'b'
-        if 'vfpv3' in features:
-            tune += '-vfpv3'
-        if 'vfpv3d16' in features:
-            tune += '-vfpv3d16'
         if 'neon' in features:
             tune += '-neon'
-        if 'vfpv4' in features:
-            tune += '-vfpv4'
     else:
         tune = d.getVar('DEFAULTTUNE', True)
     return tune
