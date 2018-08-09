@@ -15,12 +15,14 @@ DEPENDS_append_class-target = " udev"
 
 inherit autotools-brokensep pkgconfig 
 
-SRCREV = "3097f02c948f69f520c565ff8f8ba476aa6edb88"
+SRCREV = "7faaca0d9f78f7162ae603231f693dd8e1af2a41"
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git \
            file://0001-Makefile-build-mktables-using-native-gcc.patch \
            "
 
 S = "${WORKDIR}/git"
+
+EXTRA_OECONF = "--disable-python"
 
 PACKAGECONFIG[manpages] = "--enable-documentation, --disable-documentation, asciidoc-native xmlto-native"
 EXTRA_OECONF_append_libc-musl = " --disable-backtrace "
