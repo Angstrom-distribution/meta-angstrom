@@ -31,16 +31,6 @@ require conf/distro/include/angstrom-${TCLIBC}.inc
 # Set some java bits
 require conf/distro/include/angstrom-java.inc
 
-# ARM920T and up can use thumb mode to decrease binary size at the expense of speed
-# (the complete story is a bit more nuanced due to cache starvation)
-# Angstrom turns on thumb for armv4t machine according to this RFC:
-# http://lists.linuxtogo.org/pipermail/angstrom-distro-devel/2008-October/002714.html
-
-ARM_INSTRUCTION_SET ??= "thumb"
-ARM_INSTRUCTION_SET_armv4t ?= "arm"
-ARM_INSTRUCTION_SET_armv5te ?= "arm"
-ARM_INSTRUCTION_SET_armv6 ?= "arm"
-
 # "arm" "thumb"
 #    The instruction set the compiler should use when generating application
 #    code.  The kernel is always compiled with arm code at present.  arm code
@@ -48,6 +38,15 @@ ARM_INSTRUCTION_SET_armv6 ?= "arm"
 #    encoded RISC sub-set.  Thumb code is smaller (maybe 70% of the ARM size)
 #    but requires more instructions (140% for 70% smaller code) so may be
 #    slower.
+#    thumb 2 is an evolution of the original thumb instruction set which strives
+#    to keep the code size advantages without the performance penality.
+#    When setting thumb the compiler will use thumb or thumb2 depending on what
+#    the selected arm architecture.
+
+ARM_INSTRUCTION_SET ??= "thumb"
+ARM_INSTRUCTION_SET_armv4 ?= "arm"
+ARM_INSTRUCTION_SET_armv5 ?= "arm"
+ARM_INSTRUCTION_SET_armv6 ?= "arm"
 
 #Use this variable in feeds and other parts that need a URI
 ANGSTROM_URI ?= "http://feeds.angstrom-distribution.org"
