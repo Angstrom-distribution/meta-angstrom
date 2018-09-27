@@ -16,7 +16,7 @@ dirs755 += "${localstatedir}/cache \
 # Python fails to decode UTF8 is LANG is set to C
 # And we have UTF in /etc/os-release...
 do_install_append() {
-     install -m 0644 -d ${D}${sysconfdir}/profile.d
+     install -m 0755 -d ${D}${sysconfdir}/profile.d
      echo 'export LANG="en_US.UTF-8"' > ${D}${sysconfdir}/profile.d/utf8.sh 
 }
 
