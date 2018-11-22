@@ -1,10 +1,10 @@
 [Unit]
-Description=Switches to ondemand CPU-freq governor 10 minutes after boot
+Description=Switches to schedutil CPU-freq governor 10 minutes after boot
 
 [Timer]
 # Time to wait after booting before we run first time
 OnBootSec=10min
-Unit=cpu-ondemand.service
+Unit=cpu-schedutil.service
 
 [Install]
 WantedBy=multi-user.target
