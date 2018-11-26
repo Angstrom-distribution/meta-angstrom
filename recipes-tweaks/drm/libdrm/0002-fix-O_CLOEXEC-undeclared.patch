@@ -1,0 +1,24 @@
+From 552771af3d58b716ddf16228e5d13dd204f60d3b Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Mon, 26 Nov 2018 08:56:55 +0100
+Subject: [PATCH 2/3] fix O_CLOEXEC undeclared
+
+---
+ tests/drmdevice.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tests/drmdevice.c b/tests/drmdevice.c
+index cdf6e8d..7723247 100644
+--- a/tests/drmdevice.c
++++ b/tests/drmdevice.c
+@@ -21,6 +21,7 @@
+  *
+  */
+ 
++#include <config.h>
+ #include <errno.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+-- 
+2.0.1
+

@@ -10,14 +10,16 @@ LIC_FILES_CHKSUM = "file://xf86drm.c;beginline=9;endline=32;md5=c8a3b961af7667c5
 PROVIDES = "drm"
 DEPENDS = "libpthread-stubs libpciaccess"
 
-SRC_URI = "http://dri.freedesktop.org/libdrm/${BP}.tar.bz2 \
-           file://installtests.patch \
-           file://fix_O_CLOEXEC_undeclared.patch \
-           file://0001-configure.ac-Allow-explicit-enabling-of-cunit-tests.patch \
+PATCHTOOL = "git"
+
+SRCREV = "5a3bdc7add2f30f7673052376514c91dbcd1b64a"
+SRC_URI = "git://gitlab.freedesktop.org/mesa/drm;protocol=https \
+           file://0001-tests-also-install-test-apps.patch \
+           file://0002-fix-O_CLOEXEC-undeclared.patch \
+           file://0003-configure.ac-Allow-explicit-enabling-of-cunit-tests.patch \
           "
 
-SRC_URI[md5sum] = "f296d87272b1befeada3bb135751ab3d"
-SRC_URI[sha256sum] = "0d561acf7bb4cc59dc82415100e6c1a44860e8c380e00f9592923e3cd08db393"
+S = "${WORKDIR}/git"
 
 inherit autotools pkgconfig manpages
 

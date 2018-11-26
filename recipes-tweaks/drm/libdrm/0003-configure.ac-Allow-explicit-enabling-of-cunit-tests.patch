@@ -1,7 +1,7 @@
-From c8be175ae5eb28badf7dbcf5f6cb0acd56285bd9 Mon Sep 17 00:00:00 2001
+From 8c12e4aabaeee5355279c29f3b7ce3236a54c652 Mon Sep 17 00:00:00 2001
 From: Jussi Kukkonen <jussi.kukkonen@intel.com>
 Date: Mon, 5 Sep 2016 14:41:37 +0300
-Subject: [PATCH] configure.ac: Allow explicit enabling of cunit tests
+Subject: [PATCH 3/3] configure.ac: Allow explicit enabling of cunit tests
 
 Add --with-cunit to make it easier to do reproducible builds. Default
 is still to probe cunit and build opportunistically.
