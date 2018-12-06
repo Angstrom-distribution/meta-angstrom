@@ -27,7 +27,7 @@ index e263cf06284..b67ae87ca6b 100644
  net.core.default_qdisc = fq_codel
  
 +# Request Explicit Congestion Notification (ECN) on both in and outgoing connections
-+net.ipv4.tcp_ecn = 1
++net.ipv4.tcp_ecn = 2
 +
  # Enable hard and soft link protection
  fs.protected_hardlinks = 1
