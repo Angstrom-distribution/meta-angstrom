@@ -15,6 +15,14 @@ def arm_tune_handler(d):
             tune += 'b'
         if 'neon' in features:
             tune += '-neon'
+    # cortexa* tune files only list 'arm' in features instead of 'armv7*', so
+    # try matching it on neon
+    elif 'arm' in features and 'neon' in features:
+        tune = 'armv7athf'
+        if 'bigendian' in features:
+            tune += 'b'
+        if 'neon' in features:
+            tune += '-neon'
     else:
         tune = d.getVar('DEFAULTTUNE', True)
     return tune
