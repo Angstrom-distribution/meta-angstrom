@@ -20,6 +20,8 @@ SRC_DIST_LOCAL ?= "symlink"
 # Can be "glibc", "musl" or "uclibc"
 TCLIBC ?= "glibc"
 
+LINUXLIBCVERSION = "4.15.7"
+
 # The things *libc can provide.
 PREFERRED_PROVIDER_eglibc = "glibc"
 
