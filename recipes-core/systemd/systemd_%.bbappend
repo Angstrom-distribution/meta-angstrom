@@ -1,7 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-SRC_URI += "file://journald.conf"
-
 PACKAGECONFIG   = " \
                    ldconfig \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
@@ -33,10 +31,6 @@ PACKAGECONFIG   = " \
                    libidn \
                    lz4 \
 "
-
-do_install_append() {
-        cp ${WORKDIR}/journald.conf ${D}${sysconfdir}/systemd
-}
 
 # fix pager corruption with busybox less/more
 RRECOMMENDS_${PN} += "less"
