@@ -9,27 +9,22 @@ REMOTEM = "angstrom@eu.feeds.angstrom-distribution.org"
 # Feed dir we want to upload to
 REMOTED = "website/${FEED_BASEPATH}"
 
+DEPENDS = "rsync-native"
+
 # set some vars to get rid of spurious deps
 INHIBIT_DEFAULT_DEPS = "1"
-
-do_fetch[noexec] = "1"
-do_unpack[noexec] = "1"
-do_patch[noexec] = "1"
-do_compile[noexec] = "1"
-do_install[noexec] = "1"
-do_package[noexec] = "1"
-do_package_write[noexec] = "1"
-do_package_write_ipk[noexec] = "1"
-do_package_write_rpm[noexec] = "1"
-do_package_write_deb[noexec] = "1"
-do_populate_sysroot[noexec] = "1"
 
 do_upload_packages[nostamp] = "1"
 do_upload_packages[dirs] = "${DEPLOY_DIR_IPK}"
 
+SRC_URI = "file://unbreak-me.txt"
+
 do_configure() {
 	install -d ${S}/placeholder
 	install -d ${WORKDIR}
+}
+
+do_install() {
 	install -d ${D}
 }
 
@@ -52,7 +47,7 @@ do_upload_packages() {
 	echo "Getting file list from server"
 	ssh -C ${REMOTEM} 'mkdir -p ${REMOTED}/unsorted ; touch ${REMOTED}/unsorted/files-sorted'
 	/usr/bin/scp -C ${REMOTEM}:${REMOTED}/unsorted/files-sorted files-remote
-	ls upload-queue/ | grep -v morgue > files-local
+	ls upload-queue/ | grep -v morgue > files-local || true
 
 	# Check for files already present on webserver
 	echo "Checking for duplicates"
@@ -66,7 +61,7 @@ do_upload_packages() {
 
 	# Copy over non-duplicate files
 	echo "Starting rsync..."
-	/usr/bin/rsync -vz --partial --copy-links --progress --files-from=files-trans upload-queue/ ${REMOTEM}:${REMOTED}/unsorted/
+	/usr/bin/rsync -v --partial --copy-links --progress --files-from=files-trans upload-queue/ ${REMOTEM}:${REMOTED}/unsorted/
 
 	# Clean up temporary files
 	echo "Removing upload queue"
