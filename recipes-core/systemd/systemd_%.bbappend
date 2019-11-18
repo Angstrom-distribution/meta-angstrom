@@ -1,29 +1,41 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 PACKAGECONFIG   = " \
-                   ldconfig \
-                   ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
-                   ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'xkbcommon', '', d)} \
-                   ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux', '', d)} \
+                   ${@bb.utils.filter('DISTRO_FEATURES', 'efi ldconfig pam selinux usrmerge polkit', d)} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'wifi', 'rfkill', '', d)} \
-                   ${@bb.utils.contains('MACHINE_FEATURES', 'efi', 'efi', '', d)} \
-                   binfmt \
-                   randomseed \
-                   machined \
+                    ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'xkbcommon', '', d)} \
+                   acl \
                    backlight \
-                   quotacheck \
-                   hostnamed \
                    ${@bb.utils.contains('TCLIBC', 'glibc', 'myhostname sysusers', '', d)} \
+                   binfmt \
+                   firstboot \
+                   gshadow \
                    hibernate \
+                   hostnamed \
+                   idn \
+                   ima \
+                   kmod \
+                   ldconfig \
+                   localed \
+                   logind \
+                   machined \
+                   myhostname \
+                   networkd \
+                   nss \
+                   nss-mymachines \
+                   nss-resolve \
+                   polkit \
+                   quotacheck \
+                   randomseed \
+                   resolved \
+                   set-time-epoch \
+                   smack \
+                   sysusers \
                    timedated \
                    timesyncd \
-                   localed \
-                   ima \
-                   smack \
-                   logind \
-                   firstboot \
                    utmp \
-                   polkit \
+                   vconsole \
+                   xz \
                    \
                    networkd \
                    resolved \
@@ -31,6 +43,5 @@ PACKAGECONFIG   = " \
                    libidn \
                    lz4 \
 "
-
 # fix pager corruption with busybox less/more
 RRECOMMENDS_${PN} += "less"
