@@ -22,7 +22,6 @@ SRC_URI += "file://touchscreen.rules \
            file://0003-implment-systemd-sysv-install-for-OE.patch \
            file://0004-rules-whitelist-hd-devices.patch \
            file://0005-rules-watch-metadata-changes-in-ide-devices.patch \
-           file://0001-unit-file.c-consider-symlink-on-filesystems-like-NFS.patch \
            file://99-default.preset \
            "
 
@@ -661,7 +660,7 @@ ALTERNATIVE_PRIORITY[runlevel] ?= "300"
 pkg_postinst_${PN}_libc-glibc () {
 	sed -e '/^hosts:/s/\s*\<myhostname\>//' \
 		-e 's/\(^hosts:.*\)\(\<files\>\)\(.*\)\(\<dns\>\)\(.*\)/\1\2 myhostname \3\4\5/' \
-		-i $D${sysconfdir}/nsswitch.conf
+		$D${sysconfdir}/nsswitch.conf
 }
 
 pkg_prerm_${PN}_libc-glibc () {
