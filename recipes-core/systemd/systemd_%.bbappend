@@ -10,6 +10,7 @@ PACKAGECONFIG   = " \
                    backlight \
                    ${@bb.utils.contains('TCLIBC', 'glibc', 'myhostname sysusers', '', d)} \
                    binfmt \
+                   efi \
                    firstboot \
                    gshadow \
                    hibernate \
