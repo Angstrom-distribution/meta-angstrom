@@ -19,6 +19,8 @@ IMAGE_INSTALL += " \
 	cpufreq-tweaks \
         fixmac \
 	screen curl wget pigz xz tar pv kpartx gptfdisk sed gawk bash bc \
+	iproute2-tc \
+	rsync \
 "
 
 IMAGE_DEV_MANAGER   = "udev"
