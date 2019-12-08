@@ -7,6 +7,7 @@ IMAGE_INSTALL += " \
         screen \
         bash \
         sshfs-fuse \
+	iproute2-tc \
 "
 
 export IMAGE_BASENAME = "Octoprint-image"
