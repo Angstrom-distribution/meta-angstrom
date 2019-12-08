@@ -21,6 +21,7 @@ IMAGE_INSTALL += " \
 	screen curl wget pigz xz tar pv kpartx gptfdisk sed gawk bash bc \
 	iproute2-tc \
 	rsync \
+	procps \
 "
 
 IMAGE_DEV_MANAGER   = "udev"
