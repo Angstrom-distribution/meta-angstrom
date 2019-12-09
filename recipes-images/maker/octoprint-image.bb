@@ -9,6 +9,7 @@ IMAGE_INSTALL += " \
         sshfs-fuse \
 	rsync \
 	avrdude \
+	uvc-ctrl \
 "
 
 export IMAGE_BASENAME = "Octoprint-image"
