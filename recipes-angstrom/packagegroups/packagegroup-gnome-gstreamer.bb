@@ -9,7 +9,7 @@ inherit packagegroup
 # for backwards compatibility
 RPROVIDES_${PN} += "packagegroup-gnome3-gstreamer"
 
-DEPENDS_${PN} = " \
+DEPENDS = " \
   gst-plugins-base \
   gst-plugins-good \
   gst-plugins-bad \
