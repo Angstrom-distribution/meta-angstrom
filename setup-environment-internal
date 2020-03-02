@@ -1,0 +1,318 @@
+#!/bin/bash
+# -*- mode: shell-script-mode; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+#
+# Copyright (C) 2012-13 O.S. Systems Software LTDA.
+# Authored-by:  Otavio Salvador <otavio@ossystems.com.br>
+# Adopted to Angstrom:  Khem Raj <raj.khem@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+export DISTRO="angstrom"
+
+RPBcleanup() {
+        unset MACHINETABLE MACHLAYERS DISTROTABLE DISTROLAYERS DISTRO_DIRNAME OEROOT
+        unset ITEM MANIFESTS EULA EULA_MACHINE REPLY READ_EULA
+        unset usage oldmach
+
+        if [ -n "$BUILDDIR" ]; then
+                export BUILDDIR
+        fi
+}
+trap RPBcleanup RETURN
+
+if [ "$(whoami)" = "root" ]; then
+    echo "ERROR: do not use the BSP as root. Exiting..."
+    return
+fi
+
+OEROOT=$(pwd)
+cd "$OEROOT"
+if [ -n "$ZSH_VERSION" ]; then
+    setopt sh_word_split
+    setopt clobber
+elif [ -n "$BASH_VERSION" ]; then
+    set +o noclobber
+fi
+
+usage () {
+    cat <<EOF
+
+Usage: [DISTRO=<DISTRO>] [MACHINE=<MACHINE>] source ${BASH_SOURCE[0]} [BUILDDIR]
+
+If no MACHINE is set, list all possible machines, and ask user to choose.
+If no DISTRO is set, list all possible distros, and ask user to choose.
+If no BUILDIR is set, it will be set to ''.
+
+EOF
+}
+
+if [ $# -gt 1 ]; then
+    usage
+    return 1
+fi
+# create a common list of "<machine>(<layer>)", sorted by <machine>
+# Blacklist OE-core and meta-linaro, we only want 96boards + vendor layers
+MACHLAYERS=$(find layers -print | grep "conf/machine/.*\.conf" | grep -v scripts | grep -v openembedded-core | grep -v meta-linaro | sed -e 's/\.conf//g' -e 's/layers\///' | awk -F'/conf/machine/' '{print $NF "(" $1 ")"}' | LANG=C sort)
+
+if [ -z "${MACHINE}" ]; then
+    # whiptail
+    which whiptail > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        MACHINETABLE=
+        for ITEM in $MACHLAYERS; do
+            MACHINETABLE="${MACHINETABLE} $(echo "$ITEM" | cut -d'(' -f1) $(echo "$ITEM" | cut -d'(' -f2 | cut -d')' -f1)"
+        done
+        MACHINE=$(whiptail --title "Available Machines" --menu \
+            "Please choose a machine" 0 0 20 \
+            ${MACHINETABLE} 3>&1 1>&2 2>&3)
+    fi
+
+    # dialog
+    if [ -z "$MACHINE" ]; then
+        which dialog > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            MACHINETABLE=
+            for ITEM in $MACHLAYERS; do
+                MACHINETABLE="$MACHINETABLE $(echo "$ITEM" | cut -d'(' -f1) $(echo "$ITEM" | cut -d'(' -f2 | cut -d')' -f1)"
+            done
+            MACHINE=$(dialog --title "Available Machines" --menu "Please choose a machine" 0 0 20 $MACHINETABLE 3>&1 1>&2 2>&3)
+        fi
+    fi
+fi
+
+# create a common list of "<distro>(<layer>)", sorted by <distro>
+# Blacklist OE-core and meta-linaro, we only want 96boards + vendor layers
+DISTROLAYERS=$(find layers -print | grep "conf/distro/.*\.conf" | grep -v scripts | grep -v openembedded-core | grep -v meta-linaro | sed -e 's/\.conf//g' -e 's/layers\///' | awk -F'/conf/distro/' '{print $NF "(" $1 ")"}' | LANG=C sort)
+
+
+if [ -n "${DISTROLAYERS}" ] && [ -z "${DISTRO}" ]; then
+    # whiptail
+    which whiptail > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        DISTROTABLE=
+        for ITEM in $DISTROLAYERS; do
+            DISTROTABLE="${DISTROTABLE} $(echo "$ITEM" | cut -d'(' -f1) $(echo "$ITEM" | cut -d'(' -f2 | cut -d')' -f1)"
+        done
+        DISTRO=$(whiptail --title "Available Distributions" --menu \
+            "Please choose a distribution" 0 0 20 \
+            ${DISTROTABLE} 3>&1 1>&2 2>&3)
+    fi
+
+    # dialog
+    if [ -z "$DISTRO" ]; then
+        which dialog > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            DISTROTABLE=
+            for ITEM in $DISTROLAYERS; do
+                DISTROTABLE="$DISTROTABLE $(echo "$ITEM" | cut -d'(' -f1) $(echo "$ITEM" | cut -d'(' -f2 | cut -d')' -f1)"
+            done
+            DISTRO=$(dialog --title "Available Distributions" --menu "Please choose a distribution" 0 0 20 $DISTROTABLE 3>&1 1>&2 2>&3)
+        fi
+    fi
+fi
+
+# If nothing has been set, go for 'nodistro'
+if [ -z "$DISTRO" ]; then
+    DISTRO="nodistro"
+fi
+
+# guard against Ctrl-D or cancel
+if [ -z "$MACHINE" ]; then
+    echo "To choose a machine interactively please install whiptail or dialog."
+    echo "To choose a machine non-interactively please use the following syntax:"
+    echo "    MACHINE=<your-machine> . ./setup-environment"
+    echo ""
+    echo "Press <ENTER> to see a list of your choices"
+    read -r
+    echo "$MACHLAYERS" | sed -e 's/(/ (/g' | sed -e 's/)/)\n/g' | sed -e 's/^ */\t/g'
+    return
+fi
+
+if [ -z "${SDKMACHINE}" ]; then
+    SDKMACHINE='x86_64'
+fi
+
+MANIFESTS="${OEROOT}"/.repo/manifests
+
+# we can be called with only 1 parameter max, <build> folder, or defaults to empty
+BUILDDIR=""
+if [ $# -eq 1 ]; then
+    BUILDDIR=$1
+fi
+
+if [ "${BUILDDIR}" != "" ] ; then 
+	BUILDDIR=$OEROOT/$BUILDDIR
+else
+	BUILDDIR=$OEROOT
+fi
+
+# Clean up PATH, because if it includes tokens to current directories somehow,
+# wrong binaries can be used instead of the expected ones during task execution
+export PATH=$(echo "${PATH}" | sed 's/\(:.\|:\)*:/:/g;s/^.\?://;s/:.\?$//')
+export PATH="${OEROOT}"/layers/openembedded-core/scripts:"${OEROOT}"/bitbake/bin:"${OEROOT}"/.repo/repo:"${PATH}"
+#remove duplicate path entries
+export PATH=$(echo "$PATH" | awk -F: '{for (i=1;i<=NF;i++) { if ( !x[$i]++ ) printf("%s:",$i); }}' | sed 's/:$//')
+# Make sure Bitbake doesn't filter out the following variables from our
+# environment.
+export BB_ENV_EXTRAWHITE="MACHINE DISTRO TCLIBC TCMODE GIT_PROXY_COMMAND http_proxy ftp_proxy https_proxy all_proxy ALL_PROXY no_proxy SSH_AGENT_PID SSH_AUTH_SOCK BB_SRCREV_POLICY SDKMACHINE BB_NUMBER_THREADS"
+
+mkdir -p "${BUILDDIR}"/conf && cd "${BUILDDIR}"
+if [ -f "conf/auto.conf" ]; then
+    oldmach=$(egrep "^MACHINE" "conf/auto.conf" | sed -e 's%^MACHINE ?= %%' | sed -e 's/^"//'  -e 's/"$//')
+fi
+if [ -e conf/checksum -a "${MACHINE}" = "$oldmach" ]
+then
+    sha512sum --quiet -c conf/checksum > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+       return
+    fi
+fi
+
+# evaluate new checksum and regenerate the conf files
+sha512sum "${MANIFESTS}"/setup-environment-internal 2>&1 > conf/checksum
+
+ln -sf "${MANIFESTS}"/conf/local.conf conf/local.conf
+ln -sf "${MANIFESTS}"/conf/bblayers.conf conf/bblayers.conf
+ln -sf "${MANIFESTS}"/README.md README.md
+
+ln -sf "${MANIFESTS}" "${OEROOT}"/layers/
+
+repo sync
+repo start work --all
+
+DISTRO=$(grep -w DISTRO conf/local.conf | grep -v '^#' | awk -F\" '{print $2}')
+DISTRO_DIRNAME=$(echo "${DISTRO}" | sed 's#[.-]#_#g')
+
+cat > conf/auto.conf <<EOF
+#DISTRO ?= "${DISTRO}"
+MACHINE ?= "${MACHINE}"
+SDKMACHINE ?= "${SDKMACHINE}"
+
+# Extra options that can be changed by the user
+INHERIT += "rm_work"
+EOF
+if [ ! -e conf/site.conf ]; then
+    cat > conf/site.conf <<_EOF
+
+SCONF_VERSION = "1"
+
+# Where to store sources
+DL_DIR = "${OEROOT}/downloads"
+
+# Where to save shared state
+SSTATE_DIR = "${OEROOT}/sstate-cache"
+
+TMPDIR = "${BUILDDIR}/tmp-${DISTRO_DIRNAME}"
+
+# Go through the Firewall
+#HTTP_PROXY        = "http://${PROXYHOST}:${PROXYPORT}/"
+
+_EOF
+fi
+
+# Handle EULA , if needed. This is a generic method to handle BSPs
+# that might (or not) come with a EULA. If a machine has a EULA, we
+# assume that its corresponding layers has conf/EULA/$MACHINE file
+# with the EULA text, which we will display to the user and request
+# for acceptance. If accepted, the variable ACCEPT_EULA_$MACHINE is
+# set to 1 in auto.conf, which can later be used by the BSP.
+# If the env variable EULA_$MACHINE is set it is used by default,
+# without prompting the user.
+# FIXME: there is a potential issue if the same $MACHINE is set in more than one layer.. but we should assert that earlier
+EULA=$(find layers -path "*/conf/eula/$MACHINE" -print | grep -v scripts | grep -v openembedded-core | grep -v meta-linaro || true)
+
+if [ -n "$EULA" ]; then
+
+    # remove '-' since we are constructing a bash variable name here
+    EULA_MACHINE="EULA_$(echo "$MACHINE" | sed 's/-//g')"
+
+    # NOTE: indirect reference / dynamic variable
+    if [ -n "${!EULA_MACHINE}" ]; then
+        # the EULA_$MACHINE variable is set in the environment, so we just configure
+        # ACCEPT_EULA_$MACHINE in auto.conf
+        echo "ACCEPT_EULA_$MACHINE = \"${!EULA_MACHINE}\"" >> conf/auto.conf
+    else
+        # so we need to ask user if he/she accepts the EULA:
+        cat <<EOF
+
+The BSP for $MACHINE depends on packages and firmware which are covered by an End
+User License Agreement (EULA). To have the right to use these binaries
+in your images, you need to read and accept the following...
+
+EOF
+
+        echo
+        REPLY=
+        while [ -z "$REPLY" ]; do
+            echo -n "Would you like to read the EULA ? (y/n) "
+            read -r REPLY
+            case "$REPLY" in
+                y|Y)
+                    READ_EULA=1
+                    ;;
+                n|N)
+                    READ_EULA=0
+                    ;;
+                *)
+                    REPLY=
+                    ;;
+            esac
+        done
+
+        if [ "$READ_EULA" = 1 ]; then
+            more -d "${EULA}"
+            echo
+            REPLY=
+            while [ -z "$REPLY" ]; do
+                echo -n "Do you accept the EULA you just read? (y/n) "
+                read -r REPLY
+                case "$REPLY" in
+                    y|Y)
+                        echo "EULA has been accepted."
+                        echo "ACCEPT_EULA_$MACHINE = \"1\"" >> conf/auto.conf
+                        ;;
+                    n|N)
+                        echo "EULA has not been accepted."
+                        ;;
+                    *)
+                        REPLY=
+                        ;;
+                esac
+            done
+        fi
+    fi
+fi
+
+cat <<EOF
+
+Welcome to Ångström ( A Yocto Project Compatible Distribution )
+
+For more information about OpenEmbedded see their website:
+    http://www.openembedded.org/
+
+Your build environment has been configured with:
+
+    MACHINE = ${MACHINE}
+    SDKMACHINE = ${SDKMACHINE}
+    DISTRO = ${DISTRO}
+
+You can now run 'bitbake <target>'
+
+Some of common targets are:
+    console-image
+    angstrom-image
+
+EOF
