@@ -33,7 +33,7 @@ do_install_angstromissue () {
             echo -n "${DISTRO_VERSION} " >> ${D}${sysconfdir}/issue
             echo -e "${DISTRO_VERSION} \n" >> ${D}${sysconfdir}/issue.net
         fi
-        echo "- Kernel \r" >> ${D}${sysconfdir}/issue
+        echo '- Kernel \\r' >> ${D}${sysconfdir}/issue
         echo >> ${D}${sysconfdir}/issue
     fi
 }
