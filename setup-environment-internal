@@ -1,0 +1,168 @@
+#!/bin/sh
+# -*- mode: shell-script-mode; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+#
+# Copyright (C) 2012-13 O.S. Systems Software LTDA.
+# Authored-by:  Otavio Salvador <otavio@ossystems.com.br>
+# Adopted to Angstrom:  Khem Raj <raj.khem@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+if [ "$(whoami)" = "root" ]; then
+    echo "ERROR: do not use the BSP as root. Exiting..."
+    return
+fi
+
+OEROOT="`pwd`"
+cd "$OEROOT"
+if [ -n "$ZSH_VERSION" ]; then
+    setopt sh_word_split
+fi
+
+# create a common list of "<machine>(<layer>)", sorted by <machine>
+MACHLAYERS=$(find sources -print | grep "conf/machine/.*\.conf" | grep -v scripts | sed -e 's/\.conf//g' | awk -F'/' '{print $NF "(" $2 ")"}' | sort)
+
+if [ -z "${MACHINE}" ]; then
+    # whiptail
+    which whiptail > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        for ITEM in $MACHLAYERS; do
+            MACHINETABLE="${MACHINETABLE} $(echo $ITEM | cut -d'(' -f1) $(echo $ITEM | cut -d'(' -f2 | cut -d')' -f1) OFF\n"
+        done
+        MACHINE=$(whiptail --title "Available Machines" --radiolist \
+            "Please choose a machine" 0 0 20 \
+            ${MACHINETABLE} 3>&1 1>&2 2>&3)
+        unset MACHINETABLE
+    fi
+
+    # dialog
+    if [ -z "$MACHINE" ]; then
+        which dialog > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            for ITEM in $MACHLAYERS; do
+                MACHINETABLE="$MACHINETABLE $(echo $ITEM | cut -d'(' -f1) $(echo $ITEM | cut -d'(' -f2 | cut -d')' -f1)"
+            done
+            MACHINE=$(dialog --title "Available Machines" --menu "Please choose a machine" 0 0 20 $MACHINETABLE 3>&1 1>&2 2>&3)
+        fi
+    fi
+    unset MACHINETABLE
+    unset ITEM
+fi
+
+# guard against Ctrl-D or cancel
+if [ -z "$MACHINE" ]; then
+    echo "To choose a machine interactively please install whiptail or dialog."
+    echo "To choose a machine non-interactively please use the following syntax:"
+    echo "    MACHINE=<your-machine> . ./setup-environment"
+    echo ""
+    echo "Press <ENTER> to see a list of your choices"
+    read
+    echo $MACHLAYERS | sed -e 's/(/ (/g' | sed -e 's/)/)\n/g' | sed -e 's/^ */\t/g'
+    return
+fi
+unset MACHLAYERS
+
+if [ -z "${SDKMACHINE}" ]; then
+    SDKMACHINE='x86_64'
+fi
+
+MANIFESTS="${OEROOT}"/.repo/manifests
+
+# Clean up PATH, because if it includes tokens to current directories somehow,
+# wrong binaries can be used instead of the expected ones during task execution
+export PATH="`echo ${PATH} | sed 's/\(:.\|:\)*:/:/g;s/^.\?://;s/:.\?$//'`"
+export PATH="${OEROOT}"/sources/openembedded-core/scripts:"${OEROOT}"/sources/bitbake/bin:"${OEROOT}"/.repo/repo:"${PATH}"
+#remove duplicate path entries
+export PATH="`echo $PATH | awk -F: '{for (i=1;i<=NF;i++) { if ( !x[$i]++ ) printf("%s:",$i); }}' | sed 's/:$//'`"
+# Make sure Bitbake doesn't filter out the following variables from our
+# environment.
+export BB_ENV_EXTRAWHITE="MACHINE DISTRO TCLIBC TCMODE GIT_PROXY_COMMAND http_proxy ftp_proxy https_proxy all_proxy ALL_PROXY no_proxy SSH_AGENT_PID SSH_AUTH_SOCK BB_SRCREV_POLICY SDKMACHINE BB_NUMBER_THREADS"
+
+mkdir -p conf
+if [ -f "${OEROOT}/conf/auto.conf" ]; then
+    oldmach=`fgrep "^MACHINE" "${OEROOT}/conf/auto.conf" | sed -e 's%^MACHINE ?= %%' | sed -e 's/^"//'  -e 's/"$//'`
+fi
+if [ -e conf/checksum -a "${MACHINE}" = "$oldmach" ]
+then
+    sha512sum --quiet -c conf/checksum > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+       return
+    fi
+fi
+
+# evaluate new checksum and regenerate the conf files
+sha512sum "${MANIFESTS}"/setup-environment-internal 2>&1 > conf/checksum
+
+ln -sf "${MANIFESTS}"/conf/local.conf conf/local.conf
+ln -sf "${MANIFESTS}"/conf/bblayers.conf conf/bblayers.conf
+ln -sf "${MANIFESTS}"/README.md README.md
+
+ln -sf "${MANIFESTS}" sources/
+
+repo sync
+#repo start work --all
+
+DISTRO=$(grep -w DISTRO conf/local.conf | grep -v '^#' | awk -F\" '{print $2}')
+export DISTRO_DIRNAME=`echo ${DISTRO} | sed 's#[.-]#_#g'`
+
+cat > conf/auto.conf <<EOF
+MACHINE ?= "${MACHINE}"
+SDKMACHINE ?= "${SDKMACHINE}"
+EOF
+if [ ! -e conf/site.conf ]; then
+    cat > conf/site.conf <<_EOF
+
+SCONF_VERSION = "1"
+
+# Where to store sources
+DL_DIR = "${OEROOT}/sources/downloads"
+
+# Where to save shared state
+SSTATE_DIR = "${OEROOT}/build/sstate-cache"
+
+# Which files do we want to parse:
+BBFILES ?= "${OEROOT}/sources/openembedded-core/meta/recipes-*/*/*.bb"
+
+TMPDIR = "${OEROOT}/build/tmp-${DISTRO_DIRNAME}"
+
+# Go through the Firewall
+#HTTP_PROXY        = "http://${PROXYHOST}:${PROXYPORT}/"
+
+_EOF
+fi
+
+cat <<EOF
+
+Welcome to Ångström ( A Yocto Project Compatible Distribution )
+
+For more information about OpenEmbedded see their website:
+    http://www.openembedded.org/
+
+Your build environemnt has been configured with:
+
+    MACHINE=${MACHINE}
+    SDKMACHINE=${SDKMACHINE}
+    DISTRO=${DISTRO}
+
+You can now run 'bitbake <target>'
+
+Some of common targets are:
+    console-image
+    systemd-gnome-image
+    xfce-nm-image
+    development-xfce-image
+    development-gnome-image
+
+EOF
