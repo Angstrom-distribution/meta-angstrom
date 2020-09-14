@@ -34,6 +34,7 @@ PACKAGECONFIG   = " \
                    set-time-epoch \
                    smack \
                    sysusers \
+                   sysvinit \
                    timedated \
                    timesyncd \
                    utmp \
