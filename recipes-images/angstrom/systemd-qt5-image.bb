@@ -1,6 +1,6 @@
 require systemd-image.bb
 
-inherit distro_features_check
+inherit features_check
 
 inherit populate_sdk_qt5
 
