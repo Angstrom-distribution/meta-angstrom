@@ -6,7 +6,7 @@ PR = "r11"
 
 DEPENDS = "u-boot-mkimage-native"
 
-SRC_URI = "file://*.cmd"
+SRC_URI = "file://scripts/"
 
 do_configure() {
 	cp ${WORKDIR}/*.cmd ${S}
