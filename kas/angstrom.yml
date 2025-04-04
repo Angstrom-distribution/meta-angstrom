@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/siemens/kas/master/kas/schema-kas.json
+
+header:
+  version: 14
+
+distro: angstrom
+
+defaults:
+  repos:
+    branch: master
+
+repos:
+  bitbake:
+    url: https://github.com/openembedded/bitbake
+    layers:
+      .: excluded
+
+  openembedded-core:
+    url: https://github.com/openembedded/openembedded-core
+    layers:
+      meta:
+
+  angstrom:
+
+local_conf_header:
+  base: |
+    INHERIT += "buildstats buildstats-summary"
+    INHERIT += "buildhistory"
+    INHERIT += "rm_work"
+
+machine: unset
+
+target:
+  - core-image-base
