@@ -22,6 +22,24 @@ repos:
 
   angstrom:
 
+  meta-linux-mainline:
+    url: https://github.com/betafive/meta-linux-mainline
+    branch: main
+
+  meta-arm:
+    url: https://git.yoctoproject.org/git/meta-arm
+    layers:
+      meta-arm-toolchain:
+      meta-arm:
+
+  meta-ti:
+    url: https://git.yoctoproject.org/git/meta-ti
+    layers:
+      meta-ti-bsp:
+
+  meta-beagleboard:
+    url: https://github.com/koenkooi/meta-beagleboard
+    
 local_conf_header:
   base: |
     INHERIT += "buildstats buildstats-summary"
