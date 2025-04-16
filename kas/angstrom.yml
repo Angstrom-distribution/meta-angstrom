@@ -39,7 +39,17 @@ repos:
 
   meta-beagleboard:
     url: https://github.com/koenkooi/meta-beagleboard
-    
+
+  meta-dominion:
+    url: https://github.com/koenkooi/meta-dominion
+
+  meta-openembedded:
+    url: https://github.com/openembedded/meta-openembedded
+    layers:
+      meta-networking:
+      meta-oe:
+      meta-python:
+
 local_conf_header:
   base: |
     INHERIT += "buildstats buildstats-summary"
@@ -50,3 +60,4 @@ machine: unset
 
 target:
   - core-image-base
+  - console-base-image
