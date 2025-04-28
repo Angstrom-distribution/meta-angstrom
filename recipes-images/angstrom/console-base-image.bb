@@ -15,13 +15,15 @@ IMAGE_FEATURES += "empty-root-password allow-empty-password"
 IMAGE_FEATURES += "package-management nfs-client ssh-server-dropbear"
 
 CORE_IMAGE_EXTRA_INSTALL += " \
-	${ROOTFS_PKGMANAGE_PKGS} \
-	systemd-networkd systemd-analyze udev-hwdb \
+	${ROOTFS_PKGMANAGE_PKGS} angstrom-feed-configs \
+	systemd-networkd systemd-analyze udev-hwdb systemd-zram-generator \
+	tzdata cronie \
         bash \
         avahi-daemon avahi-utils \
         wget curl \
         vim \
         git \
+	kernel-modules \
 "
 
 export IMAGE_BASENAME = "base-image"
