@@ -40,11 +40,39 @@ Name=en*
 DHCP=yes
 LLDP=yes
 EmitLLDP=yes
+
+[DHCPv4]
+RouteMetric=10
+
+[IPv6AcceptRA]
+RouteMetric=10
+
+[Route]
+Metric=10
 EOF
 
 	cat << EOF > ${IMAGE_ROOTFS}${sysconfdir}/systemd/network/11-eth.network
 [Match]
 Name=eth*
+
+[Network]
+DHCP=yes
+LLDP=yes
+EmitLLDP=yes
+
+[DHCPv4]
+RouteMetric=10
+
+[IPv6AcceptRA]
+RouteMetric=10
+
+[Route]
+Metric=10
+EOF
+
+	cat << EOF > ${IMAGE_ROOTFS}${sysconfdir}/systemd/network/12-wlan.network
+[Match]
+Name=wlan*
 
 [Network]
 DHCP=yes
