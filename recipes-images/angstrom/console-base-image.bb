@@ -12,7 +12,7 @@ ROOTFS_PKGMANAGE_PKGS ?= '${@oe.utils.conditional("ONLINE_PACKAGE_MANAGEMENT", "
 IMAGE_FEATURES += "empty-root-password allow-empty-password"
 
 # Debug tools, leave in
-IMAGE_FEATURES += "package-management nfs-client ssh-server-dropbear"
+IMAGE_FEATURES += "package-management nfs-client ssh-server-openssh"
 
 CORE_IMAGE_EXTRA_INSTALL += " \
 	${ROOTFS_PKGMANAGE_PKGS} angstrom-feed-configs \
@@ -20,10 +20,18 @@ CORE_IMAGE_EXTRA_INSTALL += " \
 	tzdata cronie \
         bash \
         avahi-daemon avahi-utils \
+	net-tools lldpd iproute2-tc ethtool \
         wget curl \
         vim \
         git \
 	kernel-modules \
+        util-linux-fstrim util-linux-blkdiscard \
+        e2fsprogs-resize2fs \
+        htop \
+        usb-modeswitch \
+        iwd \
+	libgpiod \
+	bc \
 "
 
 export IMAGE_BASENAME = "base-image"
@@ -78,6 +86,15 @@ Name=wlan*
 DHCP=yes
 LLDP=yes
 EmitLLDP=yes
+
+[DHCPv4]
+RouteMetric=100
+
+[IPv6AcceptRA]
+RouteMetric=100
+
+[Route]
+Metric=100
 EOF
 }
 
