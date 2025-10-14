@@ -17,9 +17,9 @@ def arm_tune_handler(d):
         if 'neon' in features:
             tune += '-neon'
     if 'armv8a' in features or 'cortexa32' in features or 'cortexa34' in features or 'cortexa35' in features or 'cortexa53' in features or 'cortexa57' in features or 'cortexa72' in features or 'cortexa73' in features:
-        tune = 'armv8a'
+        tune = 'armv8a-crc-crypto'
     if 'armv8-2a' in features or 'cortexa55' in features or 'cortexa65' in features or 'cortexa75' in features or 'cortexa76' in features or 'cortexa77' in features or 'cortexa78' in features:
-        tune = 'armv8-2a'
+        tune = 'armv8-2a-crypto'
     return tune
 
 DEFAULTTUNE:angstrom := "${@arm_tune_handler(d)}"
