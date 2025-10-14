@@ -8,8 +8,8 @@
 # - Khem
 
 def arm_tune_handler(d):
-    features = d.getVar('TUNE_FEATURES', True).split()
     tune = d.getVar('DEFAULTTUNE', True)
+    features = d.getVar('TUNE_FEATURES', True).split()
     if 'armv7a' in features or 'armv7ve' in features:
         tune = 'armv7athf'
         if 'bigendian' in features:
@@ -22,4 +22,4 @@ def arm_tune_handler(d):
         tune = 'armv8-2a'
     return tune
 
-DEFAULTTUNE_angstrom := "${@arm_tune_handler(d)}"
+DEFAULTTUNE:angstrom := "${@arm_tune_handler(d)}"
