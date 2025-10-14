@@ -4,6 +4,10 @@ SRC_URI:append:angstrom = "\
                            file://zram-generator.conf \
                            file://rc-local.service \
 "
+
+# Enable hardware watchdog, set it to 5 minutes
+WATCHDOG_RUNTIME_SEC = "300"
+
 do_install:append:angstrom() {
 	# This disables the 'mac' policy for pni-names
 	# We do not want MAC address based naming, for example the wifi on RB1
