@@ -10,7 +10,7 @@
 def arm_tune_handler(d):
     tune = d.getVar('DEFAULTTUNE', True)
     features = d.getVar('TUNE_FEATURES', True).split()
-    if 'armv7a' in features or 'armv7ve' in features:
+    if 'armv7a' in features or 'armv7ve' in features or 'cortexa5' in features or 'cortexa7' in features or 'cortexa8' in features or 'cortexa9' in features or 'cortexa15' in features or 'cortexa17' in features:
         tune = 'armv7athf'
         if 'bigendian' in features:
             tune += 'b'
