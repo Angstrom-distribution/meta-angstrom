@@ -7,13 +7,13 @@ distro: angstrom
 
 defaults:
   repos:
-    branch: master
+    branch: wrynose
 
 repos:
   bitbake:
     url: https://github.com/openembedded/bitbake
     layers:
-      .: excluded
+      .: disabled
 
   openembedded-core:
     url: https://github.com/openembedded/openembedded-core
