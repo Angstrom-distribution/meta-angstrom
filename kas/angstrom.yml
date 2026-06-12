@@ -12,6 +12,7 @@ defaults:
 repos:
   bitbake:
     url: https://github.com/openembedded/bitbake
+    branch: "2.18"
     layers:
       .: disabled
 
@@ -19,6 +20,10 @@ repos:
     url: https://github.com/openembedded/openembedded-core
     layers:
       meta:
+
+  meta-lts-mixins:
+    url: https://git.yoctoproject.org/meta-lts-mixins
+    branch: wrynose/linux-firmware
 
   angstrom:
 
@@ -39,22 +44,64 @@ repos:
 
   meta-beagleboard:
     url: https://github.com/koenkooi/meta-beagleboard
+    branch: master
 
   meta-dominion:
     url: https://github.com/koenkooi/meta-dominion
+    branch: master
+
+  meta-rockchip:
+    url: https://git.yoctoproject.org/git/meta-rockchip
+
+  meta-qcom:
+    url: https://github.com/qualcomm-linux/meta-qcom
+
+  meta-qcom-3rdparty:
+    url: https://github.com/qualcomm-linux/meta-qcom-3rdparty
+    branch: main
 
   meta-openembedded:
     url: https://github.com/openembedded/meta-openembedded
     layers:
+      meta-filesystems:
+      meta-gnome:
+      meta-initramfs:
+      meta-multimedia:
       meta-networking:
       meta-oe:
+      meta-perl:
       meta-python:
+      meta-webserver:
+      meta-xfce:
+
+  meta-sdr:
+    url: https://github.com/balister/meta-sdr.git
+    branch: master
+
+  meta-qt5:
+    url: https://github.com/meta-qt5/meta-qt5.git 
+    branch: master
+
+  meta-virtualization:
+    url: https://git.yoctoproject.org/git/meta-virtualization
 
 local_conf_header:
   base: |
     INHERIT += "buildstats buildstats-summary"
     INHERIT += "buildhistory"
     INHERIT += "rm_work"
+  diskmon: |
+    BB_DISKMON_DIRS ??= "\
+      STOPTASKS,${TMPDIR},1G,100K \
+      STOPTASKS,${DL_DIR},1G,100K \
+      STOPTASKS,${SSTATE_DIR},10G,100K \
+      STOPTASKS,/tmp,100M,100K \
+      HALT,${TMPDIR},100M,1K \
+      HALT,${DL_DIR},100M,1K \
+      HALT,${SSTATE_DIR},1G,1K \
+      HALT,/tmp,10M,1K"
+  virtualization:
+    SKIP_META_VIRT_SANITY_CHECK = "1"
 
 machine: unset
 
