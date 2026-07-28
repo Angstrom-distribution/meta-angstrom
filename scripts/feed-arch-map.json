@@ -1,0 +1,1083 @@
+{
+  "_comment": "Feed arch map for scripts/sort-packages.py. Machine entries are maintained by scripts/add-machine-arch.py; seeded from the case table in the current sort.sh. machine_arch is the authoritative match key (MACHINE with '-' -> '_', bitbake.conf:190); ipk filenames and deploy dirs always use that form. extra_base_archs keeps legacy base feeds sortable until machines carry real package_archs data.",
+  "arch_aliases": {
+    "armv7ahf-neon-mx6qdl": "armv7ahf-neon",
+    "armv7ahf-neon-mx6sx": "armv7ahf-neon",
+    "armv7ahf-neon-mx6ul": "armv7ahf-neon",
+    "armv7ahf-neon-vf60": "armv7ahf-neon",
+    "armv7at2hf-neon-mx6qdl": "armv7at2hf-neon",
+    "armv7at2hf-neon-vf60": "armv7ahf-neon",
+    "i586-nlp-32": "i586",
+    "i586-nlp-32-intel-common": "i586",
+    "nios2-mul-div": "nios2"
+  },
+  "extra_base_archs": [
+    "486sx",
+    "aarch64",
+    "aarch64-be",
+    "arm1176jzfshf-vfp",
+    "armv4",
+    "armv4t",
+    "armv5e",
+    "armv5te",
+    "armv5te-mx23",
+    "armv5te-mx28",
+    "armv5teb",
+    "armv6",
+    "armv6-novfp",
+    "armv6-vfp",
+    "armv7a-vfp",
+    "armv7a-vfp-neon",
+    "armv7ab-vfp",
+    "armv7ahf-neon",
+    "armv7ahf-neon-mx6qdl",
+    "armv7ahf-neon-mx6sx",
+    "armv7ahf-neon-mx6ul",
+    "armv7ahf-neon-vf60",
+    "armv7ahf-neon-vfpv4",
+    "armv7ahf-vfp",
+    "armv7ahf-vfp-neon",
+    "armv7ahf-vfp-neon-mx5",
+    "armv7ahf-vfp-neon-mx6",
+    "armv7at2hf-neon",
+    "armv7at2hf-neon-mx6qdl",
+    "armv7at2hf-neon-vf60",
+    "armv7at2hf-neon-vfpv4",
+    "armv7at2hf-vfp",
+    "armv7at2hf-vfp-mx5",
+    "armv7at2hf-vfp-mx6",
+    "armv7at2hf-vfp-neon",
+    "armv8-2a",
+    "armv8-2a-crypto",
+    "armv8-3a",
+    "armv8-4a",
+    "armv8-5a",
+    "armv8-6a",
+    "armv8a",
+    "armv8a-crc-crypto",
+    "avr32",
+    "bfin",
+    "core2",
+    "core2-32",
+    "core2-32-emgd",
+    "core2-32-intel-common",
+    "core2-64",
+    "corei7-64",
+    "corei7-64-intel-common",
+    "cortexa53",
+    "cortexa55",
+    "cortexa7t2hf-neon-vfpv4",
+    "cortexa8hf-vfp-neon",
+    "cortexa9hf-vfp-neon",
+    "cortexa9hf-vfp-neon-mx6",
+    "geode",
+    "i486",
+    "i586",
+    "i586-nlp-32",
+    "i586-nlp-32-intel-common",
+    "i686",
+    "iwmmxt",
+    "mips32",
+    "mips32r2",
+    "mips32r2el",
+    "mips64",
+    "mipsel",
+    "nios2",
+    "nios2-mul-div",
+    "powerpc",
+    "ppc405",
+    "ppc440e",
+    "ppc603e",
+    "ppc7400",
+    "ppce300c2",
+    "ppce300c3",
+    "ppce500",
+    "ppce500v2",
+    "ppce600",
+    "riscv64imafdc",
+    "sh4",
+    "sparc",
+    "x86",
+    "x86-64-v3",
+    "xscaleeb",
+    "xscaleteb"
+  ],
+  "machines": {
+    "10m50": {
+      "feed_arch": "nios2-mul-div",
+      "machine_arch": "10m50",
+      "package_archs": []
+    },
+    "96boards-32": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "96boards_32",
+      "package_archs": []
+    },
+    "96boards-64": {
+      "feed_arch": "aarch64",
+      "machine_arch": "96boards_64",
+      "package_archs": []
+    },
+    "akita": {
+      "feed_arch": "armv5te",
+      "machine_arch": "akita",
+      "package_archs": []
+    },
+    "am180x-evm": {
+      "feed_arch": "armv5te",
+      "machine_arch": "am180x_evm",
+      "package_archs": []
+    },
+    "am335x-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "am335x_evm",
+      "package_archs": []
+    },
+    "am3517-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "am3517_evm",
+      "package_archs": []
+    },
+    "am37x-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "am37x_evm",
+      "package_archs": []
+    },
+    "am437x-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "am437x_evm",
+      "package_archs": []
+    },
+    "am437x-hs-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "am437x_hs_evm",
+      "package_archs": []
+    },
+    "am57xx-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "am57xx_evm",
+      "package_archs": []
+    },
+    "apalis-imx6": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "apalis_imx6",
+      "package_archs": []
+    },
+    "apu2c4": {
+      "feed_arch": "x86-64-v3",
+      "machine_arch": "apu2c4",
+      "package_archs": []
+    },
+    "arietta-g25": {
+      "feed_arch": "armv5te",
+      "machine_arch": "arietta_g25",
+      "package_archs": []
+    },
+    "arndale": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "arndale",
+      "package_archs": []
+    },
+    "arndale-octa": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "arndale_octa",
+      "package_archs": []
+    },
+    "arria10": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "arria10",
+      "package_archs": []
+    },
+    "arria5": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "arria5",
+      "package_archs": []
+    },
+    "at91sam9m10g45ek": {
+      "feed_arch": "armv5te",
+      "machine_arch": "at91sam9m10g45ek",
+      "package_archs": []
+    },
+    "at91sam9rlek": {
+      "feed_arch": "armv5te",
+      "machine_arch": "at91sam9rlek",
+      "package_archs": []
+    },
+    "at91sam9x5ek": {
+      "feed_arch": "armv5te",
+      "machine_arch": "at91sam9x5ek",
+      "package_archs": []
+    },
+    "bananapi": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "bananapi",
+      "package_archs": []
+    },
+    "beagleboard": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "beagleboard",
+      "package_archs": []
+    },
+    "beaglebone": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "beaglebone",
+      "package_archs": []
+    },
+    "beaglebone-black": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "beaglebone_black",
+      "package_archs": []
+    },
+    "beaglebone-white": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "beaglebone_white",
+      "package_archs": []
+    },
+    "beaglev-ahead": {
+      "feed_arch": "riscv64imafdc",
+      "machine_arch": "beaglev_ahead",
+      "package_archs": []
+    },
+    "beast": {
+      "feed_arch": "x86-64-v3",
+      "machine_arch": "beast",
+      "package_archs": []
+    },
+    "ben-nanonote": {
+      "feed_arch": "mips32",
+      "machine_arch": "ben_nanonote",
+      "package_archs": []
+    },
+    "c7x0": {
+      "feed_arch": "armv5te",
+      "machine_arch": "c7x0",
+      "package_archs": []
+    },
+    "cfa10036": {
+      "feed_arch": "armv5te",
+      "machine_arch": "cfa10036",
+      "package_archs": []
+    },
+    "cfa10037": {
+      "feed_arch": "armv5te",
+      "machine_arch": "cfa10037",
+      "package_archs": []
+    },
+    "cfa10049": {
+      "feed_arch": "armv5te",
+      "machine_arch": "cfa10049",
+      "package_archs": []
+    },
+    "cfa10055": {
+      "feed_arch": "armv5te",
+      "machine_arch": "cfa10055",
+      "package_archs": []
+    },
+    "cfa10056": {
+      "feed_arch": "armv5te",
+      "machine_arch": "cfa10056",
+      "package_archs": []
+    },
+    "cfa10057": {
+      "feed_arch": "armv5te",
+      "machine_arch": "cfa10057",
+      "package_archs": []
+    },
+    "cfa10058": {
+      "feed_arch": "armv5te",
+      "machine_arch": "cfa10058",
+      "package_archs": []
+    },
+    "cgtqmx6": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "cgtqmx6",
+      "package_archs": []
+    },
+    "chip": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "chip",
+      "package_archs": []
+    },
+    "chromebook-snow": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "chromebook_snow",
+      "package_archs": []
+    },
+    "cm-fx6": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "cm_fx6",
+      "package_archs": []
+    },
+    "colibri-imx6": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "colibri_imx6",
+      "package_archs": []
+    },
+    "colibri-vf": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "colibri_vf",
+      "package_archs": []
+    },
+    "collie": {
+      "feed_arch": "armv4",
+      "machine_arch": "collie",
+      "package_archs": []
+    },
+    "cubieboard": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "cubieboard",
+      "package_archs": []
+    },
+    "cubieboard2": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "cubieboard2",
+      "package_archs": []
+    },
+    "cubietruck": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "cubietruck",
+      "package_archs": []
+    },
+    "cubox-i": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "cubox_i",
+      "package_archs": []
+    },
+    "cyclone5": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "cyclone5",
+      "package_archs": []
+    },
+    "dlink-dns320": {
+      "feed_arch": "armv5te",
+      "machine_arch": "dlink_dns320",
+      "package_archs": []
+    },
+    "dominion": {
+      "feed_arch": "x86-64-v3",
+      "machine_arch": "dominion",
+      "package_archs": []
+    },
+    "dominion-old": {
+      "feed_arch": "core2-64",
+      "machine_arch": "dominion_old",
+      "package_archs": []
+    },
+    "dra7xx-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "dra7xx_evm",
+      "package_archs": []
+    },
+    "dra7xx-hs-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "dra7xx_hs_evm",
+      "package_archs": []
+    },
+    "dragonboard-410c": {
+      "feed_arch": "aarch64",
+      "machine_arch": "dragonboard_410c",
+      "package_archs": []
+    },
+    "dragonboard-820c": {
+      "feed_arch": "aarch64",
+      "machine_arch": "dragonboard_820c",
+      "package_archs": []
+    },
+    "edison": {
+      "feed_arch": "core2-32",
+      "machine_arch": "edison",
+      "package_archs": []
+    },
+    "forfun-q88db": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "forfun_q88db",
+      "package_archs": []
+    },
+    "gcw0": {
+      "feed_arch": "mips32r2el",
+      "machine_arch": "gcw0",
+      "package_archs": []
+    },
+    "generic-nios2": {
+      "feed_arch": "nios2",
+      "machine_arch": "generic_nios2",
+      "package_archs": []
+    },
+    "genericarmv7a": {
+      "feed_arch": "armv7at2hf-vfp",
+      "machine_arch": "genericarmv7a",
+      "package_archs": []
+    },
+    "genericarmv7ab": {
+      "feed_arch": "armv7ab-vfp",
+      "machine_arch": "genericarmv7ab",
+      "package_archs": []
+    },
+    "genericarmv8": {
+      "feed_arch": "aarch64",
+      "machine_arch": "genericarmv8",
+      "package_archs": []
+    },
+    "genericarmv8b": {
+      "feed_arch": "aarch64-be",
+      "machine_arch": "genericarmv8b",
+      "package_archs": []
+    },
+    "h1940": {
+      "feed_arch": "armv4t",
+      "machine_arch": "h1940",
+      "package_archs": []
+    },
+    "h3600": {
+      "feed_arch": "armv4",
+      "machine_arch": "h3600",
+      "package_archs": []
+    },
+    "hikey": {
+      "feed_arch": "aarch64",
+      "machine_arch": "hikey",
+      "package_archs": []
+    },
+    "hpveer": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "hpveer",
+      "package_archs": []
+    },
+    "htcleo": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "htcleo",
+      "package_archs": []
+    },
+    "hx4700": {
+      "feed_arch": "armv5te",
+      "machine_arch": "hx4700",
+      "package_archs": []
+    },
+    "ifc6410": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "ifc6410",
+      "package_archs": []
+    },
+    "imx233-olinuxino-maxi": {
+      "feed_arch": "armv5te",
+      "machine_arch": "imx233_olinuxino_maxi",
+      "package_archs": []
+    },
+    "imx233-olinuxino-micro": {
+      "feed_arch": "armv5te",
+      "machine_arch": "imx233_olinuxino_micro",
+      "package_archs": []
+    },
+    "imx233-olinuxino-mini": {
+      "feed_arch": "armv5te",
+      "machine_arch": "imx233_olinuxino_mini",
+      "package_archs": []
+    },
+    "imx233-olinuxino-nano": {
+      "feed_arch": "armv5te",
+      "machine_arch": "imx233_olinuxino_nano",
+      "package_archs": []
+    },
+    "imx23evk": {
+      "feed_arch": "armv5te",
+      "machine_arch": "imx23evk",
+      "package_archs": []
+    },
+    "imx28evk": {
+      "feed_arch": "armv5te",
+      "machine_arch": "imx28evk",
+      "package_archs": []
+    },
+    "imx51evk": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx51evk",
+      "package_archs": []
+    },
+    "imx53ard": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx53ard",
+      "package_archs": []
+    },
+    "imx53qsb": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx53qsb",
+      "package_archs": []
+    },
+    "imx6dl-riotboard": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6dl_riotboard",
+      "package_archs": []
+    },
+    "imx6dlsabreauto": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6dlsabreauto",
+      "package_archs": []
+    },
+    "imx6dlsabresd": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6dlsabresd",
+      "package_archs": []
+    },
+    "imx6q-elo": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6q_elo",
+      "package_archs": []
+    },
+    "imx6qdl-variscite-som": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6qdl_variscite_som",
+      "package_archs": []
+    },
+    "imx6qpsabreauto": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6qpsabreauto",
+      "package_archs": []
+    },
+    "imx6qpsabresd": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6qpsabresd",
+      "package_archs": []
+    },
+    "imx6qsabreauto": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6qsabreauto",
+      "package_archs": []
+    },
+    "imx6qsabrelite": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6qsabrelite",
+      "package_archs": []
+    },
+    "imx6qsabresd": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6qsabresd",
+      "package_archs": []
+    },
+    "imx6sl-warp": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6sl_warp",
+      "package_archs": []
+    },
+    "imx6slevk": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6slevk",
+      "package_archs": []
+    },
+    "imx6solosabreauto": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6solosabreauto",
+      "package_archs": []
+    },
+    "imx6solosabresd": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6solosabresd",
+      "package_archs": []
+    },
+    "imx6sxsabreauto": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6sxsabreauto",
+      "package_archs": []
+    },
+    "imx6sxsabresd": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6sxsabresd",
+      "package_archs": []
+    },
+    "imx6ulevk": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx6ulevk",
+      "package_archs": []
+    },
+    "imx7d-warp7": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx7d_warp7",
+      "package_archs": []
+    },
+    "imx7dsabresd": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "imx7dsabresd",
+      "package_archs": []
+    },
+    "intel-core2-32": {
+      "feed_arch": "core2-32",
+      "machine_arch": "intel_core2_32",
+      "package_archs": []
+    },
+    "intel-corei7-64": {
+      "feed_arch": "x86-64-v3",
+      "machine_arch": "intel_corei7_64",
+      "package_archs": []
+    },
+    "intel-quark": {
+      "feed_arch": "i586-nlp-32",
+      "machine_arch": "intel_quark",
+      "package_archs": []
+    },
+    "k2e-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "k2e_evm",
+      "package_archs": []
+    },
+    "k2g-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "k2g_evm",
+      "package_archs": []
+    },
+    "k2hk-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "k2hk_evm",
+      "package_archs": []
+    },
+    "k2l-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "k2l_evm",
+      "package_archs": []
+    },
+    "khadas-vim": {
+      "feed_arch": "aarch64",
+      "machine_arch": "khadas_vim",
+      "package_archs": []
+    },
+    "khadas-vim2": {
+      "feed_arch": "aarch64",
+      "machine_arch": "khadas_vim2",
+      "package_archs": []
+    },
+    "libretech-cc": {
+      "feed_arch": "aarch64",
+      "machine_arch": "libretech_cc",
+      "package_archs": []
+    },
+    "lng-rt-x86-64": {
+      "feed_arch": "core2-64",
+      "machine_arch": "lng_rt_x86_64",
+      "package_archs": []
+    },
+    "lng-x86-64": {
+      "feed_arch": "core2-64",
+      "machine_arch": "lng_x86_64",
+      "package_archs": []
+    },
+    "ls1021atwr": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "ls1021atwr",
+      "package_archs": []
+    },
+    "m28evk": {
+      "feed_arch": "armv5te",
+      "machine_arch": "m28evk",
+      "package_archs": []
+    },
+    "m53evk": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "m53evk",
+      "package_archs": []
+    },
+    "macbook": {
+      "feed_arch": "core2-64",
+      "machine_arch": "macbook",
+      "package_archs": []
+    },
+    "mele": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "mele",
+      "package_archs": []
+    },
+    "meleg": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "meleg",
+      "package_archs": []
+    },
+    "minnow": {
+      "feed_arch": "core2-32",
+      "machine_arch": "minnow",
+      "package_archs": []
+    },
+    "minnowboard": {
+      "feed_arch": "x86-64-v3",
+      "machine_arch": "minnowboard",
+      "package_archs": []
+    },
+    "nexusone": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "nexusone",
+      "package_archs": []
+    },
+    "nitrogen6sx": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "nitrogen6sx",
+      "package_archs": []
+    },
+    "nitrogen6x": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "nitrogen6x",
+      "package_archs": []
+    },
+    "nitrogen6x-lite": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "nitrogen6x_lite",
+      "package_archs": []
+    },
+    "nitrogen7": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "nitrogen7",
+      "package_archs": []
+    },
+    "nokia900": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "nokia900",
+      "package_archs": []
+    },
+    "nslu2be": {
+      "feed_arch": "xscaleteb",
+      "machine_arch": "nslu2be",
+      "package_archs": []
+    },
+    "nslu2le": {
+      "feed_arch": "armv5te",
+      "machine_arch": "nslu2le",
+      "package_archs": []
+    },
+    "nspawn-x86-64": {
+      "feed_arch": "x86-64-v3",
+      "machine_arch": "nspawn_x86_64",
+      "package_archs": []
+    },
+    "olinuxino-a10lime": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "olinuxino_a10lime",
+      "package_archs": []
+    },
+    "olinuxino-a10s": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "olinuxino_a10s",
+      "package_archs": []
+    },
+    "olinuxino-a13": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "olinuxino_a13",
+      "package_archs": []
+    },
+    "olinuxino-a13som": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "olinuxino_a13som",
+      "package_archs": []
+    },
+    "olinuxino-a20": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "olinuxino_a20",
+      "package_archs": []
+    },
+    "olinuxino-a20lime": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "olinuxino_a20lime",
+      "package_archs": []
+    },
+    "olinuxino-a20lime2": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "olinuxino_a20lime2",
+      "package_archs": []
+    },
+    "olinuxino-a20som": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "olinuxino_a20som",
+      "package_archs": []
+    },
+    "om-gta01": {
+      "feed_arch": "armv4t",
+      "machine_arch": "om_gta01",
+      "package_archs": []
+    },
+    "om-gta02": {
+      "feed_arch": "armv4t",
+      "machine_arch": "om_gta02",
+      "package_archs": []
+    },
+    "om-gta04": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "om_gta04",
+      "package_archs": []
+    },
+    "omap3evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "omap3evm",
+      "package_archs": []
+    },
+    "omap5-evm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "omap5_evm",
+      "package_archs": []
+    },
+    "overo": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "overo",
+      "package_archs": []
+    },
+    "pandaboard": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "pandaboard",
+      "package_archs": []
+    },
+    "pcduino": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "pcduino",
+      "package_archs": []
+    },
+    "pcm052": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "pcm052",
+      "package_archs": []
+    },
+    "poodle": {
+      "feed_arch": "armv5te",
+      "machine_arch": "poodle",
+      "package_archs": []
+    },
+    "qcs6490-rb3gen2-core-kit": {
+      "feed_arch": "armv8-2a",
+      "machine_arch": "qcs6490_rb3gen2_core_kit",
+      "package_archs": []
+    },
+    "qcs6490-rubikpi3": {
+      "feed_arch": "armv8-2a",
+      "machine_arch": "qcs6490_rubikpi3",
+      "package_archs": []
+    },
+    "qemuarm": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "qemuarm",
+      "package_archs": []
+    },
+    "qemuarm64": {
+      "feed_arch": "armv8a",
+      "machine_arch": "qemuarm64",
+      "package_archs": []
+    },
+    "qemumips": {
+      "feed_arch": "mips32r2",
+      "machine_arch": "qemumips",
+      "package_archs": []
+    },
+    "qemumips64": {
+      "feed_arch": "mips64",
+      "machine_arch": "qemumips64",
+      "package_archs": []
+    },
+    "qemuppc": {
+      "feed_arch": "ppc7400",
+      "machine_arch": "qemuppc",
+      "package_archs": []
+    },
+    "qemux86": {
+      "feed_arch": "i586",
+      "machine_arch": "qemux86",
+      "package_archs": []
+    },
+    "qemux86-64": {
+      "feed_arch": "core2-64",
+      "machine_arch": "qemux86_64",
+      "package_archs": []
+    },
+    "qrb2210-vision-kit": {
+      "feed_arch": "armv8a",
+      "machine_arch": "qrb2210_vision_kit",
+      "package_archs": []
+    },
+    "qrb2210_rb1_core_kit": {
+      "feed_arch": "armv8a",
+      "machine_arch": "qrb2210_rb1_core_kit",
+      "package_archs": []
+    },
+    "radxa_dragon_q8b": {
+      "feed_arch": "armv8-2a",
+      "machine_arch": "radxa_dragon_q8b",
+      "package_archs": []
+    },
+    "radxa_zero_3w": {
+      "feed_arch": "armv8a",
+      "machine_arch": "radxa_zero_3w",
+      "package_archs": []
+    },
+    "raspberrypi": {
+      "feed_arch": "arm1176jzfshf-vfp",
+      "machine_arch": "raspberrypi",
+      "package_archs": []
+    },
+    "raspberrypi0": {
+      "feed_arch": "arm1176jzfshf-vfp",
+      "machine_arch": "raspberrypi0",
+      "package_archs": []
+    },
+    "raspberrypi0-wifi": {
+      "feed_arch": "arm1176jzfshf-vfp",
+      "machine_arch": "raspberrypi0_wifi",
+      "package_archs": []
+    },
+    "raspberrypi2": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "raspberrypi2",
+      "package_archs": []
+    },
+    "raspberrypi3": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "raspberrypi3",
+      "package_archs": []
+    },
+    "raspberrypi3-64": {
+      "feed_arch": "aarch64",
+      "machine_arch": "raspberrypi3_64",
+      "package_archs": []
+    },
+    "raspberrypi4-64": {
+      "feed_arch": "aarch64",
+      "machine_arch": "raspberrypi4_64",
+      "package_archs": []
+    },
+    "rb1_core_kit": {
+      "feed_arch": "armv8a",
+      "machine_arch": "rb1_core_kit",
+      "package_archs": []
+    },
+    "rb3gen2-core-kit": {
+      "feed_arch": "armv8-2a",
+      "machine_arch": "rb3gen2_core_kit",
+      "package_archs": []
+    },
+    "revo": {
+      "feed_arch": "core2-32",
+      "machine_arch": "revo",
+      "package_archs": []
+    },
+    "rogue": {
+      "feed_arch": "x86-64-v3",
+      "machine_arch": "rogue",
+      "package_archs": []
+    },
+    "rubikpi3": {
+      "feed_arch": "armv8-2a",
+      "machine_arch": "rubikpi3",
+      "package_archs": []
+    },
+    "sama5d2-xplained": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "sama5d2_xplained",
+      "package_archs": []
+    },
+    "sama5d2-xplained-sd": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "sama5d2_xplained_sd",
+      "package_archs": []
+    },
+    "sama5d3-xplained": {
+      "feed_arch": "armv7at2hf-vfp",
+      "machine_arch": "sama5d3_xplained",
+      "package_archs": []
+    },
+    "sama5d3-xplained-sd": {
+      "feed_arch": "armv7at2hf-vfp",
+      "machine_arch": "sama5d3_xplained_sd",
+      "package_archs": []
+    },
+    "sama5d3xek": {
+      "feed_arch": "armv7at2hf-vfp",
+      "machine_arch": "sama5d3xek",
+      "package_archs": []
+    },
+    "sama5d4-xplained": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "sama5d4_xplained",
+      "package_archs": []
+    },
+    "sama5d4-xplained-sd": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "sama5d4_xplained_sd",
+      "package_archs": []
+    },
+    "sama5d4ek": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "sama5d4ek",
+      "package_archs": []
+    },
+    "sd-600eval": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "sd_600eval",
+      "package_archs": []
+    },
+    "soekris-net6501": {
+      "feed_arch": "core2-32",
+      "machine_arch": "soekris_net6501",
+      "package_archs": []
+    },
+    "spitz": {
+      "feed_arch": "armv5te",
+      "machine_arch": "spitz",
+      "package_archs": []
+    },
+    "stratix10swvp": {
+      "feed_arch": "aarch64",
+      "machine_arch": "stratix10swvp",
+      "package_archs": []
+    },
+    "tosa": {
+      "feed_arch": "armv5te",
+      "machine_arch": "tosa",
+      "package_archs": []
+    },
+    "twr-vf65gs10": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "twr_vf65gs10",
+      "package_archs": []
+    },
+    "tx6q-10x0": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "tx6q_10x0",
+      "package_archs": []
+    },
+    "tx6q-11x0": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "tx6q_11x0",
+      "package_archs": []
+    },
+    "tx6s-8034": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "tx6s_8034",
+      "package_archs": []
+    },
+    "tx6s-8035": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "tx6s_8035",
+      "package_archs": []
+    },
+    "tx6u-8033": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "tx6u_8033",
+      "package_archs": []
+    },
+    "tx6u-80x0": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "tx6u_80x0",
+      "package_archs": []
+    },
+    "tx6u-81x0": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "tx6u_81x0",
+      "package_archs": []
+    },
+    "ventana": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "ventana",
+      "package_archs": []
+    },
+    "ventuno-q": {
+      "feed_arch": "armv8-2a",
+      "machine_arch": "ventuno_q",
+      "package_archs": []
+    },
+    "wandboard": {
+      "feed_arch": "armv7at2hf-neon",
+      "machine_arch": "wandboard",
+      "package_archs": []
+    }
+  },
+  "version": 1
+}
