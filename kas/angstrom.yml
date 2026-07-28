@@ -20,7 +20,7 @@ repos:
     url: https://github.com/openembedded/openembedded-core
     patches:
       kern-tools-conditional-deps:
-        repo: meta-qcom
+        repo: angstrom
         path: patches/oe-core/0001-kern-tools-bump-SRCREV-for-conditional-depends-on-X-.patch
     layers:
       meta:
