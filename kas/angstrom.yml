@@ -43,6 +43,13 @@ repos:
 
   meta-ti:
     url: https://git.yoctoproject.org/git/meta-ti
+    patches:
+      mesa-pvr-glvnd-fix:
+        repo: angstrom
+        path: patches/meta-ti/0001-mesa-pvr-fix-glvnd-PREFERRED_PROVIDER-mismatch-and-.patch
+      sdimage-2part-boot-mountpoint:
+        repo: angstrom
+        path: patches/meta-ti/0002-sdimage-2part.wks-give-the-boot-partition-a-mountpo.patch
     layers:
       meta-ti-bsp:
 

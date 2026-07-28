@@ -1,0 +1,40 @@
+From 5bbb17bfd01b01784ad12b82a3be1d5c1388d972 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Wed, 22 Jul 2026 12:55:45 +0200
+Subject: [PATCH] sdimage-2part.wks: give the boot partition a mountpoint
+
+Adds an explicit /boot mountpoint to the vfat boot partition line;
+previously it had none. Size (128M fixed), label (boot), fstype
+(vfat), alignment, --active and --use-uuid are unchanged; the rootfs
+line is untouched.
+
+This is the plain /boot form, not /boot/EFI. The change-inventory
+catalog for this project also has a variant of this diff using
+/boot/EFI, paired with a not-yet-reapplied meta-angstrom bbclass
+(angstrom-boot-automount) that gives that mountpoint an
+x-systemd.automount entry instead of a synchronous fstab mount. That
+pairing is still parked; this is the standalone mountpoint on its own,
+which just gets a normal synchronous vfat mount via the default wic
+fstab handling -- functional on its own, no automount optimization.
+
+Upstream-Status: Pending
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ meta-ti-bsp/files/wic/sdimage-2part.wks | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meta-ti-bsp/files/wic/sdimage-2part.wks b/meta-ti-bsp/files/wic/sdimage-2part.wks
+index 5073176e..788d06cb 100644
+--- a/meta-ti-bsp/files/wic/sdimage-2part.wks
++++ b/meta-ti-bsp/files/wic/sdimage-2part.wks
+@@ -2,5 +2,5 @@
+ # long-description: Creates a partitioned SD card image for TI platforms.
+ # Boot files are located in the first vfat partition with extra reserved space.
+ 
+-part --source bootimg-partition --fstype=vfat --label boot --active --align 1024 --use-uuid --fixed-size 128M
++part /boot --source bootimg-partition --fstype=vfat --label boot --active --align 1024 --use-uuid --fixed-size 128M
+ part / --source rootfs --fstype=ext4 --label root --align 1024 --use-uuid
+-- 
+2.51.0
+
