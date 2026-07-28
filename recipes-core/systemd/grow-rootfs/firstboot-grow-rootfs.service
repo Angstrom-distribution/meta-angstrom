@@ -1,0 +1,12 @@
+[Unit]
+Description=First boot rootfs grow and filesystem resize (GPT+MBR)
+ConditionPathExists=!/var/lib/firstboot-grow-rootfs.done
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=@SBINDIR@/firstboot-grow-rootfs-auto.sh
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target
