@@ -1,1 +1,3 @@
 enable systemd-growfs-root.service
+disable busybox-syslog.service
+disable busybox-klogd.service
