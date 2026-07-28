@@ -48,11 +48,9 @@ repos:
 
   meta-beagleboard:
     url: https://github.com/koenkooi/meta-beagleboard
-    branch: master
 
   meta-dominion:
     url: https://github.com/koenkooi/meta-dominion
-    branch: master
 
   meta-rockchip:
     url: https://git.yoctoproject.org/git/meta-rockchip
@@ -62,7 +60,6 @@ repos:
 
   meta-qcom-3rdparty:
     url: https://github.com/qualcomm-linux/meta-qcom-3rdparty
-    branch: main
 
   meta-openembedded:
     url: https://github.com/openembedded/meta-openembedded
