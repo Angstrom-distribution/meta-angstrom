@@ -1,0 +1,58 @@
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Tue, 28 Jul 2026 10:00:02 +0200
+Subject: [PATCH 3/3] opkg.py: support data.tar.zst, keep stdout clean
+
+oe-core's default OPKGBUILDCMD has been 'opkg-build -Z zstd' since
+honister, so every modern ipk carries data.tar.zst.  get_file_list()
+only tries data.tar.gz and data.tar.xz, so opkg-make-index -l emits an
+empty Packages.filelist and one "Package ... disappeared on us!"
+warning per package.  Python's tarfile has no zstd support, so pipe the
+member through the zstd tool.
+
+Also send the "Lost field" message from read_control() to stderr:
+without -p the index itself goes to stdout and the stray print corrupts
+it.
+
+Upstream-Status: Pending
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+--- a/opkg.py
++++ b/opkg.py
+@@ -294,7 +294,9 @@
+                 elif all_fields:
+                     self.user_defined_fields[name] = value
+                 else:
+-                    print("Lost field %s, %s" % (name,value))
++                    # keep stdout clean: without -p the index itself goes to
++                    # stdout and a stray print corrupts it
++                    sys.stderr.write("Lost field %s, %s\n" % (name, value))
+                     pass
+ 
+                 if line and line[0] == '\n':
+@@ -440,8 +442,24 @@
+             tarStream = ar.open("data.tar.gz")
+             tarf = tarfile.open("data.tar.gz", "r", tarStream)
+         except IOError:
+-            tarStream = ar.open("data.tar.xz")
+-            tarf = tarfile.open("data.tar.xz", "r:xz", tarStream)
++            try:
++                tarStream = ar.open("data.tar.xz")
++                tarf = tarfile.open("data.tar.xz", "r:xz", tarStream)
++            except IOError:
++                # opkg-build -Z zstd (oe-core's default OPKGBUILDCMD since
++                # honister) produces data.tar.zst; Python's tarfile cannot
++                # read zstd, so decompress via the zstd tool.
++                import io
++                tarStream = ar.open("data.tar.zst")
++                compressed = tarStream.read(tarStream.size)
++                try:
++                    decomp = subprocess.run(["zstd", "-dc"], input=compressed,
++                                            stdout=subprocess.PIPE, check=True)
++                except (OSError, subprocess.CalledProcessError) as e:
++                    raise IOError("cannot decompress data.tar.zst from %s: %s"
++                                  % (self.fn, e))
++                tarf = tarfile.open("data.tar.zst", "r:",
++                                    fileobj=io.BytesIO(decomp.stdout))
+         self.file_list = tarf.getnames()
+         self.file_list = [["./", ""][a.startswith("./")] + a for a in self.file_list]
+ 
