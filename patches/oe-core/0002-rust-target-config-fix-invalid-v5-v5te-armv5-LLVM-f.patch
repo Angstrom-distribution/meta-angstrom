@@ -1,0 +1,64 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Wed, 29 Jul 2026 05:58:00 +0000
+Subject: [PATCH] rust-target-config: fix invalid +v5/+v5te LLVM feature for
+ armv5 tunes
+
+llvm_features_from_tune() emits "+v5te" or "+v5" for armv5-family
+tunes, but LLVM's ARM backend has no such feature names -- only
+"v5t" (confirmed via `rustc --print target-features`). The invalid
+token is silently dropped ("... is not a recognized feature for this
+target (ignoring feature)"), so the generated rust target spec ends
+up with no ARM architecture-version feature at all. Combined with
+"+thumb-mode" (correctly requested since these tunes build with
+-mthumb), LLVM then has no basis to know the target supports Thumb,
+and compiler_builtins' inline `.thumb` asm fails to build:
+
+    error: <inline asm>:5:1: target does not support Thumb mode
+    error: could not compile `compiler_builtins` (lib)
+
+Hit building domoticz-image for an armv5te qemuarm machine (Angstrom's
+kas/qemuarm-armv5te.yml sets DEFAULTTUNE = "armv5te").
+
+The `if 'armv5te' in feat` branch was also dead code: TUNE_FEATURES
+never contains the literal string "armv5te" (see
+conf/machine/include/arm/arch-armv5-dsp.inc) -- only the
+ARMPKGARCH/tune name uses it, TUNE_FEATURES itself is "arm armv5
+thumb dsp". So every armv5-family tune always fell through to the
+"+v5" branch regardless.
+
+Collapse both branches into one that emits the real "+v5t" feature;
+"dsp" is already applied separately a few lines down.
+
+Upstream-Status: Pending
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ meta/classes-recipe/rust-target-config.bbclass | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/meta/classes-recipe/rust-target-config.bbclass b/meta/classes-recipe/rust-target-config.bbclass
+index 1111111..2222222 100644
+--- a/meta/classes-recipe/rust-target-config.bbclass
++++ b/meta/classes-recipe/rust-target-config.bbclass
+@@ -48,12 +48,14 @@ def llvm_features_from_tune(d):
+
+     if ('armv6' in mach_overrides) or ('armv6' in feat):
+         f.append("+v6")
+-    if 'armv5te' in feat:
+-        f.append("+strict-align")
+-        f.append("+v5te")
+-    elif 'armv5' in feat:
++    # LLVM's ARM feature table has no "v5te"/"v5" token, only "v5t"
++    # (verify with `rustc --print target-features`); dsp is handled
++    # separately below. The old 'armv5te' in feat branch was dead code:
++    # TUNE_FEATURES never contains that literal string, only the
++    # ARMPKGARCH/tune name does.
++    if 'armv5' in feat:
+         f.append("+strict-align")
+-        f.append("+v5")
++        f.append("+v5t")
+
+     if ('armv4' in mach_overrides) or ('armv4' in feat):
+         f.append("+strict-align")
+--
+2.43.0

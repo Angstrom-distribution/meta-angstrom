@@ -22,6 +22,15 @@ repos:
       kern-tools-conditional-deps:
         repo: angstrom
         path: patches/oe-core/0001-kern-tools-bump-SRCREV-for-conditional-depends-on-X-.patch
+      rust-target-config-armv5-v5t:
+        repo: angstrom
+        path: patches/oe-core/0002-rust-target-config-fix-invalid-v5-v5te-armv5-LLVM-f.patch
+      rust-target-config-thumb-mode-needs-thumb2:
+        repo: angstrom
+        path: patches/oe-core/0003-rust-target-config-only-request-thumb-mode-with-thu.patch
+      openssh-fzero-call-used-regs-thumb1:
+        repo: angstrom
+        path: patches/oe-core/0004-openssh-disable-fzero-call-used-regs-used-probe-on-.patch
     layers:
       meta:
 

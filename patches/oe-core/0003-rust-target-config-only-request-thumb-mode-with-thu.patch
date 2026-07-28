@@ -1,0 +1,60 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Wed, 29 Jul 2026 09:26:00 +0000
+Subject: [PATCH] rust-target-config: only request +thumb-mode alongside
+ +thumb2
+
+llvm_features_from_tune() adds "+thumb-mode" for any tune with "thumb"
+in TUNE_FEATURES and ARM_THUMB_OPT == "thumb", regardless of whether
+the tune actually has Thumb-2 (+thumb2, gated on target_is_armv7()).
+For a Thumb-1-only tune (armv5t/armv5te: TUNE_FEATURES has "thumb" but
+never "armv7*"), this produces "+v5t,+thumb-mode" without "+thumb2" --
+a combination LLVM's ARM backend does not support for whole-crate
+default-Thumb codegen. compiler_builtins ships inline asm that
+requires Thumb-2 for this, and fails even with a now-valid +v5t
+feature (see the previous patch in this series):
+
+    error: <inline asm>:5:1: target does not support Thumb mode
+    error: could not compile `compiler_builtins` (lib)
+
+rustc's own upstream armv5te-unknown-linux-gnueabi target confirms
+this is expected: it never sets "+thumb-mode" at all and compiles in
+ARM mode (relying on standard ARM/Thumb interworking, which v5TE's
+BLX instruction provides for calls into e.g. glibc's Thumb-mode
+code). Every real rustc target that does set "+thumb-mode" also
+carries "+thumb2"/"+v7" -- there is no upstream target combining
+"+thumb-mode" with a pre-v7 architecture feature.
+
+Move the "+thumb-mode" append inside the target_is_armv7() branch so
+it is only ever requested together with +thumb2, matching upstream
+target definitions. Pre-v7 Thumb-capable tunes (armv5t, armv5te,
+armv6-novfp, ...) now compile Rust in ARM mode, same as their real
+rustc target counterparts.
+
+Upstream-Status: Pending
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ meta/classes-recipe/rust-target-config.bbclass | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/meta/classes-recipe/rust-target-config.bbclass b/meta/classes-recipe/rust-target-config.bbclass
+index 3333333..4444444 100644
+--- a/meta/classes-recipe/rust-target-config.bbclass
++++ b/meta/classes-recipe/rust-target-config.bbclass
+@@ -63,11 +63,13 @@ def llvm_features_from_tune(d):
+     if 'dsp' in feat:
+         f.append("+dsp")
+
+     if 'thumb' in feat:
+         if d.getVar('ARM_THUMB_OPT') == "thumb":
++            # LLVM only supports whole-crate Thumb-mode codegen (needed
++            # by compiler_builtins' inline asm) with Thumb-2 available.
+             if target_is_armv7(d):
+                 f.append('+thumb2')
+-            f.append("+thumb-mode")
++                f.append("+thumb-mode")
+
+     if 'cortexa5' in feat:
+         f.append("+a5")
+--
+2.43.0

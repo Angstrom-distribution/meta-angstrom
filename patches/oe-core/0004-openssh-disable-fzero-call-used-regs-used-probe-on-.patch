@@ -1,0 +1,63 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Wed, 29 Jul 2026 11:20:00 +0000
+Subject: [PATCH] openssh: disable the -fzero-call-used-regs=used probe on
+ Thumb-1-only targets
+
+openssh's own m4/openssh.m4 OSSH_CHECK_CFLAG_LINK probe for
+-fzero-call-used-regs=used cross-compiles a trivial test function to
+check GCC accepts the flag. That test function is too simple to
+trigger GCC's ARM Thumb-1 backend limitation ("sorry, unimplemented:
+argument 'used' is not supported for '-fzero-call-used-regs' on this
+target"), so the cached probe result says the flag is supported --
+but real sources (ssherr.c, bitmap.c, xcrypt.c, sshkey.c) have
+functions complex enough to hit the actual backend limitation and
+fail do_compile.
+
+Hit building openssh for a Thumb-1-only tune (armv5te, no Thumb-2)
+with the domoticz-image target.
+
+This recipe already works around three other cross-compile-probe
+gaps the same way (CACHED_CONFIGUREVARS, see ac_cv_header_bsd_libutil_h
+et al above), and already has an architecture-scoped workaround for a
+related GCC-backend problem (--without-hardening on mips/mips64/
+powerpc64le for a 9.6p1 ICE). Follow the same CACHED_CONFIGUREVARS
+pattern rather than the blunter --without-hardening, which would also
+drop relro/now/noexecstack/fortify/trapv/trivial-auto-var-init --
+all of which build fine on this target, only the zero-call-used-regs
+probe is wrong.
+
+Upstream-Status: Pending
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ meta/recipes-connectivity/openssh/openssh_10.3p1.bb | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/meta/recipes-connectivity/openssh/openssh_10.3p1.bb b/meta/recipes-connectivity/openssh/openssh_10.3p1.bb
+index 7777777..8888888 100644
+--- a/meta/recipes-connectivity/openssh/openssh_10.3p1.bb
++++ b/meta/recipes-connectivity/openssh/openssh_10.3p1.bb
+@@ -98,6 +98,21 @@
+ # We don't want to depend on libblockfile
+ CACHED_CONFIGUREVARS += "ac_cv_header_maillock_h=no"
+ 
++# The -fzero-call-used-regs=used cross-compile probe (OSSH_CHECK_CFLAG_LINK
++# in m4/openssh.m4) uses a test function too simple to trigger GCC's ARM
++# Thumb-1 backend limitation ("sorry, unimplemented: argument 'used' is not
++# supported ... on this target"), which real sources (ssherr.c, bitmap.c,
++# xcrypt.c, sshkey.c) do hit. Force the cached result off for Thumb-1-only
++# (pre-v7) tunes; every other hardening flag stays enabled.
++python () {
++    feat = (d.getVar('TUNE_FEATURES') or '').split()
++    mach_overrides = (d.getVar('MACHINEOVERRIDES') or '').split(':')
++    v7 = ('armv7a', 'armv7r', 'armv7m', 'armv7ve')
++    is_armv7 = any(x in v7 for x in feat) or any(x in v7 for x in mach_overrides)
++    if 'thumb' in feat and not is_armv7:
++        d.appendVar('CACHED_CONFIGUREVARS', ' ossh_cv_cflag__fzero_call_used_regs_used=no')
++}
++
+ # This allows overriding the key location
+ OPENSSH_HOST_KEY_DIR_READONLY_CONFIG ?= "${localstatedir}/run/ssh"
+ OPENSSH_HOST_KEY_DIR ?= "${sysconfdir}/ssh"
+--
+2.43.0
