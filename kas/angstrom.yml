@@ -59,6 +59,9 @@ repos:
   meta-dominion:
     url: https://github.com/koenkooi/meta-dominion
 
+  meta-kodi:
+    url: https://github.com/koenkooi/meta-kodi/
+
   meta-rockchip:
     url: https://git.yoctoproject.org/git/meta-rockchip
 
@@ -67,6 +70,9 @@ repos:
 
   meta-qcom-3rdparty:
     url: https://github.com/qualcomm-linux/meta-qcom-3rdparty
+
+  meta-ai:
+    url: https://github.com/qualcomm-linux/meta-ai
 
   meta-openembedded:
     url: https://github.com/openembedded/meta-openembedded
@@ -85,10 +91,43 @@ repos:
   meta-sdr:
     url: https://github.com/balister/meta-sdr.git
     branch: master
+    commit: 563727209e5d8c7cdebc35157bab4dc07e8fb235
 
   meta-qt5:
-    url: https://github.com/meta-qt5/meta-qt5.git 
+    url: https://github.com/meta-qt5/meta-qt5.git
     branch: master
+    commit: 25a900694852c40e0f7adea97837feaa1a4ccecf
+
+  meta-sunxi:
+    url: https://github.com/linux-sunxi/meta-sunxi
+    branch: master
+    commit: cc1b1b09f53b9c82bba0629a44e3262356f348d4
+
+  meta-meson:
+    url: https://github.com/superna9999/meta-meson
+    # No wrynose branch upstream yet -- pinned commit. LAYERSERIES_COMPAT
+    # patched to add wrynose (patch 0002); the nocrypto tune fix (0001) is
+    # what makes libretech-ac (La Frite) safe to build for real.
+    branch: master
+    commit: bc4bced07a532742b6dc5eb1de4897673ffb5576
+    patches:
+      libretech-ac-honour-nocrypto-tune:
+        repo: angstrom
+        path: patches/meta-meson/0001-libretech-ac.conf-honour-the-cortexa53-nocrypto-tune.patch
+      layerseries-compat-wrynose:
+        repo: angstrom
+        path: patches/meta-meson/0002-layer.conf-add-wrynose-to-LAYERSERIES_COMPAT.patch
+      machine-features-opted-out-rename:
+        repo: angstrom
+        path: patches/meta-meson/0003-amlogic-meson64.inc-rename-MACHINE_FEATURES_BACKFILL.patch
+
+  meta-java:
+    url: https://github.com/koenkooi/meta-java
+    # openjdk-8-native, for the Kodi SWIG/Groovy interface codegen step.
+
+  meta-riscv:
+    url: https://github.com/riscv/meta-riscv
+    branch: wrynose
 
   meta-virtualization:
     url: https://git.yoctoproject.org/git/meta-virtualization
