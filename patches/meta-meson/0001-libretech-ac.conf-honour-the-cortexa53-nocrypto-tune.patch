@@ -1,0 +1,42 @@
+From 0463fee3d8dd49832cc2e1405e54560c3ac695f4 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Sun, 2 Aug 2026 09:57:42 +0200
+Subject: [PATCH] libretech-ac.conf: honour the cortexa53-nocrypto tune
+
+S805X is Amlogic GXL (Cortex-A53) without the ARMv8 crypto extensions,
+same silicon gap as BCM2837. amlogic-s905x.inc pulls in
+tune-cortexa53.inc, which defaults DEFAULTTUNE to plain "cortexa53"
+(crypto-capable codegen) before this file gets a chance to say
+otherwise. Claim cortexa53-nocrypto here first, matching how
+meta-raspberrypi's raspberrypi3-64.conf handles the same situation for
+BCM2837 -- a downstream distro that forces a -crypto tune onto
+whatever TUNE_FEATURES implies (Angstrom's arm_tune_handler does
+exactly this) would otherwise put SIGILL-triggering AES/SHA
+instructions into every binary on real hardware.
+
+Upstream-Status: Pending
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ conf/machine/libretech-ac.conf | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/conf/machine/libretech-ac.conf b/conf/machine/libretech-ac.conf
+index 0c39d05..6815bdc 100644
+--- a/conf/machine/libretech-ac.conf
++++ b/conf/machine/libretech-ac.conf
+@@ -2,6 +2,11 @@
+ #@NAME: LibreTech AC (AML-S805X-AC La Frite) machine
+ #@DESCRIPTION: Machine configuration for USB bootable image
+ 
++# S805X (Amlogic GXL) has no ARMv8 crypto extensions; claim the -nocrypto
++# tune before tune-cortexa53.inc's own default runs, same pattern as
++# meta-raspberrypi's raspberrypi3-64.conf (BCM2837, same silicon gap).
++DEFAULTTUNE ?= "cortexa53-nocrypto"
++
+ require conf/machine/include/amlogic-s905x.inc
+ require conf/machine/include/libretech-ac-dtb.inc
+ require conf/machine/include/amlogic-modern-boot.inc
+-- 
+2.51.0
+

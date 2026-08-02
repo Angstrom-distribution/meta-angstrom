@@ -1,0 +1,34 @@
+From 2b3000c735979e38ecdfd52e55b8fa8584f2f5eb Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Mon, 3 Aug 2026 00:18:03 +0200
+Subject: [PATCH] layer.conf: add wic/ to WKS_SEARCH_PATH
+
+The layer's .wks files (sdimage-meson.wks, sdimage-bootpart-meson.wks)
+live under wic/, not the files/wic/ convention that
+image_types_wic.bbclass's default WKS_SEARCH_PATH actually searches.
+Every other layer in this build follows files/wic/; append this
+layer's own directory rather than relocating the files.
+
+Fixes do_image_wic failing with "No kickstart files from WKS_FILES
+were found" on libretech-ac.
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ conf/layer.conf | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/conf/layer.conf b/conf/layer.conf
+index 1eac962..90a1c3a 100644
+--- a/conf/layer.conf
++++ b/conf/layer.conf
+@@ -14,3 +14,7 @@ LAYERSERIES_COMPAT_meson = "walnascar whinlatter wrynose"
+ LAYERVERSION_meson = "1"
+ 
+ LAYERDEPENDS_meson = "core"
++
++# This layer's .wks files live in wic/, not the files/wic/ convention the
++# default WKS_SEARCH_PATH (image_types_wic.bbclass) actually searches.
++WKS_SEARCH_PATH:append = ":${LAYERDIR}/wic"
+-- 
+2.51.0
+

@@ -120,6 +120,12 @@ repos:
       machine-features-opted-out-rename:
         repo: angstrom
         path: patches/meta-meson/0003-amlogic-meson64.inc-rename-MACHINE_FEATURES_BACKFILL.patch
+      amlogic-boot-fip-qemu-native-depends:
+        repo: angstrom
+        path: patches/meta-meson/0004-amlogic-boot-fip-add-missing-qemu-native-DEPENDS.patch
+      wks-search-path-wic-dir:
+        repo: angstrom
+        path: patches/meta-meson/0005-layer.conf-add-wic-to-WKS_SEARCH_PATH.patch
 
   meta-java:
     url: https://github.com/koenkooi/meta-java

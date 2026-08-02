@@ -1,0 +1,35 @@
+From 9ee68ed82982c1e10fe0ec704ee853a3a4ca21e8 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Mon, 3 Aug 2026 00:00:59 +0200
+Subject: [PATCH] amlogic-boot-fip: add missing qemu-native DEPENDS
+
+The recipe's build-fip.sh invokes a prebuilt x86_64-only Amlogic
+signing tool (aml_encrypt_gxl) via qemu-x86_64 user-mode emulation on
+non-x86_64 build hosts. qemu-native provides that binary but was
+never added to DEPENDS, so it isn't guaranteed to be staged before
+do_compile runs.
+
+Fixes libretech-ac console-container-image build failure:
+"make: qemu-x86_64: No such file or directory"
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ recipes-bsp/trusted-firmware-a/amlogic-boot-fip.bb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/recipes-bsp/trusted-firmware-a/amlogic-boot-fip.bb b/recipes-bsp/trusted-firmware-a/amlogic-boot-fip.bb
+index 66d4674..4c0f957 100644
+--- a/recipes-bsp/trusted-firmware-a/amlogic-boot-fip.bb
++++ b/recipes-bsp/trusted-firmware-a/amlogic-boot-fip.bb
+@@ -3,7 +3,7 @@ PROVIDES = "virtual/trusted-firmware-a"
+ 
+ LICENSE = "Proprietary"
+ 
+-DEPENDS = "u-boot python3-native"
++DEPENDS = "u-boot python3-native qemu-native"
+ 
+ # TOFIX only build on x86_64 host
+ 
+-- 
+2.51.0
+
