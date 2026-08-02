@@ -5,8 +5,3 @@ header:
 
 machine: beaglev-ahead
 
-repos:
-  meta-riscv:
-    url: https://github.com/riscv/meta-riscv
-    branch: wrynose
-
