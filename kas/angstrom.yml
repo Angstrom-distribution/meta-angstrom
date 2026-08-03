@@ -101,7 +101,7 @@ repos:
   meta-sunxi:
     url: https://github.com/linux-sunxi/meta-sunxi
     branch: master
-    commit: cc1b1b09f53b9c82bba0629a44e3262356f348d4
+    commit: e035da43a1f5ae4782a90078875826ea64401a3e
 
   meta-meson:
     url: https://github.com/superna9999/meta-meson
