@@ -155,6 +155,23 @@ local_conf_header:
       HALT,/tmp,10M,1K"
   virtualization:
     SKIP_META_VIRT_SANITY_CHECK = "1"
+  sbom-cve-check: |
+    # Same effect as OE_FRAGMENTS += "core/yocto/sbom-cve-check"
+    # (meta/conf/fragments/yocto/sbom-cve-check.conf), applied directly
+    # instead of via the fragment: the fragment's own SRCREV:pn-...
+    # assignments are parsed as part of including the fragment file from
+    # within bitbake.conf, which happens AFTER local.conf is evaluated --
+    # so a pin placed here to override AUTOREV loses to the fragment's own
+    # later-parsed assignment if OE_FRAGMENTS is used. Pinned (not
+    # AUTOREV) so builds are reproducible and don't re-check network on
+    # every invocation; bump deliberately, not automatically, to pull in
+    # newer CVE data.
+    INHERIT += "create-spdx"
+    IMAGE_CLASSES:append = " sbom-cve-check"
+    SRCREV:pn-sbom-cve-check-update-nvd-native = "1e9614fe4a213c845b2845a7f191a1e1c990468d"
+    SRCREV:pn-sbom-cve-check-update-cvelist-native = "44014a83baa236e80162c7cb840158a0108da285"
+    SPDX_INCLUDE_VEX = "all"
+    SPDX_INCLUDE_COMPILED_SOURCES:pn-linux-yocto = "1"
 
 machine: unset
 
