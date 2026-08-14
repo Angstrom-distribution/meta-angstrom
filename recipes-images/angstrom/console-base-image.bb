@@ -50,6 +50,7 @@ LLDP=yes
 EmitLLDP=yes
 
 [DHCPv4]
+UseTimezone=yes
 RouteMetric=10
 
 [IPv6AcceptRA]
@@ -69,6 +70,7 @@ LLDP=yes
 EmitLLDP=yes
 
 [DHCPv4]
+UseTimezone=yes
 RouteMetric=10
 
 [IPv6AcceptRA]
@@ -88,6 +90,7 @@ LLDP=yes
 EmitLLDP=yes
 
 [DHCPv4]
+UseTimezone=yes
 RouteMetric=100
 
 [IPv6AcceptRA]

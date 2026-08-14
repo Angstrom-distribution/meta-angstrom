@@ -1,0 +1,15 @@
+[Match]
+Type=wlan
+KernelCommandLine=!nfsroot
+KernelCommandLine=!ip
+
+[Network]
+DHCP=yes
+
+[DHCP]
+UseMTU=yes
+RouteMetric=20
+ClientIdentifier=mac
+
+[DHCPv4]
+UseTimezone=yes
