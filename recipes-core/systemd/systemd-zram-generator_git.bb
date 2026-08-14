@@ -126,7 +126,7 @@ do_compile() {
 	# Work around panic = "abort" errors, see https://github.com/meta-rust/meta-rust/issues/343
 	sed -i /panic/d Cargo.toml
 	export RUSTFLAGS="${RUSTFLAGS}"
-	oe_runmake build NOMAN=true CARGO="${CARGO}" CARGOFLAGS="${CARGO_BUILD_FLAGS}" BUILDTYPE="OpenEmbedded"
+	oe_runmake build NOMAN=true CARGO="${CARGO}" CARGOFLAGS="${CARGO_BUILD_FLAGS}" BUILDTYPE="release"
 }
 
 do_install() {
