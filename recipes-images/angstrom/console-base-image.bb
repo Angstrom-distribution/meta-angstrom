@@ -15,7 +15,7 @@ IMAGE_FEATURES += "empty-root-password allow-empty-password"
 IMAGE_FEATURES += "package-management nfs-client ssh-server-openssh"
 
 CORE_IMAGE_EXTRA_INSTALL += " \
-	${ROOTFS_PKGMANAGE_PKGS} angstrom-feed-configs \
+	${ROOTFS_PKGMANAGE_PKGS} ${DISTROFEEDCONFIGS} \
 	systemd-networkd systemd-analyze udev-hwdb systemd-zram-generator \
 	tzdata cronie \
         bash \
