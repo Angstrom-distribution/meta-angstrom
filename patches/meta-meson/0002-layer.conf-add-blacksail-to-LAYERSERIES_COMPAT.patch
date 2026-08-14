@@ -1,0 +1,30 @@
+From c6fd72aa73e9e2925aeb98781b35d00997c4d838 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Sun, 2 Aug 2026 10:20:49 +0200
+Subject: [PATCH] layer.conf: add blacksail to LAYERSERIES_COMPAT
+
+Nothing in this layer uses anything removed or renamed since walnascar,
+so blacksail needs no functional change beyond the declaration.
+
+Upstream-Status: Pending
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ conf/layer.conf | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/conf/layer.conf b/conf/layer.conf
+index d40306c..1eac962 100644
+--- a/conf/layer.conf
++++ b/conf/layer.conf
+@@ -7,7 +7,7 @@ BBFILES += "${LAYERDIR}/recipes-*/*/*.bb ${LAYERDIR}/recipes-*/*/*.bbappend"
+ BBFILE_COLLECTIONS += "meson"
+ BBFILE_PATTERN_meson = "^${LAYERDIR}/"
+ BBFILE_PRIORITY_meson = "1"
+-LAYERSERIES_COMPAT_meson = "walnascar whinlatter"
++LAYERSERIES_COMPAT_meson = "walnascar whinlatter blacksail"
+ 
+ # This should only be incremented on significant changes that will
+ # cause compatibility issues with other layers
+--
+2.51.0

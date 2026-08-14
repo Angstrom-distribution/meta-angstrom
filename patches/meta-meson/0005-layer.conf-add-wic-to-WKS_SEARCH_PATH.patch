@@ -1,0 +1,42 @@
+From 2b3000c735979e38ecdfd52e55b8fa8584f2f5eb Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Mon, 3 Aug 2026 00:18:03 +0200
+Subject: [PATCH] layer.conf: add wic/ to WKS_SEARCH_PATH
+
+The layer's .wks files (sdimage-meson.wks, sdimage-bootpart-meson.wks)
+live under wic/, not the files/wic/ convention image_types_wic.bbclass
+searches by default; append this layer's own directory rather than
+relocating them.
+
+Seeding that default first is required: bitbake treats a variable that
+has had any operator applied -- :append included -- as already set, so a
+bare append here silently no-ops image_types_wic.bbclass's own weak
+default for every image in the build, e.g. beaglebone would stop finding
+meta-ti-bsp/files/wic/sdimage-2part.wks.
+
+Fixes do_image_wic failing with "No kickstart files from WKS_FILES
+were found" on libretech-ac.
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ conf/layer.conf | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/conf/layer.conf b/conf/layer.conf
+index 1eac962..b1c2d7e 100644
+--- a/conf/layer.conf
++++ b/conf/layer.conf
+@@ -14,3 +14,11 @@ LAYERSERIES_COMPAT_meson = "walnascar whinlatter wrynose"
+ LAYERVERSION_meson = "1"
+
+ LAYERDEPENDS_meson = "core"
++
++# Seed the default image_types_wic.bbclass sets via "?=" (each layer's own
++# files/wic/ dir, via BBPATH): the :append below makes bitbake treat
++# WKS_SEARCH_PATH as already set, defeating that weak default for every
++# image in the build, not just meson's.
++WKS_SEARCH_PATH ?= "${THISDIR}:${@':'.join('%s/files/wic' % p for p in '${BBPATH}'.split(':'))}"
++# This layer's .wks files live in wic/, not the files/wic/ convention above.
++WKS_SEARCH_PATH:append = ":${LAYERDIR}/wic"
+--
+2.51.0

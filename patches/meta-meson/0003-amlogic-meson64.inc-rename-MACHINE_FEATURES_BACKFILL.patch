@@ -1,0 +1,34 @@
+From cd7ef8823162ef76dc0575bfa64599cf1476c123 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Sun, 2 Aug 2026 10:34:06 +0200
+Subject: [PATCH] amlogic-meson64.inc: rename
+ MACHINE_FEATURES_BACKFILL_CONSIDERED
+
+Renamed upstream to MACHINE_FEATURES_OPTED_OUT (oe-core bitbake.conf's
+BB_RENAMED_VARIABLES table); the old name is a hard parse error, so no
+machine using this include -- every Amlogic Meson64 board -- parses at
+all on current oe-core.
+
+Upstream-Status: Pending
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ conf/machine/include/amlogic-meson64.inc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/conf/machine/include/amlogic-meson64.inc b/conf/machine/include/amlogic-meson64.inc
+index 78d195a..0d94416 100644
+--- a/conf/machine/include/amlogic-meson64.inc
++++ b/conf/machine/include/amlogic-meson64.inc
+@@ -2,7 +2,7 @@
+ 
+ require conf/machine/include/amlogic-meson.inc
+ 
+-MACHINE_FEATURES_BACKFILL_CONSIDERED = "rtc"
++MACHINE_FEATURES_OPTED_OUT = "rtc"
+ 
+ SOC_FAMILY = "amlogic:meson-gx"
+ require conf/machine/include/soc-family.inc
+-- 
+2.51.0
+
