@@ -1,0 +1,65 @@
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Tue, 28 Jul 2026 10:00:01 +0200
+Subject: [PATCH 2/3] opkg-make-index: survive corrupt packages and stamp
+ files
+
+A truncated or corrupt .ipk aborts the whole index run: the ar magic
+check in arfile.py is a bare assert (AssertionError), tarfile raises
+tarfile.ReadError and garbage ar headers raise ValueError - none of
+which are caught by the existing OSError/IOError handlers.  Catch them
+per file, skip the package (and morgue it with -m) so one bad file
+cannot wedge feed publishing.
+
+Likewise a truncated Packages.stamps file raised ValueError from
+split()/int(); treat it as absent, and write the new stamps file
+atomically (tmp + rename) so an interrupted run cannot corrupt it.
+
+Upstream-Status: Pending
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+--- a/opkg-make-index
++++ b/opkg-make-index
+@@ -12,6 +12,7 @@
+ import posixpath
+ import re
+ import subprocess
++import tarfile
+ 
+ import opkg
+ 
+@@ -94,8 +95,9 @@
+                     line = line.strip()
+                     stamp, filename = line.split(" ", 1)
+                     pkgs_stamps[filename] = int(stamp)
+-        except IOError:
+-            pass
++        except (IOError, ValueError):
++            # a corrupt stamps file only costs a full re-read
++            pkgs_stamps = {}
+ 
+     if verbose:
+         sys.stderr.write("Reading in all the package info from %s\n" % (pkg_dir, ))
+@@ -166,11 +168,22 @@
+         except IOError as ex:
+             sys.stderr.write("Package %s disappeared on us!\n(%s)\n" % (filename, ex))
+             continue
++        except (tarfile.TarError, AssertionError, ValueError, KeyError) as ex:
++            # Truncated or otherwise corrupt package: skip it instead of
++            # aborting the whole index run (tarfile.ReadError, the ar magic
++            # assertion in arfile.py and int() on garbage ar headers are not
++            # OSError/IOError).  With -m, move it out of the feed.
++            sys.stderr.write("Package %s is corrupt, skipping!\n(%s)\n" % (filename, ex))
++            if opt_m:
++                to_morgue(filename, pkg_dir, verbose)
++            continue
+ 
+-    pkgs_stamps_file = open(stamplist_filename, "w")
++    tmp_stamplist_filename = ("%s.%d" % (stamplist_filename, os.getpid()))
++    pkgs_stamps_file = open(tmp_stamplist_filename, "w")
+     for filename in list(pkgs_stamps.keys()):
+         pkgs_stamps_file.write("%d %s\n" % (pkgs_stamps[filename], filename))
+     pkgs_stamps_file.close()
++    os.rename(tmp_stamplist_filename, stamplist_filename)
+ 
+     if opt_s:
+         sys.exit(0)
