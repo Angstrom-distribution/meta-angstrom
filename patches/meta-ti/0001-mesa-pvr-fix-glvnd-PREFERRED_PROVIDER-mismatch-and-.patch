@@ -1,0 +1,54 @@
+From e754416f722adecfc70a3372ad118277210b0baf Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Wed, 22 Jul 2026 12:47:44 +0200
+Subject: [PATCH] mesa-pvr: fix glvnd PREFERRED_PROVIDER mismatch
+
+mesa-pvr.inc unconditionally pins PREFERRED_PROVIDER_virtual/{libgl,
+egl,libgles1,libgles2,libgles3} to mesa-pvr, but mesa-pvr withdraws
+exactly those PROVIDES whenever its own 'glvnd' PACKAGECONFIG is active
+(auto-enabled by 'glvnd' in DISTRO_FEATURES) and defers to libglvnd --
+glvnd-vendor mode and being the direct provider of those virtuals are
+mutually exclusive by design. The pin then names a package that no
+longer provides them while libglvnd is skipped for losing the
+preference: "Nothing PROVIDES 'libglvnd'" for anything pulling in
+virtual/egl et al. Make those lines follow mesa-pvr's own
+glvnd-awareness instead of fighting it.
+
+Verified: gstreamer1.0-plugins-bad builds clean for beaglebone with
+this fix applied and no other workaround.
+
+Upstream-Status: Pending
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ meta-ti-bsp/conf/machine/include/mesa-pvr.inc | 18 +++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/meta-ti-bsp/conf/machine/include/mesa-pvr.inc b/meta-ti-bsp/conf/machine/include/mesa-pvr.inc
+index d5581315..10f441f4 100644
+--- a/meta-ti-bsp/conf/machine/include/mesa-pvr.inc
++++ b/meta-ti-bsp/conf/machine/include/mesa-pvr.inc
+@@ -1,8 +1,16 @@
++# mesa-pvr withdraws virtual/libgl, virtual/libgles1-3 and virtual/egl from
++# its own PROVIDES whenever its 'glvnd' PACKAGECONFIG is enabled (which
++# 'glvnd' in DISTRO_FEATURES does), deferring to libglvnd -- the two modes
++# are mutually exclusive by design. Pinning these unconditionally to
++# mesa-pvr points the preference at a package that no longer provides them
++# while libglvnd is skipped for losing it: "Nothing PROVIDES virtual/egl".
++DEFAULT_MESA_GL_PROVIDER ?= "${@bb.utils.contains('DISTRO_FEATURES', 'glvnd', 'libglvnd', 'mesa-pvr', d)}"
++
+ PREFERRED_PROVIDER_virtual/mesa ?= "mesa-pvr"
+-PREFERRED_PROVIDER_virtual/egl ?= "mesa-pvr"
+-PREFERRED_PROVIDER_virtual/libgles1 ?= "mesa-pvr"
+-PREFERRED_PROVIDER_virtual/libgles2 ?= "mesa-pvr"
+-PREFERRED_PROVIDER_virtual/libgles3 ?= "mesa-pvr"
++PREFERRED_PROVIDER_virtual/egl ?= "${DEFAULT_MESA_GL_PROVIDER}"
++PREFERRED_PROVIDER_virtual/libgles1 ?= "${DEFAULT_MESA_GL_PROVIDER}"
++PREFERRED_PROVIDER_virtual/libgles2 ?= "${DEFAULT_MESA_GL_PROVIDER}"
++PREFERRED_PROVIDER_virtual/libgles3 ?= "${DEFAULT_MESA_GL_PROVIDER}"
+ PREFERRED_PROVIDER_virtual/libgbm ?= "mesa-pvr"
+ PREFERRED_PROVIDER_virtual/libglx ?= "mesa-pvr"
+-PREFERRED_PROVIDER_virtual/libgl ?= "mesa-pvr"
++PREFERRED_PROVIDER_virtual/libgl ?= "${DEFAULT_MESA_GL_PROVIDER}"
+--
+2.51.0
