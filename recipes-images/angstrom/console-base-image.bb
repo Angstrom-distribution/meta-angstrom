@@ -9,7 +9,11 @@ DISTRO_UPDATE_ALTERNATIVES ??= ""
 ROOTFS_PKGMANAGE_PKGS ?= '${@oe.utils.conditional("ONLINE_PACKAGE_MANAGEMENT", "none", "", "${ROOTFS_PKGMANAGE} ${DISTRO_UPDATE_ALTERNATIVES}", d)}'
 
 # Debug features, disable if wanted
-IMAGE_FEATURES += "empty-root-password allow-empty-password"
+# allow-empty-password (PermitEmptyPasswords yes) is left out on purpose: with
+# UsePAM it turns every ssh 'none' auth probe into an empty-password PAM
+# attempt, adding pam_unix's fail delay to each login. Root's blank password
+# stays usable on the console, ssh needs a key.
+IMAGE_FEATURES += "empty-root-password"
 
 # Debug tools, leave in
 IMAGE_FEATURES += "package-management nfs-client ssh-server-openssh"
