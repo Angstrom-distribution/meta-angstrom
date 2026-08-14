@@ -43,6 +43,11 @@ repos:
   meta-dominion:
     url: https://github.com/koenkooi/meta-dominion
 
+  meta-sdr:
+    url: https://github.com/balister/meta-sdr.git
+    branch: master
+    commit: 563727209e5d8c7cdebc35157bab4dc07e8fb235
+
   meta-openembedded:
     url: https://github.com/openembedded/meta-openembedded
     layers:
