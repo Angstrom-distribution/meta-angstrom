@@ -43,6 +43,15 @@ repos:
   meta-dominion:
     url: https://github.com/koenkooi/meta-dominion
 
+  meta-kodi:
+    url: https://github.com/koenkooi/meta-kodi/
+    branch: master
+
+  meta-java:
+    url: https://github.com/koenkooi/meta-java
+    branch: master
+    # openjdk-8-native, for the Kodi SWIG/Groovy interface codegen step.
+
   meta-sdr:
     url: https://github.com/balister/meta-sdr.git
     branch: master
@@ -96,6 +105,7 @@ repos:
     url: https://github.com/openembedded/meta-openembedded
     layers:
       meta-filesystems:
+      meta-multimedia:
       meta-networking:
       meta-oe:
       meta-python:
