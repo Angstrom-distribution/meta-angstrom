@@ -51,9 +51,19 @@ repos:
   meta-openembedded:
     url: https://github.com/openembedded/meta-openembedded
     layers:
+      meta-filesystems:
       meta-networking:
       meta-oe:
       meta-python:
+
+  meta-qt5:
+    url: https://github.com/meta-qt5/meta-qt5.git
+    branch: master
+    commit: 25a900694852c40e0f7adea97837feaa1a4ccecf
+    patches:
+      qtchooser-license-expr-fix:
+        repo: angstrom
+        path: patches/meta-qt5/0001-qtchooser-fix-ambiguous-LICENSE-expression-syntax.patch
 
 local_conf_header:
   base: |

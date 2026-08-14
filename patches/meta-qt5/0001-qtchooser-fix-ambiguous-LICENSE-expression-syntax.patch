@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000001 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Fri, 14 Aug 2026 06:28:43 +0000
+Subject: [PATCH] qtchooser: fix invalid LICENSE expression syntax
+
+oe-core master parses LICENSE as a real SPDX expression, which rejects
+the "&"/"|" shorthand: mixed AND/OR carries no grouping, and the Digia
+exception attaches to LGPL-2.1-only with WITH, not AND. Verified against
+oe.spdx_license.parse() -- WITH binds tighter than OR, so no parentheses
+are needed.
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+Assisted-by: Claude:claude-sonnet-5
+---
+ recipes-qt/qtchooser/qtchooser_git.bb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/recipes-qt/qtchooser/qtchooser_git.bb b/recipes-qt/qtchooser/qtchooser_git.bb
+index f1d0aa1..3a1c9e2 100644
+--- a/recipes-qt/qtchooser/qtchooser_git.bb
++++ b/recipes-qt/qtchooser/qtchooser_git.bb
+@@ -1,6 +1,6 @@
+ DESCRIPTION = "Wrapper to select between Qt development binary versions"
+ HOMEPAGE = "http://macieira.org/qtchooser"
+-LICENSE = "LGPL-2.1-only & Digia-Qt-LGPL-Exception-1.1 | GPL-3.0-only"
++LICENSE = "LGPL-2.1-only WITH Digia-Qt-LGPL-Exception-1.1 OR GPL-3.0-only"
+ SRC_URI = "git://code.qt.io/qtsdk/qtchooser.git;branch=master"
+
+ LIC_FILES_CHKSUM = " \
+--
+2.51.0
