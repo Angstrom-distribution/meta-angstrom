@@ -48,6 +48,29 @@ repos:
     branch: master
     commit: 563727209e5d8c7cdebc35157bab4dc07e8fb235
 
+  meta-virtualization:
+    url: https://git.yoctoproject.org/git/meta-virtualization
+
+  meta-ai:
+    url: https://github.com/qualcomm-linux/meta-ai
+    branch: main
+
+  meta-qcom:
+    url: https://github.com/qualcomm-linux/meta-qcom
+
+  meta-qcom-3rdparty:
+    url: https://github.com/qualcomm-linux/meta-qcom-3rdparty
+    branch: main
+
+  meta-riscv:
+    url: https://github.com/riscv/meta-riscv
+    branch: master
+
+  meta-sunxi:
+    url: https://github.com/linux-sunxi/meta-sunxi
+    branch: master
+    commit: e035da43a1f5ae4782a90078875826ea64401a3e
+
   meta-openembedded:
     url: https://github.com/openembedded/meta-openembedded
     layers:
