@@ -3,10 +3,11 @@ SRC_URI:append:angstrom = "\
                            file://journald.conf \
                            file://zram-generator.conf \
                            file://rc-local.service \
+			   file://10-angstrom.preset \
 "
 
-# Enable hardware watchdog, set it to 5 minutes
-WATCHDOG_RUNTIME_SEC = "300"
+# Enable hardware watchdog, set it to 30 seconds
+WATCHDOG_RUNTIME_SEC = "30"
 
 do_install:append:angstrom() {
 	# This disables the 'mac' policy for pni-names
@@ -22,5 +23,9 @@ do_install:append:angstrom() {
 
 	# enable ZRAM
 	install -m 0644 ${UNPACKDIR}/zram-generator.conf ${D}${sysconfdir}/systemd/
+
+	# install DISTRO presets
+	install -d ${D}${systemd_unitdir}/system-preset
+	install -m 0644 ${UNPACKDIR}/10-angstrom.preset ${D}${systemd_unitdir}/system-preset
 }
 
