@@ -25,7 +25,7 @@ CORE_IMAGE_EXTRA_INSTALL += " \
         vim \
         git \
 	kernel-modules \
-        util-linux-fstrim util-linux-blkdiscard \
+        util-linux-fstrim util-linux-blkdiscard fstrim-timer \
         e2fsprogs-resize2fs \
         htop \
         usb-modeswitch \
