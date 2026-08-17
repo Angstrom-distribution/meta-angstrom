@@ -1,0 +1,39 @@
+From 22ed3f7c85aeb2aaaab0e8164c4e439cc605373b Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Mon, 17 Aug 2026 06:12:22 +0000
+Subject: [PATCH] Makefile: link -latomic for archs lacking hardware atomics
+
+armv5e has no hardware 8-byte atomic load/store (needs ARMv7+ LDREXD/STREXD);
+GCC provides the libatomic fallback but nothing here links it. Appended to
+LIBS (not LDFLAGS -- the fio: link rule is "$(CC) $(LDFLAGS) -o $@
+$(FIO_OBJS) $(LIBS)", LDFLAGS lands before the objects that need
+__atomic_store_8/__atomic_load_8 so the linker never resolves against it
+there). Confirmed live building fio for qemuarmv5 (2026-08-17): fixes the
+main fio binary without touching t/fio-genzipf/t/fio-dedupe, which already
+linked fine and must keep their own -lm/-lz.
+
+Upstream-Status: Pending
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ Makefile | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index 0337e8fe..1b04f089 100644
+--- a/Makefile
++++ b/Makefile
+@@ -17,6 +17,10 @@ config-host.mak: configure
+ 
+ ifneq ($(MAKECMDGOALS),clean)
+ include config-host.mak
++
++# armv5e (and other archs lacking hardware 8-byte atomics) need libatomic
++# for __atomic_store_8/__atomic_load_8 -- not linked automatically.
++LIBS += -latomic
+ endif
+ 
+ DEBUGFLAGS = -DFIO_INC_DEBUG
+-- 
+2.47.3
+
