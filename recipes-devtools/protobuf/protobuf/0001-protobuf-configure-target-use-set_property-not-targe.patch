@@ -1,0 +1,47 @@
+From 8df952cb6807ba6e3cae07b6b0f317a27575af10 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Mon, 17 Aug 2026 06:17:31 +0000
+Subject: [PATCH] protobuf-configure-target: use set_property, not
+ target_link_libraries
+
+protobuf_configure_target(target) hardcoded target_link_libraries(libprotobuf
+...) inside its protobuf_LINK_LIBATOMIC branch instead of using its own
+${target} parameter -- only reached on platforms lacking hardware 64-bit
+atomics (protobuf_HAVE_BUILTIN_ATOMICS fails), e.g. armv5e.
+
+Fixing the target name alone (target_link_libraries(${target} PRIVATE
+atomic)) surfaces a second, cascading upstream inconsistency: some callers
+of protobuf_configure_target (protoc-gen-upb, protoc-gen-upbdefs,
+protoc-gen-upb_minitable via cmake/upb_generators.cmake) already call
+target_link_libraries on themselves using the plain (non-keyword) signature
+elsewhere, and CMake hard-errors on mixing keyword (PRIVATE/PUBLIC) and
+plain target_link_libraries calls for the same target ('All uses of
+target_link_libraries with a target must be either all-keyword or
+all-plain'). set_property(TARGET ... APPEND PROPERTY LINK_LIBRARIES ...)
+achieves the same effect (appending atomic to the target's link
+libraries) without that signature-consistency restriction. Confirmed live
+building protobuf for qemuarmv5 (2026-08-17).
+
+Upstream-Status: Pending
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ cmake/protobuf-configure-target.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmake/protobuf-configure-target.cmake b/cmake/protobuf-configure-target.cmake
+index c67c570565..6049612aeb 100644
+--- a/cmake/protobuf-configure-target.cmake
++++ b/cmake/protobuf-configure-target.cmake
+@@ -8,7 +8,7 @@
+ # Refactors configuration options set on all Protobuf targets
+ function(protobuf_configure_target target)
+     if(protobuf_LINK_LIBATOMIC)
+-        target_link_libraries(libprotobuf PRIVATE atomic)
++        set_property(TARGET ${target} APPEND PROPERTY LINK_LIBRARIES atomic)
+     endif()
+ 
+     target_compile_features("${target}" PUBLIC cxx_std_17)
+-- 
+2.47.3
+
