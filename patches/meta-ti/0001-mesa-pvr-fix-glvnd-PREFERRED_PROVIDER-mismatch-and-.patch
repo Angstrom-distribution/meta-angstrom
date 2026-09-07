@@ -1,47 +1,33 @@
-From e754416f722adecfc70a3372ad118277210b0baf Mon Sep 17 00:00:00 2001
+From a4dcc7f5baee0b081e5770e94b846099786739f5 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
-Date: Wed, 22 Jul 2026 12:47:44 +0200
-Subject: [PATCH] mesa-pvr: fix glvnd PREFERRED_PROVIDER mismatch and
- megadriver dev-so skip
+Date: Mon, 7 Sep 2026 11:08:13 +0200
+Subject: [PATCH] mesa-pvr: fix glvnd PREFERRED_PROVIDER mismatch
 
-Two independent bugs surfaced building gstreamer1.0-plugins-bad (which
-pulls in virtual/egl) on a distro with 'glvnd' in DISTRO_FEATURES:
+mesa-pvr.inc unconditionally pins PREFERRED_PROVIDER_virtual/{libgl,
+egl,libgles1,libgles2,libgles3} to mesa-pvr. But mesa-pvr own recipe
+correctly withdraws exactly those PROVIDES whenever its glvnd
+PACKAGECONFIG is active (see its GLPROVIDES/PROVIDES logic) and defers
+to libglvnd instead -- glvnd-vendor mode and being the direct provider
+of those virtuals are mutually exclusive by design. With glvnd in
+DISTRO_FEATURES, mesa-pvr own PACKAGECONFIG also auto-enables glvnd,
+so the PREFERRED_PROVIDER pin ends up pointing at a package that no
+longer provides those virtuals, while the real provider (libglvnd) is
+skipped for having lost the preference -- Nothing PROVIDES libglvnd
+for anything pulling in virtual/egl et al. Make the affected
+PREFERRED_PROVIDER lines follow mesa-pvr own glvnd-awareness instead
+of fighting it.
 
-1. mesa-pvr.inc unconditionally pins PREFERRED_PROVIDER_virtual/{libgl,
-   egl,libgles1,libgles2,libgles3} to mesa-pvr. But mesa-pvr's own recipe
-   correctly withdraws exactly those PROVIDES whenever its 'glvnd'
-   PACKAGECONFIG is active (see its GLPROVIDES/PROVIDES logic) and defers
-   to libglvnd instead -- glvnd-vendor mode and being the direct provider
-   of those virtuals are mutually exclusive by design. With 'glvnd' in
-   DISTRO_FEATURES, mesa-pvr's own PACKAGECONFIG also auto-enables glvnd
-   (${@bb.utils.filter('DISTRO_FEATURES', '... glvnd', d)}), so the
-   PREFERRED_PROVIDER pin ends up pointing at a package that no longer
-   provides those virtuals, while the real provider (libglvnd) is skipped
-   for having lost the preference -- "Nothing PROVIDES 'libglvnd'" for
-   anything pulling in virtual/egl et al. Make the affected
-   PREFERRED_PROVIDER lines follow mesa-pvr's own glvnd-awareness instead
-   of fighting it.
-
-2. mesa-pvr-25.inc's "All DRI drivers are symlinks" comment carries
-   INSANE_SKIP:${PN}-megadriver += "dev-so", copied from upstream
-   oe-core's mesa.inc where PN is 'mesa'. Here PN is 'mesa-pvr', but the
-   DRI-plugin package is hardcoded to the literal name 'mesa-megadriver'
-   (for drop-in compatibility with vanilla mesa -- see its
-   RPROVIDES/RCONFLICTS/RREPLACES a few lines down), so
-   INSANE_SKIP:${PN}-megadriver silently targets the non-existent
-   'mesa-pvr-megadriver' and do_package_qa fails on the unversioned
-   *_dri.so symlinks that are normal for dlopen'd DRI driver modules.
-
-Verified: gstreamer1.0-plugins-bad now builds clean for beaglebone with
-both fixes applied and no other workaround.
-
-Upstream-Status: Pending
+Rebased from the original two-fix patch: upstream meta-ti now carries
+the equivalent fix for the second bug this patch used to also cover
+(mesa-pvr-25.inc megadriver INSANE_SKIP naming, already using the
+correct literal package name as of this checkout HEAD), so that hunk
+is dropped as redundant rather than rebased. Only the glvnd
+PREFERRED_PROVIDER fix still applies against current upstream.
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
  meta-ti-bsp/conf/machine/include/mesa-pvr.inc | 22 ++++++++++++++-----
- .../recipes-graphics/mesa/mesa-pvr-25.inc     |  8 ++++++-
- 2 files changed, 24 insertions(+), 6 deletions(-)
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
 diff --git a/meta-ti-bsp/conf/machine/include/mesa-pvr.inc b/meta-ti-bsp/conf/machine/include/mesa-pvr.inc
 index d5581315..10f441f4 100644
@@ -73,25 +59,6 @@ index d5581315..10f441f4 100644
  PREFERRED_PROVIDER_virtual/libglx ?= "mesa-pvr"
 -PREFERRED_PROVIDER_virtual/libgl ?= "mesa-pvr"
 +PREFERRED_PROVIDER_virtual/libgl ?= "${DEFAULT_MESA_GL_PROVIDER}"
-diff --git a/meta-ti-bsp/recipes-graphics/mesa/mesa-pvr-25.inc b/meta-ti-bsp/recipes-graphics/mesa/mesa-pvr-25.inc
-index 71e9895b..db838880 100644
---- a/meta-ti-bsp/recipes-graphics/mesa/mesa-pvr-25.inc
-+++ b/meta-ti-bsp/recipes-graphics/mesa/mesa-pvr-25.inc
-@@ -331,7 +331,13 @@ FILES:${PN}-tools = "${bindir} ${datadir}"
- ALLOW_EMPTY:${PN}-tools = "1"
- 
- # All DRI drivers are symlinks to libdril_dri.so
--INSANE_SKIP:${PN}-megadriver += "dev-so"
-+#
-+# NOTE: this is 'mesa-megadriver', not '${PN}-megadriver' -- the megadriver
-+# package below (and its FILES/RPROVIDES/RCONFLICTS/RREPLACES) is hardcoded
-+# to the literal name 'mesa-megadriver' for drop-in compatibility with
-+# vanilla mesa, so ${PN}-megadriver (== mesa-pvr-megadriver here) doesn't
-+# exist and silently skips nothing.
-+INSANE_SKIP:mesa-megadriver += "dev-so"
- 
- # OpenCL ICDs package also ship correspondig .so files, there is no -dev package
- INSANE_SKIP:libopencl-mesa += "dev-so"
 -- 
-2.51.0
+2.50.1 (Apple Git-155)
 

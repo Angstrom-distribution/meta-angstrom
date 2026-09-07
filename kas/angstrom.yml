@@ -19,9 +19,6 @@ repos:
   openembedded-core:
     url: https://github.com/openembedded/openembedded-core
     patches:
-      kern-tools-conditional-deps:
-        repo: angstrom
-        path: patches/oe-core/0001-kern-tools-bump-SRCREV-for-conditional-depends-on-X-.patch
       rust-target-config-armv5-v5t:
         repo: angstrom
         path: patches/oe-core/0002-rust-target-config-fix-invalid-v5-v5te-armv5-LLVM-f.patch
