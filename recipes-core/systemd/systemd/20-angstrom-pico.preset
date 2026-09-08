@@ -1,0 +1,4 @@
+disable systemd-firstboot.service
+disable fstrim.timer
+disable firstboot-grow-rootfs.service
+enable pico-resolv.path

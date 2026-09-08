@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/siemens/kas/master/kas/schema-kas.json
+
+header:
+  version: 14
+
+# Angstrom-pico distro fragment. Composed after kas/angstrom.yml and before a
+# machine fragment.
+distro: angstrom-pico

@@ -1,0 +1,14 @@
+[Unit]
+Description=Write /etc/resolv.conf from systemd-networkd DNS state
+Documentation=man:networkctl(1)
+After=systemd-networkd.service
+Wants=network.target
+Before=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/usr/libexec/pico-resolv
+
+# No [Install] section: this unit stays static and is only ever triggered
+# by pico-resolv.path, never enabled directly.

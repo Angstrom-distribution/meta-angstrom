@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch systemd-networkd DNS state for pico-resolv
+
+[Path]
+PathModified=/run/systemd/netif/state
+Unit=pico-resolv.service
+
+[Install]
+WantedBy=multi-user.target
