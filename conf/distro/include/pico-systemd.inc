@@ -37,6 +37,12 @@ RRECOMMENDS:systemd:remove = "pam-plugin-umask"
 # construction. A package installed before a preset file exists gets
 # systemd's default (enable), and a later preset never retroactively
 # re-applies. Force these explicitly instead, same as busybox_%.bbappend.
+#
+# fstrim-timer_1.0.bb and grow-rootfs_0.1.bb each set their own
+# SYSTEMD_AUTO_ENABLE:${PN} = "enable" unconditionally; since PN there
+# equals the override name here, the two expand to the same key and the
+# recipe (parsed after this distro conf) wins on plain parse order.
+# :forcevariable forces this assignment to win regardless.
 SYSTEMD_AUTO_ENABLE:systemd-firstboot = "disable"
-SYSTEMD_AUTO_ENABLE:fstrim-timer = "disable"
-SYSTEMD_AUTO_ENABLE:grow-rootfs = "disable"
+SYSTEMD_AUTO_ENABLE:fstrim-timer:forcevariable = "disable"
+SYSTEMD_AUTO_ENABLE:grow-rootfs:forcevariable = "disable"
