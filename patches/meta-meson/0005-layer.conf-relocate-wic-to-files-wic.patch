@@ -1,0 +1,49 @@
+From bf7ddf422b027142488fcd40cb46abaf2b7c1056 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Tue, 8 Sep 2026 10:17:34 +0200
+Subject: [PATCH] layer.conf: relocate wic/ to files/wic, drop the
+ WKS_SEARCH_PATH workaround
+
+The prior fix (WKS_SEARCH_PATH:append in layer.conf) worked around this
+layer's .wks files living outside the files/wic convention instead of
+moving them, specifically to avoid touching vendored files. Two problems
+with that approach, found together:
+
+- The append itself silently never took effect -- git apply/format-patch
+  dropped the actual append line on regeneration, leaving only the seeded
+  default in WKS_SEARCH_PATH (confirmed via bitbake-getvar: meta-meson/wic
+  is absent from the resolved value). Any machine needing these .wks files
+  (e.g. libretech-ac) currently fails do_image_wic with "No kickstart
+  files from WKS_FILES were found" -- the exact failure that fix was
+  written to prevent.
+
+- Independently, oe-core's own sanity checker (sanity.bbclass,
+  check_sanity_everybuild) unconditionally flags any wic/ directory found
+  under BBPATH/BBLAYERS as an obsolete location needing to move to
+  files/wic -- this has nothing to do with WKS_SEARCH_PATH and fires
+  regardless of whether the append worked, as a hard error that aborts
+  the build.
+
+Relocating to the convention location fixes both: the class's own weak
+WKS_SEARCH_PATH default finds the files with no layer-specific append
+needed at all, and the sanity check has nothing left to flag.
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ {wic => files/wic}/sdimage-bootpart-meson.wks | 0
+ {wic => files/wic}/sdimage-meson.wks          | 0
+ 2 files changed, 0 insertions(+), 0 deletions(-)
+ rename {wic => files/wic}/sdimage-bootpart-meson.wks (100%)
+ rename {wic => files/wic}/sdimage-meson.wks (100%)
+
+diff --git a/wic/sdimage-bootpart-meson.wks b/files/wic/sdimage-bootpart-meson.wks
+similarity index 100%
+rename from wic/sdimage-bootpart-meson.wks
+rename to files/wic/sdimage-bootpart-meson.wks
+diff --git a/wic/sdimage-meson.wks b/files/wic/sdimage-meson.wks
+similarity index 100%
+rename from wic/sdimage-meson.wks
+rename to files/wic/sdimage-meson.wks
+-- 
+2.50.1 (Apple Git-155)
+

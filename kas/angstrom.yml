@@ -129,9 +129,9 @@ repos:
       amlogic-boot-fip-qemu-native-depends:
         repo: angstrom
         path: patches/meta-meson/0004-amlogic-boot-fip-add-missing-qemu-native-DEPENDS.patch
-      wks-search-path-wic-dir:
+      relocate-wic-to-files-wic:
         repo: angstrom
-        path: patches/meta-meson/0005-layer.conf-add-wic-to-WKS_SEARCH_PATH.patch
+        path: patches/meta-meson/0005-layer.conf-relocate-wic-to-files-wic.patch
 
   meta-java:
     url: https://github.com/koenkooi/meta-java
