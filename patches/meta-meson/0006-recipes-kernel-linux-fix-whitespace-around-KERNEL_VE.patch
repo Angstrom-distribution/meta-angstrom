@@ -1,0 +1,46 @@
+From df8fe11849731f5fb4532a188e8fa38afbbebf46 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Tue, 8 Sep 2026 10:26:07 +0200
+Subject: [PATCH] recipes-kernel/linux: fix whitespace around
+ KERNEL_VERSION_SANITY_SKIP
+
+Both linux-meson64_6.5.bb and linux-yocto-meson32_6.5.bb assign it as
+KERNEL_VERSION_SANITY_SKIP="1" with no spaces around the operator,
+which bitbake's own style checker flags as a lack-of-whitespace
+warning on every parse. Add the spaces; no functional change.
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ recipes-kernel/linux/linux-meson64_6.5.bb       | 2 +-
+ recipes-kernel/linux/linux-yocto-meson32_6.5.bb | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/recipes-kernel/linux/linux-meson64_6.5.bb b/recipes-kernel/linux/linux-meson64_6.5.bb
+index 394f47f..55f2507 100644
+--- a/recipes-kernel/linux/linux-meson64_6.5.bb
++++ b/recipes-kernel/linux/linux-meson64_6.5.bb
+@@ -14,7 +14,7 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protoc
+            file://defconfig \
+            "
+ 
+-KERNEL_VERSION_SANITY_SKIP="1"
++KERNEL_VERSION_SANITY_SKIP = "1"
+ 
+ KERNEL_CLASSES = "kernel-uimage-meson"
+ 
+diff --git a/recipes-kernel/linux/linux-yocto-meson32_6.5.bb b/recipes-kernel/linux/linux-yocto-meson32_6.5.bb
+index 3643ab4..a736a0b 100644
+--- a/recipes-kernel/linux/linux-yocto-meson32_6.5.bb
++++ b/recipes-kernel/linux/linux-yocto-meson32_6.5.bb
+@@ -15,7 +15,7 @@ SRC_URI = " \
+ # tag: v5.4.24
+ SRCREV_meson = "43a868577dfcd9be6930453dc5ec557ab2e9ad89"
+ 
+-KERNEL_VERSION_SANITY_SKIP="1"
++KERNEL_VERSION_SANITY_SKIP = "1"
+ 	
+ # Linux stable tree
+ LINUX_VERSION = "6.5.10"
+-- 
+2.50.1 (Apple Git-155)
+

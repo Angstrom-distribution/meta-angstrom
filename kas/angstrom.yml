@@ -132,6 +132,9 @@ repos:
       relocate-wic-to-files-wic:
         repo: angstrom
         path: patches/meta-meson/0005-layer.conf-relocate-wic-to-files-wic.patch
+      kernel-version-sanity-skip-whitespace:
+        repo: angstrom
+        path: patches/meta-meson/0006-recipes-kernel-linux-fix-whitespace-around-KERNEL_VE.patch
 
   meta-java:
     url: https://github.com/koenkooi/meta-java
