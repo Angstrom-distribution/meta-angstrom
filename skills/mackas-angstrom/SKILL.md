@@ -10,6 +10,17 @@ Build a target with mackas's `kas-container` wrapper on Apple's `container` runt
 
 The mackas repo ships its own project-agnostic skill (`skills/mackas/SKILL.md` in that repo), covering the general mackas mechanics this skill also describes — `mackas exec`, the `--skip` footguns, env.sh staleness, retrieve/clean/monitor, one-VM troubleshooting. It is meant to be symlinked into any project's `.claude/skills/`. The overlap is deliberate duplication; what is genuinely only here is the meta-angstrom-specific material — this project's paths, kas fragments, the non-default `DEPLOY_DIR`, and the buildhistory/deploy analysis conventions.
 
+## Reliability contract
+
+Every sentinel this skill actually produces in *this* checkout, in one place — on any `FAILURE`/`FAILED` form, read the named section first; never retry blind, never route around the check that produced it. This list is scoped to what this checkout genuinely has; it deliberately omits sentinels described in other checkouts' versions of this skill that depend on scripts not present here (e.g. a `mackas-build-and-monitor.sh` wrapper, or a hardened `sort-packages.py` sentinel) — don't add a line here without first verifying the thing that emits it actually exists.
+
+- `Tasks Summary: Attempted N tasks of which M didn't need to be rerun and all succeeded.` — bitbake's own build-success line; the `... and K failed.` form is failure. **No `Tasks Summary` line at all** means the run died before the task executor started, or is still running — never success.
+- `mackas check`'s `N pass, N warn, N fail` summary + exit 1 on any `[FAIL]` — the preflight verdict; `mackas status` has no pass/fail signal at all (see "Preflight").
+- `+ retrieved <sub> -> ...` per object, `Retrieved to <dest>` header, or `Nothing retrieved.` + exit 1 — `mackas retrieve`'s own sentinels (see "Retrieving files off the build volumes").
+- `FATAL: ...` lines from `scripts/publish-feed.sh`, plus `upload-packages.py`'s own exit codes (`0` success/no-op, non-zero on a local or remote failure) — see "Publishing to the package feed".
+- `monitor: finished` (the build reached a terminal state) vs `monitor: bridge never attached in ~60s -- stop the build` — the build-watch loop in "Building"; the two are mutually exclusive, so read which one landed rather than assuming completion. Same kind as the next line: a pattern to type, not a pre-existing script's output.
+- The inline `REPO-SNAPSHOT: FAILURE -- ...` / sanity-anchor pattern this skill's own repo-update snippet uses (see "3. Report which repos changed") — this is a pattern to type when following that section, not a pre-existing script's output; check it every time you run that snippet, not just when something looks wrong.
+
 ## Environment layout
 
 - mackas tool checkout: wherever mackas was cloned. `env.sh` puts it on `$PATH`, so plain `mackas ...` always resolves to the live script; `command -v mackas` finds the checkout when its path is actually needed.
@@ -112,10 +123,28 @@ This is bitbake sending SIGTERM to the offending fetch tasks before the volume f
 **Before backgrounding any real build, re-read this checklist fresh — do not rely on remembering it from an earlier build in this same session.** Real incident, 2026-09-07: a build was backgrounded with a hand-rolled `&`/`disown` + log-`grep` completion watcher instead of attaching `mackas monitor`, exactly the "log-tailing as a stand-in" this skill already says never to do — caught only because the user asked "are you using the proper monitor?" The rule existed in this file the whole time; it was skipped under time pressure anyway. A checklist, checked explicitly, is the guard against that:
 
 - [ ] `MACKAS_MONITOR=1` exported in the shell that launches the build (confirm with `mackas runtime-args` before backgrounding if in doubt — the `-p 8801:8801` chunk must be present).
-- [ ] Immediately after backgrounding the build, attach `mackas monitor` (**not** `--once`) as its **own** tracked background process. This — not a log-`grep` loop, not `tail -f` — is the completion/progress signal. A log-based watcher is fine as a *secondary*, independent backup (it survives a bridge disconnect), never as the primary or sole mechanism.
-- [ ] If `mackas monitor` fails to attach right away, retry for real (5 attempts over ~60s) before concluding it is broken — see "Watching one build live" below.
-- [ ] For anything likely to run more than ~20-30 minutes (i.e. almost every real build): either get periodic progress pushes going (offer the user `/loop` explicitly at launch time — a plain session cannot self-schedule wakeups outside `/loop`) or say plainly that progress is on-demand only. Don't just go silent and say nothing about the gap.
-- [ ] On completion: the unprompted post-build report (below) — every time, not only when asked for a "detailed report."
+- [ ] **An agent never runs bare `mackas monitor` — only `mackas monitor --once`, inside the poll loop below.** No exceptions, no "just to check". Bare `mackas monitor` streams a new line every few seconds for the whole build; wired into any harness tool that notifies per stdout line, it forces a reply per tick (real incident 2026-09-09 — four corrections before the *mechanism*, not the reply wording, was changed). Bare monitor is for a human watching a terminal. Check the literal command string for `--once` before running it.
+- [ ] Track completion as its **own** tracked background process — never a log-`grep`/`tail -f` loop as the *primary* mechanism (fine only as the loop's backup break below). One process, one notification, when it exits:
+  ```sh
+  MON="$SCRATCH/<target>-monitor.log"   # NOT $LOG: the post-build report parses the build log
+  : > "$MON"                            # truncate: a stale [success] from the last build breaks out instantly
+  n=0
+  while :; do
+    mackas monitor --once >>"$MON" 2>&1
+    grep -qE '\[success\]|\[failed\]' "$MON" && break
+    grep -qE 'Tasks Summary:|Summary: There (was|were)' "$LOG" && break
+    n=$((n+1))
+    [ "$n" -eq 4 ] && ! grep -qE '\[(building|success|failed)\]' "$MON" \
+      && { echo "monitor: bridge never attached in ~60s -- stop the build"; exit 0; }
+    sleep 15
+  done
+  echo "monitor: finished"
+  exit 0
+  ```
+  Run it under the harness's "notify me once, when this command exits" background mechanism — never the per-line streaming kind. Each piece earns its place: the second `grep` breaks out when bitbake finished but the bridge never said so (a stale mackas does exactly that — see "Watching one build live"), otherwise the loop spins silently forever and nothing ever notifies. The `n -eq 4` guard is the 5-attempts-in-60s bridge-attach rule from "2. Build"; it tests for a real `[status]` line rather than for an empty `$MON`, because a failed attach writes its own `socket.timeout` noise into the file — an emptiness test never fires and the loop hangs forever, which is the exact failure it exists to prevent. The explicit `exit 0`s keep a no-match `grep` from reporting the watch itself as failed.
+- [ ] Reporting cadence while a build runs: real progress (task count/%, sstate coverage, current task) roughly every 10 minutes of wall-clock, and immediately on any error — nothing else, ever. A progress signal arriving — a monitor poll, a log line, a harness notification — is not itself a cue to speak; it only updates internal state. Never reply per-tick, and never reply with filler just because a signal landed. "Filler" means any reply that carries no number the user didn't already have: `(unchanged)`, `still building`, `ok`, an emoji, a one-word acknowledgment. If 10 minutes have passed and the counter genuinely hasn't moved, that is not filler — name the task holding it and for how long (a multi-hour `do_compile` reads as frozen and is not, see "2. Build").
+- [ ] For anything likely to run more than ~20-30 minutes (i.e. almost every real build): either get periodic progress pushes going (offer the user `/loop` explicitly at launch time — a plain session cannot self-schedule wakeups outside `/loop`) or say plainly that progress is on-demand only. Don't just go silent and say nothing about the gap — this is about *acknowledging the gap exists*, not license to narrate every tick within it.
+- [ ] On completion: the unprompted post-build report — every time, not only when asked for a "detailed report." Before sending it, walk the pre-send gate in "Report"; it lists the exact table header rows the reply must contain.
 
 All commands assume `env.sh` is sourced and run from the kas work dir:
 
@@ -144,7 +173,11 @@ for d in */; do
   d="${d%/}"; [ -d "$d/.git" ] || continue
   echo "$d $(git -C "$d" rev-parse HEAD)" >> "$SCRATCH/pre-build-shas.txt"
 done
+[ -s "$SCRATCH/pre-build-shas.txt" ] && grep -q '^meta-angstrom' "$SCRATCH/pre-build-shas.txt" \
+  || { echo "REPO-SNAPSHOT: FAILURE -- empty/incomplete snapshot, wrong cwd or broken ~/oe link"; exit 1; }
 ```
+
+**Check the snapshot actually landed before trusting it.** A wrong cwd or a broken `~/oe` link makes the glob match nothing, leaving a 0-byte file with exit 0 from the loop above — and step 3's "nothing moved" table would then render as if genuinely nothing changed, which is a different claim than "the snapshot itself was empty." `meta-angstrom` is the sanity anchor: it is always present in a working `~/oe/work`, so its absence from the snapshot means the snapshot is wrong, not that every repo failed to move.
 
 Skip this when the build is `--skip repos_checkout`'d or every repo is `commit:`-pinned — nothing will move, so there is nothing to snapshot.
 
@@ -152,7 +185,7 @@ Skip this when the build is `--skip repos_checkout`'d or every repo is `commit:`
 
 **Export `MACKAS_MONITOR=1` before every real build, by default — not as an optional extra to reach for after a build already looks stuck.** Skipping this is the single easiest way to lose the one live view into a long-running task; see "Watching one build live" below for what it buys and its env.sh-staleness caveat.
 
-**A build must run under `mackas monitor`, or it must be stopped — never substitute log-tailing.** `tail`/`grep` on the raw redirected stdout is not an acceptable stand-in, not even temporarily "until the bridge comes up." If `mackas monitor` fails to attach right after launch (exits instantly with no output, or hits a `socket.timeout` — the bridge can genuinely take a few seconds to publish its port), **retry at least 5 times over about 60 seconds** before concluding it's really broken; a single failed attempt moments after launch is a timing race, not proof the bridge is dead. If it is still failing after real retries, stop the build rather than watch it any other way. Stopping means killing the actual `container` VM, not just the host-side shell/background-task wrapper — a `TaskStop`/killed shell only ends the local `kas-container` process, the Apple `container` VM keeps building underneath it. Confirm with `container list`; if the VM is still there, `container stop <id>` it, and don't consider the build stopped until that list is empty.
+**A build must run under the `mackas monitor --once` poll loop (see the Building checklist above — never bare `mackas monitor` from an agent), or it must be stopped — never substitute log-tailing.** `tail`/`grep` on the raw redirected stdout is not an acceptable stand-in, not even temporarily "until the bridge comes up." If `mackas monitor --once` fails to attach right after launch (exits instantly with no output, or hits a `socket.timeout` — the bridge can genuinely take a few seconds to publish its port), **retry at least 5 times over about 60 seconds** before concluding it's really broken; a single failed attempt moments after launch is a timing race, not proof the bridge is dead. If it is still failing after real retries, stop the build rather than watch it any other way. Stopping means killing the actual `container` VM, not just the host-side shell/background-task wrapper — a `TaskStop`/killed shell only ends the local `kas-container` process, the Apple `container` VM keeps building underneath it. Confirm with `container list`; if the VM is still there, `container stop <id>` it, and don't consider the build stopped until that list is empty.
 
 **`--update` is a separate flag from `--skip`, and it's the one that actually matters for "make sure repos are current."** Confirmed against kas 5.4's own source (`kas/repos.py`'s `fetch_async`): for a branch-tracked repo (no `commit:` pin), plain `kas-container build` with **no** `--skip` flags still does *not* re-fetch from upstream if a local clone already satisfies the configured branch name — it only fetches on a genuinely fresh clone, or when `--update` is passed (`kas/libkas.py:656`: *"Pull new upstream changes to the desired branch even if it is already checked out locally"*). Without `--skip`, kas *will* still reset/checkout to whatever it already has locally — safe, but not necessarily current. A build meant to actually pick up new upstream commits needs `--update` explicitly — real incident, 2026-08-18: four consecutive "no `--skip`" builds all silently reused a `meta-qcom` clone that was 146 real upstream commits (a month's worth) stale, because `--update` was never passed.
 
@@ -181,14 +214,14 @@ Run it in the background and tee to a log — even a fully-cached recipe streams
 ... > "$SCRATCH/<target>-build.log" 2>&1   # run_in_background: true
 ```
 
-Then poll with `mackas monitor --once` (a single snapshot) or plain `mackas monitor` (follows until success/failure) — this is the mechanism for watching progress, not re-tailing the log file repeatedly.
+Then watch it with the `mackas monitor --once` poll loop from the Building checklist — that is the mechanism for watching progress, not re-tailing the log file, and not bare `mackas monitor`.
 
 Watch the tail of the log:
 - `Tasks Summary: Attempted N tasks ... all succeeded.` → success
 - sstate reuse percentages show how much was cached vs. compiled from scratch
 - `ERROR:` lines (grep them) → failure; the failing task's `log.do_<task>` path is printed, but it is a path **inside the container** (`/build/tmp/work/...`) — read it with `mackas exec cat <path>`, not a host `cat`.
 
-The log goes quiet for as long as the longest single task runs — a large `do_compile` (`chromium-ozone-wayland`, `linux-*`, `webkitgtk`) holds the build-wide task counter at the same number for tens of minutes to hours. That reads as frozen and is not. `mackas monitor` is the way to see inside such a task while it runs; see "Watching one build live" below.
+The log goes quiet for as long as the longest single task runs — a large `do_compile` (`chromium-ozone-wayland`, `linux-*`, `webkitgtk`) holds the build-wide task counter at the same number for tens of minutes to hours. That reads as frozen and is not. The `mackas monitor --once` poll loop is the way to see inside such a task while it runs; see "Watching one build live" below.
 
 For a one-off task without a full build (e.g. just fetch, or cleansstate):
 
@@ -213,7 +246,7 @@ while read -r repo old; do
 done < "$SCRATCH/pre-build-shas.txt"
 ```
 
-Render as a table: repo, commit range, commit count, and a short **written summary** of what actually changed — read the full `git log --oneline` output for that repo and synthesize it (e.g. "podman/cloud-init/yq/upx/lopper version bumps, CVE status updates, vrunner test fixes"), don't paste raw commit subject lines as the summary. Repos where `old == new` don't need a row — if *nothing* moved, say that in one line instead of showing an empty table. A `commit:`-pinned repo never moves regardless of `--skip`; that's expected, not worth flagging as surprising.
+Render as the `| Repo | Old | New | Commits | Summary |` table from the pre-send gate in "Report", with a short **written summary** of what actually changed in the last cell — read the full `git log --oneline` output for that repo and synthesize it (e.g. "podman/cloud-init/yq/upx/lopper version bumps, CVE status updates, vrunner test fixes"), don't paste raw commit subject lines as the summary. Repos where `old == new` don't need a row — if *nothing* moved, say that in one line instead of showing an empty table. A `commit:`-pinned repo never moves regardless of `--skip`; that's expected, not worth flagging as surprising.
 
 ### 4. Same target, multiple machines
 
@@ -250,7 +283,7 @@ mackas volume fstrim all
 
 When repos should NOT be updated for this batch (e.g. a sibling carries local-only commits), skip the `checkout --update` pre-flight entirely and use `--skip repos_checkout --skip repos_apply_patches` on every machine — see "The `--skip` flag family" below.
 
-**Report after each machine finishes, not just once at the end of the whole batch.** The loop only notifies on completion of the *entire* backgrounded script, which can be 30+ minutes of silence across 4 machines. The Monitor tool is built for exactly this ("one notification per occurrence, until a known end"): poll each machine's log for its own completion marker and emit one line per machine as it lands:
+**Report after each machine finishes, not just once at the end of the whole batch.** The loop only notifies on completion of the *entire* backgrounded script, which can be 30+ minutes of silence across 4 machines. A per-line-notification harness tool is safe here, and only here, because the loop below prints one line per *machine finishing* — a real event, at most 4 of them — not one line per poll. That is the test for wiring anything into such a tool: one line per event, never one line per tick. Poll each machine's log for its own completion marker and emit one line per machine as it lands:
 
 ```sh
 set -u                    # deliberately NOT -e: see the exit-status note below
@@ -291,7 +324,9 @@ Start this Monitor right after backgrounding the build script, not after it fini
 
 ### Watching one build live (`mackas monitor`)
 
-**`mackas monitor` works for this skill's hand-typed `kas-container build` calls too — requires a fresh `env.sh`.** The sourced `kas-container` wrapper recomputes `--runtime-args` live on every call (`mackas runtime-args`, asked fresh each time) rather than freezing it at `mackas setup` generation time, so exporting `MACKAS_MONITOR=1` before a hand-typed build publishes the same progress-bridge port `mackas smoketest` does — confirm with `mackas runtime-args` before/after exporting it, the `-v .../mackasjson.py:ro ... -p 8801:8801` chunk should appear once set. `mackas set MACKAS_MONITOR_NOTIFY 1` persists a native-notification-on-transitions config value (`~/.mackas.conf`) for `mackas monitor --notify` (or bare `mackas monitor` once persisted) to use once that bridge exists. **Same env.sh-staleness rule as everywhere else** — an `env.sh` generated before the live-recompute behavior landed keeps freezing `--runtime-args` at generation time instead, so `MACKAS_MONITOR=1` exported mid-session does nothing with no error. For this skill's own multi-machine batch reporting, the Monitor-tool loop above remains the mechanism actually used; the native bridge is the tool for one build at a time, and the only one that can see inside a single long-running task.
+**Everything below describes the bridge itself. An agent still only ever invokes it as `mackas monitor --once`, inside the poll loop in the Building checklist** — the bare, following form streams a line every few seconds and turns any per-line harness notification into a forced reply per tick. Read that checklist before running anything from this section.
+
+**`mackas monitor` works for this skill's hand-typed `kas-container build` calls too — requires a fresh `env.sh`.** The sourced `kas-container` wrapper recomputes `--runtime-args` live on every call (`mackas runtime-args`, asked fresh each time) rather than freezing it at `mackas setup` generation time, so exporting `MACKAS_MONITOR=1` before a hand-typed build publishes the same progress-bridge port `mackas smoketest` does — confirm with `mackas runtime-args` before/after exporting it, the `-v .../mackasjson.py:ro ... -p 8801:8801` chunk should appear once set. `mackas set MACKAS_MONITOR_NOTIFY 1` persists a native-notification-on-transitions config value (`~/.mackas.conf`) that `mackas monitor --once --notify` picks up once that bridge exists. **Same env.sh-staleness rule as everywhere else** — an `env.sh` generated before the live-recompute behavior landed keeps freezing `--runtime-args` at generation time instead, so `MACKAS_MONITOR=1` exported mid-session does nothing with no error. For this skill's own multi-machine batch reporting, the Monitor-tool loop above remains the mechanism actually used; the native bridge is the tool for one build at a time, and the only one that can see inside a single long-running task.
 
 The bridge Python and the poller are both read live out of the mackas checkout — `mackas-uibridge/mackasjson.py` is bind-mounted into the container at container start, and `mackas monitor` runs `tools/mackas-monitor` straight from that checkout — so an updated mackas needs no extra step beyond the usual `mackas -y setup "$MACKAS_ROOT" && source ~/oe/env.sh` refresh (`MACKAS_ROOT` here is `/Volumes/Angstrom-builds/v2026.06`). A build that is already running keeps whatever bridge it started with, so a mid-build update only takes effect from the next build.
 
@@ -311,7 +346,7 @@ The parenthesised part is the task's own progress. It names its own `recipe:task
 - `cargo`/`cargo_c`/`waf` `do_compile`, `libc-package.bbclass`'s `oe_runmake`, `image.bbclass`'s `do_rootfs`, and `do_fetch` for the `git`/`wget`/`s3`/`perforce` fetchers.
 - **Not** plain autotools/make `do_compile`, and not `do_configure`/`do_install`/`do_package`/`do_rm_work` — those carry no varflag at all. An empty parenthesis is the normal case for such a build, not a fault; there, `recipe:task` plus elapsed time is the whole of what can be said.
 
-**Reach for `mackas monitor` before the task's own log file.** Reading a running task's log (`mackas exec sh -c 'tail -5 /build/tmp/work/.../temp/log.do_compile'`) is not available *while the build runs at all* — `mackas exec` starts a second container and the one-VM rule refuses it. `mackas monitor` polls a published HTTP port and attaches no ext4 volume and starts no container, so it is the only progress view that works concurrently with the build that produced it. The per-task log stays the fallback for after the fact, and for the tasks the progress framework does not cover.
+**Reach for `mackas monitor --once` before the task's own log file.** Reading a running task's log (`mackas exec sh -c 'tail -5 /build/tmp/work/.../temp/log.do_compile'`) is not available *while the build runs at all* — `mackas exec` starts a second container and the one-VM rule refuses it. `mackas monitor` polls a published HTTP port and attaches no ext4 volume and starts no container, so it is the only progress view that works concurrently with the build that produced it. The per-task log stays the fallback for after the fact, and for the tasks the progress framework does not cover.
 
 ## Analyzing results
 
@@ -397,18 +432,85 @@ See the `--skip` section below for `mackas retrieve`'s handling of sibling layer
 
 ### Report
 
-**Every build gets this summary at the end, unprompted — not just when a "detailed report" is asked for.** A quick one-off build still gets build status, buildstats, and the buildhistory delta; skipping the report because the ask was just "build X" is not acceptable.
+**Every build gets this summary at the end, unprompted — not just when a "detailed report" is asked for, and not skipped for a throwaway iteration/attempt inside a debug loop either.** Task counts and pass/fail alone are NOT the report — they don't say whether the build was cheap (cache-restored) or expensive (recompiled). Standing convention of this repo's owner: every field below is required, not "include if convenient."
 
-Pull buildstats alongside the rest of the report — `mackas retrieve buildstats` then `mackas buildstats analyze` (see "Getting files off the volumes" above); needs the volumes free, same one-VM rule.
+**This section owns every chat-facing table in this skill** — build reports and feed-upload reports alike. "Publishing to the package feed" covers upload *mechanics* only and sends you back here for the report.
 
-Summarize concisely:
-1. Repo changes ("Building" step 3's table), when repos were updated.
-2. Build result (success/fail) + sstate reuse ratio (from-scratch vs. cached).
-3. Buildstats: total wall-clock, and the longest-running task(s) — not the raw per-task dump.
-4. Buildhistory delta: the new commit, version, sub-packages, RDEPENDS, size, key files.
-5. Deploy: which artifacts were written, with sizes and paths.
+**Set `MACKAS_MONITOR=1` from before the build starts** — the bridge cannot be attached retroactively, so this is a preflight step, not something to add once the build looks slow. While it runs, give a progress line roughly every 10 minutes with real numbers (`N/M tasks (X%), on recipe:task`), then go quiet once genuinely idle between updates — no filler lines with nothing new to say.
 
-Flag anything surprising (unexpected new RDEPENDS, size jumps, QA warnings, empty packages).
+#### Pre-send gate — walk this against the draft, before sending it
+
+Each box names the **literal header row** that must appear in the reply. Search the draft you are about to send for that exact string; do not check a box against your intention to include it. **A sentence describing the numbers is not a substitute for the table** — "68 of 71 packages uploaded across four arches" satisfies nothing below. If a box applies and its string is not in the draft, the draft is not finished.
+
+- [ ] Any build finished → required fields 2-5 below, each carrying a real number (field 1 is conditional).
+- [ ] Repos moved during this build → `| Repo | Old | New | Commits | Summary |`
+- [ ] More than one machine built → `| Machine | Result | Duration | sstate reuse | Notes |`
+- [ ] buildstats analyzed → `| Task type | CPU time (s) | Wall time (s) | Tasks | Parallelism |` **and** `| Recipe | CPU time (s) | Wall time (s) | Tasks |`
+- [ ] Packages uploaded → `| Package | Version | Archs |`
+- [ ] Exactly one arch uploaded → an **Upload summary** line immediately above that table
+- [ ] Something the user asked for is absent from the upload table → `| Package | Reason |`
+- [ ] Packages uploaded → count every draft row against its buildhistory recipe; any recipe with more than 3 rows must be one collapsed `<recipe> (<N> packages)` row instead, not listed individually (see "Upload tables").
+
+Skip a box that genuinely doesn't apply — don't narrate it (field 1 says so explicitly for repo changes). The trap is the last box: a package the user named by hand that is missing from the upload table has not made it inapplicable, it has made it required.
+
+**Required fields, every single build:**
+
+1. **Repo changes** — ONLY when repos actually moved (a manual `git pull`, or the rare deliberate un-skipped `repos_checkout`). A normal `--skip`'d build touches no repo content: no table, nothing to report, don't pad the report with "no changes." When they did move: a table, `Repo | Old | New | Commits | Summary`, with a synthesized written summary of the whole range in the last cell — not a raw list of commit subjects, and not just the newest one (see step 3 below for the worked example).
+2. **Duration** — wall-clock, not "it finished." On macOS use BSD `date` (`date -d` does not exist here): first vs. last timestamped log line, `date -j -f '%Y-%m-%d %H:%M:%S' "$ts" '+%s'`. Convert to Europe/Amsterdam before reporting — most sources here log UTC.
+3. **Build result + sstate reuse %** — bitbake prints no single overall number; compute it from the `Tasks Summary` line as didn't-need-rerun / attempted (`awk 'BEGIN{printf "%.1f%%", (c/a)*100}'`). Quote the per-task-type `X% sstate reuse (...)` lines from the "Build completion summary" block too whenever the headline number hides something (high overall reuse but e.g. `do_package: 0%`).
+4. **Buildstats + buildhistory, retrieved and summarised** — `mackas retrieve buildstats buildhistory` (volume-only on macOS, same reasoning as `deploy`), then `mackas buildstats analyze`. buildstats gives real per-task wall-clock/CPU (report the slowest task); buildhistory gives version/size/dependency deltas vs. the previous build — this is what catches a version going backwards *before* it surfaces as a `do_packagedata` QA failure downstream. The analyzer's `by task type` and `top recipes by cpu` blocks go into the reply as the two tables named in the gate above, with the headers relabeled (see "Analyzing buildstats").
+5. **Deploy** — which artifacts were written, with sizes and paths.
+
+Flag anything surprising (unexpected new RDEPENDS, size jumps, QA warnings, empty packages, a version going backwards).
+
+**Rendered, single build:**
+
+> `console-pico-image` / qemuarmv5 — SUCCESS
+> Duration 18m42s (07:12:03 → 07:30:45 CEST) · sstate reuse 91.4% (3,412 attempted / 3,119 cached)
+> buildhistory: busybox 1.37.0-r0 → 1.37.1-r0 · image 41.2 → 41.4 MiB (+204 KiB) · no new/dropped packages
+> buildstats: slowest linux-stable:do_compile 6m11s
+
+**Multi-machine sweeps** render as a markdown table **in the chat reply**, not left in a log the user has to open: `Machine | Result | Duration | sstate reuse | Notes`, one row per machine. **Size/RAM** — one before-all/after-all pair per *batch*, never per machine/option: rootfs `IMAGESIZE` delta, `MemAvailable` right after boot, combined RSS of relevant services when applicable.
+
+#### Upload tables
+
+**`upload-packages.py` prints the package table itself, on stdout, after its own log lines** — a `Packages published:` header (`Packages would publish:` under `--dry-run`) followed by `| Package | Version | Archs |`. Copy that block into the reply rather than re-deriving it from the log or the feed listing. It already collapses OE's split subpackages (`-dbg`/`-dev`/`-doc`/`-staticdev`/`-src`/`-ptest`/`-lic`/`-locale*`) into the base recipe name and comma-joins every arch into one cell. Never widen it: a row per `-dbg`/`-dev`/`-src` variant, or per-arch size/timestamp columns, is chaff that stays in the tool's own log.
+
+**Multi-arch** (several machines/tunes uploaded together): the table alone, no summary line above it:
+
+| Package | Version | Archs |
+|---|---|---|
+| domoticz | 2026.3.18327+git0+abc1234-r0 | armv5e, armv8a, riscv64imafdc, x86-64-v3 |
+| samba | 4.21.1-r0 | armv5e, armv7at2hf-neon |
+
+**Single-arch**: an `Upload summary` line above the table. Every number in it comes from the tool's own output — the `UPLOAD-PACKAGES: SUCCESS ...` sentinel carries `scanned=`, `already-present=`, `planned=`, `uploaded=` and `remote-dir=`; the `Uploading N packages (X MiB)` and `Upload <id> complete: N packages in Ys` log lines carry size and elapsed time; parallel streams is `--jobs` (default 4). Exact shape —
+
+> **Upload summary** — 68/71 packages uploaded, 3 already on the server · 1.2 GiB transferred in 4m12s (~4.9 MiB/s, 4 parallel jobs) · target: `/data/www/angstrom/feeds/v2026.06/ipk/glibc`
+
+— then the table (Archs column still present, one arch repeated down every row):
+
+| Package | Version | Archs |
+|---|---|---|
+| bash | 5.2.32-r0 | armv5e |
+| domoticz | 2026.3.18327+git0+abc1234-r0 | armv5e |
+
+**Anything the user asked to have published that is missing from that table gets its own table right after, `Package | Reason`** — a recipe that doesn't exist, a build failure, an arch mismatch. These never reach `upload-packages.py` at all (no ipk was ever built, so they are not even in its `scanned=` count), so nothing but this table reports them. Never silently drop one:
+
+| Package | Reason |
+|---|---|
+| cdi | recipe not found ("nothing provides cdi") |
+| thermald | build failed, x86-only dependency assumption, doesn't fit qemuarmv5 |
+| yaffs2-utils | build failed, see `<logpath>` |
+
+Packages the server already had are counted in the summary line, not listed row by row here.
+
+**Collapse a recipe contributing more than 3 rows into one.** `upload-packages.py`'s own collapse only merges suffix variants of the *same* package name (`-dbg`/`-dev`/...) — it can't catch a recipe that fans out into differently-named packages, e.g. glibc's ipks (`ldconfig`, `ldd`, `ldso`, `libc6`, `nscd`, `sln`, `tzcode`, ...) share no common name at all. Real recipe origin is in buildhistory, not derivable from the package name: `packages/<pkgarch>/<recipe>/` lists every package that recipe produced as a direct subdirectory, and `packages/<pkgarch>/<recipe>/latest`'s `PACKAGES` line confirms it. Where more than 3 rows resolve to the same `<recipe>`, replace them with one: `<recipe> (<N> packages)`, using the version already shown on any one of those rows (subpackages of one recipe share it) and the same Archs cell. Example — the glibc-family rows this session actually produced:
+
+| Package | Version | Archs |
+|---|---|---|
+| glibc (15 packages) | 2.43+git0+1c9988e525-r1 | armv5e |
+
+**The specific failure mode this convention exists to prevent** (flagged twice by Koen): duration/sstate-extraction gets skipped at *script-writing* time, not report time. When writing a build-sweep script, put the duration and sstate extraction in at the same moment as the pass/fail check — not bolted on afterwards as a separate reporting step. A sweep script that greps only `Tasks Summary` is the recorded mistake; don't repeat it in a new script.
 
 A build report says what was *assembled*. To prove an image actually boots and behaves, see the `boot-validate` skill — it drives the oe-core qemu machines and the beaglebone AM335x emulator to a login shell and runs functional checks there.
 
@@ -480,9 +582,9 @@ scripts/publish-feed.sh --publish --skip-retrieve  # reuse an existing ~/oe/arti
 **`--publish` only uploads into `incoming/` on the server; it never sorts.** Sorting
 (ingest, verify, move into the real feed dirs, re-index) is the separate, explicit `--sort` flag. **Default to `--publish` alone unless the user asks for a sort too** — a completed upload sits safely in `incoming/` until something ingests it, so nothing is lost by not sorting immediately, and running the sort step uninvited (a ~10+ minute re-index across every touched feed dir) is the wrong default. `--skip-retrieve` reuses an already-populated `~/oe/artifacts/deploy` from an earlier `mackas retrieve deploy` in the same session instead of re-fetching.
 
-After a real upload, `upload-packages.py` logs a grouped per-package summary of what it actually sent — side packages (name contains `locale`/`kernel`, ends in `-dbg`/`-dev`/`-doc`/`-src`/`-staticdev`, or starts with `lib`) are filtered out, and the remaining entries are grouped by `(name, version)` with the architectures they were built for, e.g. `domoticz 2026.02-r0 (armv7at2hf-neon, armv8a, beaglev_ahead)`.
-**Render this (and any multi-machine build-sweep report) as a markdown table in the
-chat reply itself**, not just left in the tool's own log lines — one row per package or machine, so it's scannable at a glance. The arch comes from the `DEPLOY_DIR_IPK/<PACKAGE_ARCH>/` subdir a file was found in, not by parsing the filename's trailing `_<arch>` — machine arches routinely contain underscores (`rb1_core_kit`, `beaglev_ahead`), which would make filename-suffix splitting ambiguous.
+**Every upload ends with the report in "Report" → "Upload tables" — walk that section's pre-send gate before writing the reply.** The table shapes live there, not here; this section is mechanics only.
+
+`upload-packages.py` prints that `| Package | Version | Archs |` table itself, on stdout, on real runs and dry runs alike — copy it in. Its arch cell comes from parsing each ipk filename's trailing `_<arch>` (`parse_ipk_filename`: first `_` splits off PN, last `_` splits off arch), **not** from the `DEPLOY_DIR_IPK/<PACKAGE_ARCH>/` subdir the file sits in. An arch that itself contains an underscore (`rb1_core_kit`, `beaglev_ahead`) therefore splits wrong — check those cells against the deploy subdirs before pasting a table from such a machine.
 
 **`sort-packages.py`'s default (no `--feed-dir`) resolution walks up from the current
 directory** looking for an `unsorted/` subdir, so it works from the feed base, from `unsorted/` itself (`sort.sh`-compatible), or from anywhere else under the tree — `incoming/`, `incoming/<upload-id>/`, a sorted arch dir, etc. — not just the two exact locations the original rewrite supported. Still errors clearly (`Not in or under a feed directory`) if run somewhere unrelated; pass `--feed-dir` explicitly to sidestep resolution entirely.
@@ -519,7 +621,42 @@ mackas buildstats analyze              # summarize timing from what was fetched
 
 Same one-VM rule as `deploy`: stop the build/shell first. Same DEPLOY_DIR-derivation and sibling-layer-reset caveats as `retrieve deploy` above.
 
-That rule is also why none of this is a way to check on a task that is still running — every route to a task log goes through a second container. For live progress on a long task use `mackas monitor` instead (see "Watching one build live"); these commands are for after the build has let go of the volumes.
+That rule is also why none of this is a way to check on a task that is still running — every route to a task log goes through a second container. For live progress on a long task use `mackas monitor --once` instead (see "Watching one build live"); these commands are for after the build has let go of the volumes.
+
+### Analyzing buildstats (task-level timing/resource data)
+
+**Retrieve it after every build, not just when something looks slow or fails** — it's the data source for the timing/bottleneck half of a build report, the same way buildhistory is the source for the content-delta half. `mackas retrieve buildstats` (or `buildstats logs` together) pulls `tmp/buildstats/<BUILDNAME>/<recipe>/<task>` out to `~/oe/artifacts/buildstats/<retrieve-timestamp>/` — a fresh subdirectory per retrieval, so successive retrievals never merge into each other on the host side (they can still merge on the *guest* side; see below).
+
+`mackas buildstats analyze [PATH]` (default `PATH` = `~/oe/artifacts/buildstats`) runs a stdlib-only Python script from the mackas checkout, no dependencies. It accepts a `BUILDNAME` dir directly or any ancestor containing one; with more than one retrieval nested under `PATH`, it picks the lexically greatest (= newest, since both the retrieve timestamp and `BUILDNAME` sort chronologically as digit strings).
+
+```sh
+mackas buildstats analyze                                          # human digest, from the last retrieve
+mackas buildstats analyze ~/oe/artifacts/buildstats/<timestamp>    # a specific retrieval
+```
+
+Key fields and what they mean for a report:
+
+- **`wall` vs `task CPU` vs `parallelism`** — wall is real elapsed time; task CPU sums both the task's own and its children's rusage (a compile's real work happens in `make`/`cc1`/`ld` child processes, so reading only the task's own rusage undercounts massively); `parallelism = CPU / wall`. Low parallelism despite free host cores means something is serializing, not that the VM lacks CPU.
+- **`concurrency peak`/`mean`** — how many tasks actually ran at once. A peak far below the VM's core count during a long stretch is direct evidence of one big task (usually a kernel or browser/toolchain compile) blocking everything else in the dependency graph — name the specific recipe from `top recipes by cpu`, not just the aggregate number.
+- **`by task type`** and **`top recipes by cpu`** — the two tables the report must quote (see the pre-send gate in "Report"): which *kind* of work dominated, and which *specific recipes* were the most expensive. **Relabel the tool's raw column headers** — `cpu_s`/`wall_s`/`n` are for reading the tool's own terminal output, not a report a person reads. Rendered: `| Task type | CPU time (s) | Wall time (s) | Tasks | Parallelism |` and `| Recipe | CPU time (s) | Wall time (s) | Tasks |`. Never paste a raw header row verbatim.
+- **`peak task RSS`** — the single highest per-task memory figure seen. Relevant context for anything OOM-adjacent — a peak close to the container's `-m` limit is the smoking gun.
+
+**`BUILDNAME` genuinely varies per machine and per build** (`conf/distro/angstrom.conf` sets it from `${DISTRO_VERSION}`/`${MACHINE}`/`${DATETIME}`), so distinct `BUILDNAME` dirs pile up side by side in `tmp/buildstats` across a session — because the buildstats-clearing step that would otherwise wipe `tmp/buildstats` before each build only fires on the `mackas build`/`mackas smoketest` code path, and this skill's own hand-typed `kas-container build ...` pattern (needed for the `--skip repos_checkout --skip repos_apply_patches` flags `mackas build` doesn't expose) bypasses it entirely. **Confirmed directly in this checkout**: after building `beaglebone` then `rb1-core-kit` with no intervening `mackas clean`, one `buildstats` retrieval contained both machines' `BUILDNAME` dirs side by side. This doesn't corrupt either build's own numbers, but it means "just analyze the newest retrieved dir" is not a safe shortcut once more than one machine has built in the same session — the newest by lexical sort is not necessarily the one you just built (e.g. `rb1-core-kit` sorts after `beaglebone` regardless of which ran more recently).
+
+**When retrieving buildstats for a specific machine you just built, point the analyzer at that machine's own `BUILDNAME` dir explicitly:**
+
+```sh
+mackas retrieve buildstats --dest ~/oe/artifacts/buildstats-<machine>
+BSDIR=$(ls -d ~/oe/artifacts/buildstats-<machine>/buildstats/*/Angstrom-*-<machine>-* 2>/dev/null | sort | tail -1)
+if [ -n "$BSDIR" ] && [ -d "$BSDIR" ]; then
+  echo "analyzing: $BSDIR"
+  mackas buildstats analyze "$BSDIR"
+else
+  echo "NO BUILDSTATS DIR FOR <machine> -- wrong --dest or machine name"
+fi
+```
+
+Echo `$BSDIR` before analyzing — the glob is silenced with `2>/dev/null`, so a wrong machine name or a `--dest` that doesn't match the retrieve both produce an empty `$BSDIR`, and `mackas buildstats analyze ""` then falls back to its own default `PATH` and happily reports a *different* machine's build.
 
 ## The `--skip` flag family
 
@@ -587,7 +724,7 @@ kas only resets/patches repos that are actually declared in the *composed* confi
 
 This lives in the mackas script itself, not `env.sh` — and `env.sh` puts the mackas checkout on PATH, so `mackas` commands are always current (only the sourced wrapper/derivation logic can go stale). If a `retrieve`/`buildstats analyze`/`exec` call ever does reset a sibling layer, treat it as a signal the mackas checkout is outdated or the fix regressed, and check `git log <upstream>..HEAD` on the affected layer immediately (`git reflog` has the lost commits as recoverable `cherry-pick`/`am` entries).
 
-## Troubleshooting
+## Failure modes and what to do
 
 ### VZError: "The storage device attachment is invalid"
 
@@ -633,6 +770,20 @@ Don't assume a crash always leaves real corruption — a plain forced check (`-n
 
 **Verify each sibling layer's `branch:` in `angstrom.yml` actually matches where its real work lives before treating it as the reset target.** A layer can be checked out locally on a different branch than what `angstrom.yml` pins (e.g. checked out on a fork's `wrynose` branch while the kas config still says `branch: master`) — in that case kas silently re-checks-out to the *configured* branch the moment the repo is clean, discarding the real work from the working tree with no error. If a build behaves as though branch-specific fixes are simply missing, check `git -C ~/oe/work/<layer> branch -r` for a remote branch the current `angstrom.yml` pin does not reference, not just the layer's own working-tree state.
 
+## What NOT to do
+
+The hard rules, collected from where each is argued in full — the pointer is where the *why* lives.
+
+- **Never hand-pass `--runtime-args` to a wrapped `kas-container` call** — at the pinned kas version the flag overwrites rather than accumulates, silently dropping the three ext4 volume mounts (see "Preflight").
+- **Never `nohup kas-container`** — it bypasses the sourced wrapper, losing the volumes and landing `KAS_BUILD_DIR` on virtiofs (the Errno 95 `sock.bind()` failure); background with `&` in a sourced shell instead (see "Preflight").
+- **Never watch a build by tailing or grepping its log** — a log line cannot show progress inside a running task, and a killed host-side shell can silently stop writing to that log while the build itself keeps running in the container; `mackas monitor` is the only view that survives that (see "2. Build").
+- **Never run bare `mackas monitor` from an agent** — it streams a line every few seconds, forcing one reply per tick out of any per-line-notification harness tool; use the `--once` poll loop (see "Building").
+- **Never report a build or an upload in prose where a table is required** — a sentence carrying the same numbers does not substitute; walk the pre-send gate against the draft reply and check for the literal header rows (see "Report").
+- **Never run Apple's `container` CLI directly for anything mutating** — it bypasses mackas's `volume_in_use` guard; `container list` (read-only) is the one exception (see "Getting files off the volumes" and "VZError" under Failure modes).
+- **Never run `kas-container purge`** — it deletes every kas-managed repo, including sibling layers carrying local-only unpushed commits (see "Cleaning").
+- **Never treat kas's `-k` as the `--skip` pair, or as bitbake's `-k`** — it skips `write_bbconfig` too, silently dropping fragments; use the explicit `--skip` pair instead (see "The `--skip` flag family").
+- **Never run bare `mackas setup` with no root argument** — with no `~/.mackas.conf` it resolves to a default root and can offer to relocate the volumes there; always pass `<MACKAS_ROOT>` explicitly (see "env.sh staleness").
+
 ## Notes / gotchas
 
 - `local_conf_header` in `angstrom.yml` already enables `buildhistory`, `buildstats`, and `rm_work` — source/work dirs are wiped after each recipe; inspect results via buildhistory and deploy, not `tmp/work` (which is inside the invisible volume regardless).
@@ -640,3 +791,10 @@ Don't assume a crash always leaves real corruption — a plain forced check (`-n
 - Only **one VM** may hold an ext4 volume at a time: `mackas retrieve`/`clean`/`volume` operations all refuse while a build or `mackas shell` still has it attached. Stop the build first.
 - `DL_DIR`/`SSTATE_DIR` are shared across every machine's build under the same two volumes — never point them at anything layer-specific.
 - Machine name normalization: buildhistory dir names use underscores (`qcs6490_thundercomm_rubikpi3`) while deploy/images use hyphens (`qcs6490-thundercomm-rubikpi3`).
+
+## References
+
+- `skills/mackas/SKILL.md` in the mackas repo — the project-agnostic mackas skill this one deliberately overlaps with (see the intro).
+- `angstrom-build` skill — the same build/analysis flow on a native Linux kas-container host.
+- `boot-validate` skill — proving a built image actually boots and behaves (see "Report").
+- `bitbake-task-debug` skill — instrumenting a failing task's own execution, beyond reading its log.

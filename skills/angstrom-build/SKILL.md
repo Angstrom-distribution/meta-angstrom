@@ -9,6 +9,15 @@ Build a target with `kas-container` and report exactly what the build produced a
 
 It assumes a host where `kas-container` runs natively and the build output is an ordinary host directory — a Linux box with podman or docker. On Koen's macOS setup the build optionally goes through mackas, a local wrapper that keeps the output inside ext4 volumes the host cannot see; the `mackas-angstrom` skill covers that host. The bitbake/buildhistory concepts are identical in both, only how you reach the files differs.
 
+## Reliability contract
+
+Every verdict this skill actually relies on in *this* checkout is one specific greppable line — full interpretation lives in "Failure modes and what to do" below. This list is scoped to what's verified real here; it omits sentinels described elsewhere that depend on scripts this checkout doesn't have (e.g. a hardened `sort-packages.py` sentinel) — don't add a line without first checking the thing that emits it actually exists.
+
+- `Tasks Summary: Attempted N tasks of which M didn't need to be rerun and all succeeded.` — build success; `M/N` is the sstate reuse ratio. The `... and K failed.` form is failure. **No `Tasks Summary` line at all** means the run died before the task executor started, or is still running — never success.
+- The build's own exit code (`wait "$BPID"; rc=$?`) must *agree* with the `Tasks Summary` line; disagreement means a truncated log and neither signal is trustworthy alone.
+- The inline `REPO-DIFF`/`REPOS-AUDIT` failure patterns this skill's own snippets use (steps 1 and "Building with local-only commits") — patterns to type when following those sections, not a pre-existing script's output.
+- `upload-packages.py`'s own exit codes: `0` success (including a no-op), non-zero on a local or remote failure (see "Publishing to the package feed").
+
 ## Layout
 
 Everything below is relative to the **build root** — the directory this repo was cloned *into*, i.e. the parent of the `meta-angstrom` checkout. kas mounts it at `/repo` inside the container, resolves every config path against it, and clones the sibling layers (`openembedded-core`, `bitbake`, `meta-openembedded`, `meta-ti`, ...) alongside. Run every command in this skill from there. `$BR` below stands for that path; substitute your own.
@@ -47,7 +56,11 @@ for d in */; do
   d="${d%/}"; [ -d "$d/.git" ] || continue
   echo "$d $(git -C "$d" rev-parse HEAD)" >> "$SCRATCH/pre-build-shas.txt"
 done
+[ -s "$SCRATCH/pre-build-shas.txt" ] && grep -q '^meta-angstrom' "$SCRATCH/pre-build-shas.txt" \
+  || { echo "REPO-SNAPSHOT: FAILURE -- empty/incomplete snapshot, wrong cwd (\$BR)"; exit 1; }
 ```
+
+**Check the snapshot actually landed before trusting it.** A wrong `$BR` makes the glob match nothing, leaving a 0-byte file with exit 0 — and step 3's "nothing moved" table would then read as if genuinely nothing changed, a different claim than "the snapshot itself was empty." `meta-angstrom` is the sanity anchor: it is always present at `$BR`, so its absence from the snapshot means the snapshot is wrong, not that every repo failed to move.
 
 Skip this when the build is `--skip repos_checkout`'d or every repo is `commit:`-pinned — nothing will move, so there is nothing to snapshot.
 
@@ -145,22 +158,26 @@ find ipk -name '<recipe>*.ipk' -newermt '<HH:MM before build>' -printf '%TT  %10
 
 ### 6. Report
 
-**Every build gets this summary at the end, unprompted — not just when a "detailed report" is asked for.** A quick one-off build still gets build status, buildstats, and the buildhistory delta; skipping the report because the ask was just "build X" is not acceptable.
+**Every build gets this summary at the end, unprompted — not just when a "detailed report" is asked for, and not skipped for a throwaway iteration/attempt inside a debug loop either.** Task counts and pass/fail alone are NOT the report — they don't say whether the build was cheap (cache-restored) or expensive (recompiled). This is Koen's own standing convention (confirmed directly 2026-09-07); same required fields as the `mackas-angstrom` skill's Report section, host-side commands instead of `mackas retrieve`/`mackas monitor`:
 
-Pull a buildstats highlight alongside the rest — resolve the path rather than assuming it (same non-default-`DEPLOY_DIR` caution as everywhere else in this layer):
+1. **Repo changes** — ONLY when repos actually moved (a manual `git pull`, or a deliberate un-skipped `repos_checkout`). A normal `--skip`'d build touches no repo content: no table, nothing to report. When they did move: `Repo | Old | New | Commits | Summary`, every commit subject in the range joined by `<br>` in one cell.
+2. **Duration** — wall-clock, not "it finished." GNU `date -d` is available on a normal Linux host; first vs. last timestamped log line. Convert to Europe/Amsterdam before reporting if the log is in UTC.
+3. **Build result + sstate reuse %** — compute from the `Tasks Summary` line as didn't-need-rerun / attempted (`awk 'BEGIN{printf "%.1f%%", (c/a)*100}'`), not eyeballed. Quote per-task-type `X% sstate reuse (...)` lines from the "Build completion summary" block when the headline hides something.
+4. **Buildstats + buildhistory** — resolve paths rather than assuming them (same non-default-`DEPLOY_DIR` caution as everywhere in this layer):
 
-```sh
-BS=$(bitbake-getvar --value -q BUILDSTATS_BASE)   # run inside the kas env, e.g. via a shell -c
-ls "$BS" | tail -1                                 # most recent build's stats dir
-```
+   ```sh
+   BS=$(bitbake-getvar --value -q BUILDSTATS_BASE)   # run inside the kas env, e.g. via a shell -c
+   ls "$BS" | tail -1                                 # most recent build's stats dir
+   ```
 
-Summarize concisely:
-1. Repo changes (step 3's table), when repos were updated.
-2. Build result (success/fail) + sstate reuse ratio (from-scratch vs. cached).
-3. Buildstats: total wall-clock, and the longest-running task(s) (e.g. `do_compile` for a large recipe) — not the raw per-task dump.
-4. Buildhistory delta: the new commit, version, sub-packages, RDEPENDS, size, key files.
-5. Deploy: which artifacts were written, with sizes and paths.
-Flag anything surprising (unexpected new RDEPENDS, size jumps, QA warnings, empty packages).
+   buildstats gives real per-task wall-clock/CPU (report the slowest task); buildhistory (`cd "$BR/build/buildhistory"`, step 4 above) gives version/size/dependency deltas vs. the previous build — catches a version going backwards before it surfaces as a `do_packagedata` QA failure.
+5. **Deploy** — which artifacts were written, with sizes and paths.
+
+Flag anything surprising (unexpected new RDEPENDS, size jumps, QA warnings, empty packages, a version going backwards).
+
+**Multi-machine sweeps** render as a markdown table in the chat reply (not left in a log): `Machine | Result | Duration | sstate reuse | Notes`. **Size/RAM**: one before-all/after-all pair per *batch*, never per machine. **Package uploads**: one row per base package, subpackages collapsed, archs comma-joined — see `mackas-angstrom`'s Report section for the exact table shape.
+
+**The specific failure mode this exists to prevent**: duration/sstate-extraction gets skipped at *script-writing* time. Put it in at the same moment as the pass/fail check when writing a build-sweep script, not bolted on afterwards — a sweep script that greps only `Tasks Summary` is the recorded mistake.
 
 A build report says what was *assembled*. To prove an image actually boots and behaves, see the `boot-validate` skill.
 
@@ -228,6 +245,35 @@ Add `--dry-run` to preview; the real run also uploads by default, unlike `publis
 After a real upload it logs a grouped summary of what was actually sent, filtering out side packages (`locale`/`kernel` in the name, `-dbg`/`-dev`/`-doc`/`-src`/`-staticdev` suffix, or a `lib` prefix) and grouping the rest by `(name, version)` with the architectures built, e.g. `domoticz 2026.02-r0 (armv7at2hf-neon, armv8a)`. **Render this as a table in the chat reply**, same as any multi-machine build report — don't leave it as raw log lines the user has to parse.
 
 `sort-packages.py --drop NAME` removes every `files-sorted` entry for that package name (all versions/architectures) so the next upload of it is treated as new and overwrites the stale ipk on next sort. It also takes an advisory lock for the whole run (including `--dry-run`) so two concurrent invocations against the same feed dir fail fast instead of racing — expect an occasional "already running" error if you and the user touch the feed server at the same time; just retry. The `mackas-angstrom` skill's "Publishing to the package feed" section has the full writeup; the scripts and remote layout are identical on both hosts, only how `DEPLOY_DIR_IPK` gets reached differs (no `mackas retrieve` needed here).
+
+## Failure modes and what to do
+
+Every sentinel from the "Reliability contract" section, what it means, and what to do — and NOT do — about it:
+
+- **No `Tasks Summary` line, no exit code yet** — still running. Wait; a log quiet for an hour is a long `do_compile`, not a hang. Never declare success or failure.
+- **No `Tasks Summary` line, non-zero rc** — died before the task executor ever started: a parse error, a bad kas fragment, a missing layer. Read the `Summary: There were N ERROR messages` block and the `^ERROR:` lines; fix the config. Don't re-run blind hoping it was transient.
+- **`... and K failed.`** — read each failed task's `log.do_<task>` (paths printed under `Summary: K task(s) failed:`); the log is the diagnosis, the one-line summary is not.
+- **rc and `Tasks Summary` disagree** — truncated log; neither signal is trustworthy on its own. Re-derive both before concluding anything; don't pick whichever one says success.
+- **`REPO-SNAPSHOT: FAILURE`** — the pre-update snapshot was empty or missing `meta-angstrom`; fix `$BR`/cwd and re-snapshot *before* the update, not after.
+- **A repo moved during a `--skip`-ped build** — the build itself is untrustworthy: something reset a sibling layer it should not have touched. Recover local-only commits via that repo's `git reflog` before doing anything else; don't re-run the build first.
+- **Empty `$PRE` in buildhistory analysis** — first-ever build, or the recipe didn't change this build. Use the non-range forms; never fall back to a stale value or conclude from the resulting `git show` path errors.
+- **`upload-packages.py` exit 1** — local precondition failure (no `rsync`/`ssh`, unreadable deploy dir or arch map); nothing reached the server. Fix locally.
+- **`upload-packages.py` exit 2** — remote/transport failure; the staging dir is deliberately left in place and a re-run resumes it. Do not clean it up.
+
+## What NOT to do
+
+- **Never run `kas-container purge`.** It deletes the build dir, sstate, downloads, AND every repo kas manages — including sibling layers that may carry local-only, unpushed commits. Check current state with `git -C <layer> log --oneline @{u}..` before assuming any layer is safe; this project has repeatedly carried unpushed work in `meta-dominion` / `meta-qcom-3rdparty` / `meta-kodi`. `kas clean` is narrower (only removes `tmp*`) and safe by comparison, but still leaves this distro's non-default `DEPLOY_DIR` behind — prefer targeted cleanup of `TMPDIR`/`DEPLOY_DIR` over either.
+- **Never grep an unanchored `ERROR`** — it matches compiler output and package names; use `^ERROR:`.
+- **Never trust a stale `$PRE`** — it must be a real sha from *this* session or deliberately empty, or the buildhistory diff quietly reports the wrong range.
+- **Never assume `DEPLOY_DIR`** — resolve it with `bitbake-getvar` and check non-empty *and* an existing directory (Layout section) before building any path on it.
+- **Never pass `--runtime-args` more than once** — at the pinned kas version it OVERWRITES rather than accumulates, so repeating it silently drops all but the last occurrence.
+- **Never route around a failed check** — an empty snapshot, a missing verdict line, or a disagreeing rc is a stop condition, not something to retry past or explain away.
+
+## References
+
+- The `mackas-angstrom` skill — the macOS/mackas companion (same bitbake concepts, different file access); its "Publishing to the package feed" section is the full feed writeup, and its "Analyzing buildstats" section covers the standalone buildstats analyzer in more depth.
+- The `boot-validate` skill — proving an image actually boots, beyond what a build report says.
+- oe-core: `buildstats.bbclass`, `buildhistory.bbclass`.
 
 ## Notes / gotchas
 
