@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '17 3 * * *'
+
+env:
+  KAS_VERSION: "5.5"
+  KAS_CLONE_DEPTH: "1"
+
+jobs:
+  discover-machines:
+    runs-on: ubuntu-latest
+    outputs:
+      machines: ${{ steps.list.outputs.machines }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: list
+        run: |
+          machines=$(grep -l '^machine:' kas/*.yml | grep -vx 'kas/angstrom.yml' \
+            | xargs -n1 basename | sed 's/\.yml$//' | jq -R . | jq -sc .)
+          echo "machines=$machines" | tee -a "$GITHUB_OUTPUT"
+
+  sanity:
+    needs: discover-machines
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        machine: ${{ fromJson(needs.discover-machines.outputs.machines) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: meta-angstrom
+
+      - name: Install kas and oe-core host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gawk wget git diffstat unzip texinfo gcc build-essential chrpath socat \
+            cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping \
+            python3-git python3-jinja2 libegl1 libsdl1.2-dev pylint xterm \
+            python3-subunit mesa-common-dev zstd liblz4-tool file locales
+          pip install --user "kas==${KAS_VERSION}"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          # Ubuntu 24.04 blocks unprivileged user namespaces via AppArmor by
+          # default; bitbake's pseudo/fakeroot sandboxing needs them.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: kas checkout --update
+        run: >
+          kas checkout --update
+          meta-angstrom/kas/angstrom.yml:meta-angstrom/kas/${{ matrix.machine }}.yml
+
+      - name: bitbake parse test
+        run: >
+          kas shell --skip repos_checkout --skip repos_apply_patches
+          meta-angstrom/kas/angstrom.yml:meta-angstrom/kas/${{ matrix.machine }}.yml
+          -c "bitbake -p"
+
+      - name: yocto-check-layer (advisory only, does not gate CI)
+        continue-on-error: true
+        run: >
+          kas shell --skip repos_checkout --skip repos_apply_patches
+          meta-angstrom/kas/angstrom.yml:meta-angstrom/kas/${{ matrix.machine }}.yml
+          -c "yocto-check-layer --machines ${{ matrix.machine }} --no-auto-dependency meta-angstrom"
