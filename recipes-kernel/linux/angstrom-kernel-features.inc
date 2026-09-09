@@ -7,7 +7,6 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 # per-distro carve-out here.
 SRC_URI:append:angstrom = " file://angstrom-base.cfg"
 
-# Sound is machine-scoped (qemuall), not distro-scoped. Same reasoning as
-# above: pico drops 'alsa' from DISTRO_FEATURES, so CONFIG_SND* has no
-# userspace to serve there, but it's not worth excluding separately.
+# Sound is machine-scoped (qemuall), not distro-scoped. pico keeps 'alsa'
+# in DISTRO_FEATURES, so this has real userspace to serve there too.
 SRC_URI:append:angstrom:qemuall = " file://angstrom-qemu-sound.cfg"
