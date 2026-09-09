@@ -23,6 +23,13 @@
 #
 # Idempotent: an entry that would not change is reported and left alone;
 # a changed entry is updated in place. Python 3.7+, stdlib only.
+#
+# Every run ends with one greppable sentinel line, ADD-MACHINE-ARCH: SUCCESS
+# or ADD-MACHINE-ARCH: FAILED, and exits 1 if any machine failed to resolve
+# or the file could not be written. A resolved entry is sanity checked
+# against bitbake's own rule (MACHINE_ARCH is always in PACKAGE_ARCHS)
+# before it is written, so a bitbake-getvar call that ignored the MACHINE we
+# passed cannot silently store another machine's arch data.
 
 import argparse
 import json
@@ -95,14 +102,29 @@ def bitbake_getvar(var, build_dir, machine=None):
 
 def machines_from_kas(kas_dir):
     """Collect top-level 'machine:' values from kas fragments (no yaml
-    parser needed for this one key)."""
+    parser needed for this one key). Returns None if a fragment could not be
+    read: an unreadable fragment means the machine list is incomplete, and a
+    silently short list would quietly skip machines."""
     found = []
     pattern = re.compile(r"^machine:\s*(\S+)\s*$", re.M)
-    for frag in sorted(Path(kas_dir).glob("*.yml")):
-        for machine in pattern.findall(frag.read_text()):
+    fragments = sorted(Path(kas_dir).glob("*.yml"))
+    if not fragments:
+        log.error("No kas fragments (*.yml) under %s", kas_dir)
+        return None
+    for frag in fragments:
+        try:
+            text = frag.read_text()
+        except (OSError, UnicodeDecodeError) as exc:
+            log.error("Cannot read kas fragment %s: %s", frag, exc)
+            return None
+        for machine in pattern.findall(text):
             if machine not in ("unset", "~", "null") and machine not in found:
                 found.append(machine)
                 log.debug("%s: machine %s", frag.name, machine)
+    if not found:
+        log.error("No 'machine:' key found in any of the %d kas fragment(s) "
+                  "under %s", len(fragments), kas_dir)
+        return None
     return found
 
 
@@ -114,6 +136,10 @@ def resolve_entry(machine, args, build_dir):
         feed_arch = bitbake_getvar("TUNE_PKGARCH", build_dir, machine)
         if not feed_arch:
             return None
+    if len(feed_arch.split()) != 1:
+        log.error("%s: TUNE_PKGARCH is not a single arch name: %r",
+                  machine, feed_arch)
+        return None
     if args.package_archs:
         package_archs = args.package_archs.split()
     else:
@@ -121,11 +147,35 @@ def resolve_entry(machine, args, build_dir):
         if raw is None:
             return None
         package_archs = raw.split()
-    return {
+    if not package_archs:
+        log.error("%s: PACKAGE_ARCHS resolved to an empty list", machine)
+        return None
+    entry = {
         "machine_arch": machine.replace("-", "_"),  # bitbake.conf:190
         "feed_arch": feed_arch,
         "package_archs": package_archs,
     }
+    # bitbake.conf:192 always ends PACKAGE_ARCHS with MACHINE_ARCH, so its
+    # absence means the values are not this machine's -- the usual cause is
+    # bitbake-getvar not honouring the MACHINE we put in the environment,
+    # which would otherwise store the build's default machine data under
+    # this machine's name and mis-sort every one of its packages.
+    if entry["machine_arch"] not in package_archs:
+        if args.package_archs:
+            log.warning("%s: machine_arch %s is not in the --package-archs "
+                        "list; sorting will not match this machine's ipks",
+                        machine, entry["machine_arch"])
+        else:
+            log.error("%s: PACKAGE_ARCHS (%s) does not contain machine_arch "
+                      "%s -- bitbake did not resolve this for MACHINE=%s, so "
+                      "the values belong to another machine",
+                      machine, " ".join(package_archs), entry["machine_arch"],
+                      machine)
+            return None
+    if feed_arch not in package_archs:
+        log.warning("%s: feed_arch %s is not listed in PACKAGE_ARCHS (%s)",
+                    machine, feed_arch, " ".join(package_archs))
+    return entry
 
 
 def load_config(path):
@@ -135,16 +185,52 @@ def load_config(path):
         return {"version": 1, "arch_aliases": {}, "extra_base_archs": [],
                 "machines": {}}
     with open(str(path)) as f:
-        return json.load(f)
+        config = json.load(f)
+    if not isinstance(config, dict):
+        raise ValueError("%s is not a JSON object" % path)
+    if "machines" in config and not isinstance(config["machines"], dict):
+        raise ValueError("%s: 'machines' key must be a dict, not %s" % (
+            path, type(config["machines"]).__name__))
+    return config
 
 
 def save_config(path, config):
+    """Write the arch map and read it back. The feed server sorts every
+    uploaded package by this file, so a half-written or unparseable one has
+    to be caught here rather than at the next sort. Returns True on success."""
     path = Path(path)
     tmp = path.parent / (path.name + ".tmp.%d" % os.getpid())
-    with open(str(tmp), "w") as f:
-        json.dump(config, f, indent=2, sort_keys=True)
-        f.write("\n")
-    os.replace(str(tmp), str(path))
+    text = json.dumps(config, indent=2, sort_keys=True) + "\n"
+    data = text.encode("utf-8")
+    try:
+        with open(str(tmp), "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        written = tmp.stat().st_size
+        if written != len(data):
+            log.error("Short write to %s: %d of %d bytes, %s left untouched",
+                      tmp, written, len(data), path)
+            tmp.unlink()
+            return False
+        os.replace(str(tmp), str(path))
+    except OSError as exc:
+        log.error("Cannot write %s: %s", path, exc)
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+        return False
+    try:
+        with open(str(path)) as f:
+            readback = json.load(f)
+    except (OSError, ValueError) as exc:
+        log.error("%s is unreadable after being written: %s", path, exc)
+        return False
+    if readback != config:
+        log.error("%s does not match what was just written to it", path)
+        return False
+    return True
 
 
 def main(argv=None):
@@ -163,67 +249,110 @@ def main(argv=None):
         kas_dir = args.from_kas or str(Path(__file__).resolve().parent.parent / "kas")
         if not Path(kas_dir).is_dir():
             log.error("kas fragment directory not found: %s", kas_dir)
+            log.error("ADD-MACHINE-ARCH: FAILED no kas fragment directory at %s",
+                      kas_dir)
             return 1
-        for machine in machines_from_kas(kas_dir):
+        from_kas = machines_from_kas(kas_dir)
+        if from_kas is None:
+            log.error("ADD-MACHINE-ARCH: FAILED could not collect machines "
+                      "from %s", kas_dir)
+            return 1
+        for machine in from_kas:
             if machine not in machines:
                 machines.append(machine)
-        log.info("kas fragments name %d machine(s)", len(machines))
+        log.info("kas fragments name %d machine(s)", len(from_kas))
     if not machines:
         current = bitbake_getvar("MACHINE", build_dir)
         if not current:
             log.error("No machines given and MACHINE could not be resolved")
+            log.error("ADD-MACHINE-ARCH: FAILED no machine to work on")
             return 1
         machines = [current]
 
     if (args.feed_arch or args.package_archs) and len(machines) != 1:
         log.error("--feed-arch/--package-archs apply to exactly one machine")
+        log.error("ADD-MACHINE-ARCH: FAILED overrides given for %d machines",
+                  len(machines))
         return 1
 
     try:
         config = load_config(args.config)
     except (OSError, ValueError) as exc:
         log.error("Cannot read %s: %s", args.config, exc)
+        log.error("ADD-MACHINE-ARCH: FAILED %s is unreadable", args.config)
         return 1
-    entries = config.setdefault("machines", {})
 
-    changed = 0
-    failed = 0
-    for machine in machines:
-        entry = resolve_entry(machine, args, build_dir)
-        if entry is None:
-            log.error("%s: could not resolve arch data", machine)
-            failed += 1
-            continue
-        old = entries.get(machine)
-        if old == entry:
-            log.info("%s: unchanged (feed_arch %s)", machine, entry["feed_arch"])
-            continue
-        # machine_arch is the identity actually matched at sort time
-        # (bitbake.conf:190 underscore form); drop any entry stored under
-        # another spelling of the same machine so we never keep conflicting
-        # duplicates (e.g. seed key 'rb1_core_kit' vs MACHINE 'rb1-core-kit').
-        for other in [k for k in entries
-                      if k != machine and
-                      entries[k].get("machine_arch") == entry["machine_arch"]]:
-            log.info("%s: superseding entry %r with the same machine_arch %s",
-                     machine, other, entry["machine_arch"])
-            del entries[other]
-        entries[machine] = entry
-        changed += 1
-        log.info("%s: %s -> feed_arch %s, machine_arch %s, %d package arches",
-                 machine, "updated" if old else "added", entry["feed_arch"],
-                 entry["machine_arch"], len(entry["package_archs"]))
+    try:
+        entries = config.setdefault("machines", {})
 
-    if changed and not args.dry_run:
-        save_config(args.config, config)
-        log.info("Wrote %s (%d machines total)", args.config, len(entries))
-    elif changed:
-        log.info("Dry run: %d change(s) not written", changed)
-    else:
-        log.info("No changes")
+        changed = 0
+        failed = 0
+        for machine in machines:
+            entry = resolve_entry(machine, args, build_dir)
+            if entry is None:
+                log.error("%s: could not resolve arch data", machine)
+                failed += 1
+                continue
+            old = entries.get(machine)
+            if old == entry:
+                log.info("%s: unchanged (feed_arch %s)", machine, entry["feed_arch"])
+                continue
+            # machine_arch is the identity actually matched at sort time
+            # (bitbake.conf:190 underscore form); drop any entry stored under
+            # another spelling of the same machine so we never keep conflicting
+            # duplicates (e.g. seed key 'rb1_core_kit' vs MACHINE 'rb1-core-kit').
+            for other in [k for k in entries
+                          if k != machine and
+                          entries[k].get("machine_arch") == entry["machine_arch"]]:
+                log.info("%s: superseding entry %r with the same machine_arch %s",
+                         machine, other, entry["machine_arch"])
+                del entries[other]
+            entries[machine] = entry
+            changed += 1
+            log.info("%s: %s -> feed_arch %s, machine_arch %s, %d package arches",
+                     machine, "updated" if old else "added", entry["feed_arch"],
+                     entry["machine_arch"], len(entry["package_archs"]))
 
-    return 1 if failed else 0
+        written = False
+        if changed and not args.dry_run:
+            if save_config(args.config, config):
+                written = True
+                log.info("Wrote %s (%d machines total)", args.config, len(entries))
+            else:
+                log.error("%s was NOT updated; %d resolved change(s) are lost",
+                          args.config, changed)
+        elif changed:
+            log.info("Dry run: %d change(s) not written", changed)
+        else:
+            log.info("No changes")
+
+        unwritten = changed and not args.dry_run and not written
+        if failed or unwritten:
+            reasons = []
+            if failed:
+                reasons.append("%d of %d machine(s) could not be resolved"
+                               % (failed, len(machines)))
+            if unwritten:
+                reasons.append("%s could not be written" % args.config)
+            log.error("ADD-MACHINE-ARCH: FAILED %s (changed=%d written=%d)",
+                      "; ".join(reasons), changed, 1 if written else 0)
+            return 1
+
+        print("ADD-MACHINE-ARCH: SUCCESS machines=%d changed=%d written=%d "
+              "dry-run=%d config=%s" % (len(machines), changed,
+              1 if written else 0, 1 if args.dry_run else 0, args.config))
+        return 0
+    except Exception as exc:
+        print("ADD-MACHINE-ARCH: FAILED unexpected error: %s" % exc)
+        return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # main()'s own try/except only covers the resolve/write phase; this one
+    # backs the sentinel for everything before it (argument handling, kas
+    # fragment collection) so no exception path exits without one.
+    try:
+        sys.exit(main())
+    except Exception as exc:
+        print("ADD-MACHINE-ARCH: FAILED unexpected error: %s" % exc)
+        sys.exit(1)

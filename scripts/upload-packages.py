@@ -33,6 +33,16 @@
 #
 # A local directory can stand in for the remote server by passing
 # --remote '' --remote-dir /some/path (used for testing without credentials).
+#
+# Every run ends with exactly one greppable sentinel line:
+#   UPLOAD-PACKAGES: SUCCESS upload=<id|none> scanned=N planned=N uploaded=N ...
+#   UPLOAD-PACKAGES: FAILED  <same fields> reason=<what went wrong>
+# Exit codes: 0 success (including "nothing to upload" and --dry-run),
+# 1 local/configuration failure, bad command line included (nothing was
+# sent), 2 the remote side failed
+# (query, transfer, staging or finalisation). An upload is only marked
+# COMPLETE after the staged file count on the server has been verified, so
+# the server never ingests a short upload.
 
 import argparse
 import concurrent.futures
@@ -42,6 +52,7 @@ import json
 import logging
 import os
 import random
+import re
 import shlex
 import shutil
 import subprocess
@@ -56,11 +67,30 @@ log = logging.getLogger("upload-packages")
 # (network drops, partial transfers, ssh failures) is worth retrying.
 RSYNC_PERMANENT_ERRORS = {1, 2, 4, 6}
 
+# rsync's own I/O timeout: a stalled socket (a half-open connection survives
+# indefinitely otherwise) exits 30, which is transient and so gets retried.
+# The wall-clock cap is only a backstop for an rsync that wedges without I/O.
+RSYNC_IO_TIMEOUT = 300
+RSYNC_STREAM_TIMEOUT = 4 * 3600
+
 CHUNK_READ_SIZE = 1024 * 1024
 
 
+class SentinelArgumentParser(argparse.ArgumentParser):
+    """argparse's own usage errors exit 2, but exit 2 is documented above as
+    "the remote side failed" -- a typo'd flag must not be misdiagnosed as a
+    remote failure. Usage errors are a local/configuration problem: print the
+    sentinel and exit 1 like every other one."""
+
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        print("UPLOAD-PACKAGES: FAILED reason=bad usage: %s" % message,
+              file=sys.stderr)
+        sys.exit(1)
+
+
 def parse_args(argv):
-    p = argparse.ArgumentParser(
+    p = SentinelArgumentParser(
         description="Upload built ipk packages to the Angstrom feed server")
     p.add_argument("--deploy-dir-ipk", metavar="DIR",
                    help="DEPLOY_DIR_IPK to scan (default: bitbake-getvar DEPLOY_DIR_IPK)")
@@ -68,7 +98,8 @@ def parse_args(argv):
                    help="remote ssh account; empty string selects local-filesystem "
                         "mode (default: bitbake-getvar ANGSTROM_UPLOAD_REMOTE)")
     p.add_argument("--remote-dir", metavar="DIR",
-                   help="feed base directory on the remote, e.g. website/feeds/v2026.06/ipk/glibc/ "
+                   help="feed base directory on the remote, e.g. /data/www/angstrom/feeds/v2026.06/ipk/glibc/ "
+                        "- must be absolute when uploading over ssh "
                         "(default: bitbake-getvar ANGSTROM_UPLOAD_REMOTE_DIR, falling back "
                         "to website/${FEED_BASEPATH})")
     p.add_argument("--build-dir", metavar="DIR", default=None,
@@ -159,6 +190,15 @@ def resolve_config(args):
             log.error("missing configuration: %s", e)
         return False
     args.remote_dir = args.remote_dir.rstrip("/")
+    # A relative path resolves under the ssh account's home directory, not the
+    # feed root -- the whole pipeline would then succeed against a private
+    # directory nothing serves. The FEED_BASEPATH fallback above is exactly how
+    # that happens, so refuse instead of publishing into nowhere.
+    if args.remote and not os.path.isabs(args.remote_dir):
+        log.error("remote directory %r is not absolute; over ssh it would "
+                  "resolve under %s's home directory instead of the feed root",
+                  args.remote_dir, args.remote)
+        return False
     return True
 
 
@@ -178,11 +218,92 @@ def scan_deploy_dir(deploy_dir, excludes):
         if any(fnmatch.fnmatch(path.name, pat) for pat in excludes):
             skipped += 1
             continue
-        st = path.stat()
+        try:
+            st = path.stat()
+        except OSError as exc:
+            # A build writing into DEPLOY_DIR_IPK underneath us, or an
+            # unreadable file: either way the scan is not a true picture of
+            # what should be published, so do not upload a partial view.
+            log.error("Cannot stat %s: %s", path, exc)
+            return None
         found[str(rel)] = (st.st_size, st.st_mtime_ns)
     log.info("Found %d ipk files under %s (%d excluded by pattern)",
              len(found), root, skipped)
     return found
+
+
+# OE's default split-package suffixes (package.bbclass / bitbake.conf).
+# Collapsing on these lets the chat-facing report show one row per recipe
+# instead of one row per -dbg/-dev/-src/... variant -- see
+# skills/dominion-publish/SKILL.md, "Reporting uploaded packages".
+_SUBPACKAGE_SUFFIX_RE = re.compile(
+    r"-(dbg|dev|doc|staticdev|src|ptest|lic|locale(?:-.+)?)$")
+
+
+def base_package_name(pkg_name):
+    """Collapse an OE split-package name to its recipe base name for
+    reporting -- domoticz-dbg/-dev/-src all report as domoticz. Best-effort:
+    a recipe whose real PN happens to end in one of these tokens is rare and
+    not specially handled."""
+    m = _SUBPACKAGE_SUFFIX_RE.search(pkg_name)
+    return pkg_name[:m.start()] if m else pkg_name
+
+
+def parse_ipk_filename(basename):
+    """Split '<name>_<version>_<arch>.ipk' into (name, version, arch).
+    PN never contains '_' (it's hyphen-separated), but a git-SRCREV version
+    string can -- so split on the FIRST '_' for name and the LAST '_' for
+    arch, not a naive 3-way split. Returns None if it doesn't look like an
+    ipk filename at all."""
+    if not basename.endswith(".ipk"):
+        return None
+    stem = basename[:-4]
+    if "_" not in stem:
+        return None
+    name, rest = stem.split("_", 1)
+    if "_" not in rest:
+        return None
+    version, arch = rest.rsplit("_", 1)
+    return name, version, arch
+
+
+def group_packages_for_report(relpaths):
+    """Group ipk relpaths into {base_name: {"version": v, "archs": {a, ...}}}
+    for the chat-facing report -- one entry per base package, not per split
+    subpackage. Files that don't parse as '<name>_<version>_<arch>.ipk' are
+    silently skipped (this is a report, not a validation pass; scan_deploy_dir
+    already validated the files themselves)."""
+    groups = {}
+    for rel in relpaths:
+        parsed = parse_ipk_filename(os.path.basename(rel))
+        if parsed is None:
+            continue
+        name, version, arch = parsed
+        base = base_package_name(name)
+        entry = groups.setdefault(base, {"version": version, "archs": set()})
+        entry["archs"].add(arch)
+        if entry["version"] != version:
+            # Same recipe, two versions in one run (e.g. a mid-sweep bump) --
+            # surface the mismatch rather than silently keeping whichever
+            # subpackage was grouped first.
+            entry["version"] = "%s, %s" % (entry["version"], version)
+
+    return groups
+
+
+def format_package_report(groups, verb):
+    """Render the collapsed package table: one row per base package,
+    version once, every arch comma-joined in one cell. 'verb' is
+    'would publish' (--dry-run) or 'published' (a real run)."""
+    if not groups:
+        return ""
+    lines = ["", "Packages %s:" % verb,
+             "| Package | Version | Archs |", "| --- | --- | --- |"]
+    for name in sorted(groups):
+        entry = groups[name]
+        lines.append("| %s | %s | %s |" %
+                     (name, entry["version"], ", ".join(sorted(entry["archs"]))))
+    return "\n".join(lines)
 
 
 def default_cache_file(deploy_dir):
@@ -204,12 +325,20 @@ def load_cache(cache_file):
 
 
 def save_cache(cache_file, cache):
+    """Persist the hash cache. Purely an optimisation: a failure here is
+    reported and the run continues, it must never fail an otherwise good
+    upload -- but it must not be silent either, or the next run silently
+    re-hashes everything for no visible reason."""
     cache_file = Path(cache_file)
-    cache_file.parent.mkdir(parents=True, exist_ok=True)
-    tmp = cache_file.with_suffix(".tmp.%d" % os.getpid())
-    with open(tmp, "w") as f:
-        json.dump(cache, f)
-    os.replace(tmp, cache_file)
+    try:
+        cache_file.parent.mkdir(parents=True, exist_ok=True)
+        tmp = cache_file.with_suffix(".tmp.%d" % os.getpid())
+        with open(tmp, "w") as f:
+            json.dump(cache, f)
+        os.replace(tmp, cache_file)
+    except OSError as exc:
+        log.warning("Could not write the hash cache %s: %s (harmless; the "
+                    "next run just re-hashes everything)", cache_file, exc)
 
 
 def sha256_file(path):
@@ -224,7 +353,10 @@ def sha256_file(path):
 
 
 def hash_files(deploy_dir, files, cache, jobs):
-    """Return {relpath: sha256}, reusing cache entries whose size+mtime match."""
+    """Return {relpath: sha256}, reusing cache entries whose size+mtime match.
+    Returns None if any file could not be hashed: the digests end up in the
+    manifest the server verifies against, so an incomplete hash set must not
+    turn into an upload."""
     root = Path(deploy_dir)
     hashes = {}
     todo = []
@@ -236,12 +368,27 @@ def hash_files(deploy_dir, files, cache, jobs):
             todo.append(rel)
     if todo:
         log.info("Hashing %d new/changed files (%d cached)", len(todo), len(hashes))
+
+        def hash_one(rel):
+            try:
+                return sha256_file(root / rel)
+            except OSError as exc:
+                log.error("Cannot hash %s: %s", rel, exc)
+                return None
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, jobs)) as ex:
-            for rel, digest in zip(todo, ex.map(
-                    lambda r: sha256_file(root / r), todo)):
+            for rel, digest in zip(todo, ex.map(hash_one, todo)):
+                if digest is None:
+                    continue
                 hashes[rel] = digest
                 size, mtime_ns = files[rel]
                 cache[rel] = {"size": size, "mtime_ns": mtime_ns, "sha256": digest}
+        missing = len(todo) - sum(1 for rel in todo if rel in hashes)
+        if missing:
+            log.error("%d of %d file(s) could not be hashed; refusing to build "
+                      "a manifest that does not cover the whole upload", missing,
+                      len(todo))
+            return None
     else:
         log.info("All %d file hashes served from cache", len(hashes))
     # drop cache entries for files that no longer exist
@@ -275,10 +422,45 @@ class Transport:
         return "%s:%s" % (self.remote, path) if self.remote else path
 
     def rsync_cmd(self, extra):
-        cmd = [self.rsync, "--perms", "--times", "--partial-dir=.rsync-partial"]
+        cmd = [self.rsync, "--perms", "--times", "--partial-dir=.rsync-partial",
+               "--timeout=%d" % RSYNC_IO_TIMEOUT]
         if self.remote:
             cmd += ["-e", " ".join(self.ssh_cmd)]
         return cmd + extra
+
+
+def remote_parent_exists(transport):
+    """Check that the parent of the remote directory is already there.
+
+    Everything below it is created with mkdir -p (that is how a brand-new feed
+    subtree is bootstrapped), which means a typo'd or transposed --remote-dir
+    would get a complete feed tree built under it and every later step --
+    upload, verify, sort -- would succeed against the wrong path. Requiring the
+    parent to pre-exist still allows the intended bootstrap and refuses a path
+    that was never real. Returns True, False (the parent is really absent) or
+    None (the remote could not be asked)."""
+    parent = os.path.dirname(transport.remote_dir) or "."
+    snippet = ("if [ -d %s ]; then echo PARENT-OK; else echo PARENT-MISSING; fi"
+               % shlex.quote(parent))
+    try:
+        proc = transport.run_shell(snippet, timeout=60)
+    except subprocess.TimeoutExpired:
+        log.error("Checking %s on the remote timed out", parent)
+        return None
+    if proc.returncode != 0:
+        log.error("Could not check %s on the remote (%d): %s", parent,
+                  proc.returncode, proc.stderr.strip())
+        return None
+    out = proc.stdout.split()
+    if "PARENT-OK" in out:
+        return True
+    if "PARENT-MISSING" in out:
+        log.error("%s does not exist, so %s is not an existing feed tree; "
+                  "refusing to create one there (check --remote-dir for a "
+                  "typo)", parent, transport.remote_dir)
+        return False
+    log.error("Unexpected reply while checking %s: %r", parent, proc.stdout)
+    return None
 
 
 def query_remote_known(transport):
@@ -353,7 +535,13 @@ def rsync_chunk(transport, deploy_dir, chunk, dest, scratch, tag, retries):
                         tag, delay, attempt + 1, retries + 1)
             time.sleep(delay)
         log.debug("stream %s: %s", tag, " ".join(shlex.quote(c) for c in cmd))
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True,
+                                  timeout=RSYNC_STREAM_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            log.warning("stream %s: rsync did not finish within %ds, killed it",
+                        tag, RSYNC_STREAM_TIMEOUT)
+            continue
         if proc.returncode == 0:
             log.info("stream %s: %d files transferred", tag, len(chunk))
             return True
@@ -384,6 +572,44 @@ def resolve_arch_map(arg):
     return default if default.is_file() else None
 
 
+def verify_staged_upload(transport, upload_id, expected_ipks):
+    """Confirm the staging directory really holds the manifest and every ipk
+    before COMPLETE is created. Once the marker exists the server ingests the
+    directory and deletes it, so a short upload marked complete loses packages
+    with nothing anywhere reporting a problem -- rsync's own exit status is
+    the only other evidence, and it cannot see files a chunk never listed."""
+    stage = "%s/incoming/%s" % (transport.remote_dir, upload_id)
+    snippet = (
+        "set -e\n"
+        "cd %s\n"
+        "test -f MANIFEST.sha256\n"
+        "find . -type f -name '*.ipk' -not -path '*/.rsync-partial/*' | wc -l\n"
+        % shlex.quote(stage))
+    try:
+        proc = transport.run_shell(snippet, timeout=300)
+    except subprocess.TimeoutExpired:
+        log.error("Verifying staged upload %s timed out", upload_id)
+        return False
+    if proc.returncode != 0:
+        log.error("Staged upload %s is not verifiable (%d): %s", upload_id,
+                  proc.returncode, proc.stderr.strip())
+        return False
+    try:
+        staged = int(proc.stdout.strip().splitlines()[-1])
+    except (IndexError, ValueError):
+        log.error("Unexpected reply while verifying staged upload %s: %r",
+                  upload_id, proc.stdout)
+        return False
+    if staged != expected_ipks:
+        log.error("Staged upload %s holds %d ipk file(s) but %d were sent; "
+                  "NOT marking it COMPLETE -- re-run to finish the transfer",
+                  upload_id, staged, expected_ipks)
+        return False
+    log.info("Staged upload %s verified on the server: %d ipk file(s) plus "
+             "the manifest", upload_id, staged)
+    return True
+
+
 def finalize_upload(transport, scratch, upload, hashes, upload_id, retries,
                     arch_map):
     """Upload MANIFEST.sha256 (and the arch map, if any) and create the
@@ -405,59 +631,141 @@ def finalize_upload(transport, scratch, upload, hashes, upload_id, retries,
     if not rsync_chunk(transport, scratch, finalize_files, dest,
                        scratch, "manifest", retries):
         return False
+    # Order matters: the marker is what licenses the server to ingest and
+    # delete this directory, so nothing may create it before the contents
+    # have been confirmed to be all there.
+    if not verify_staged_upload(transport, upload_id,
+                                sum(1 for rel in upload if rel.endswith(".ipk"))):
+        return False
     marker = "%s/incoming/%s/COMPLETE" % (transport.remote_dir, upload_id)
+    # The marker is the one write that licenses the server to ingest and
+    # delete the stage, so its existence is confirmed independently (same
+    # pattern as remote_parent_exists), not inferred from touch's exit code.
+    qm = shlex.quote(marker)
     try:
-        proc = transport.run_shell("touch %s" % shlex.quote(marker), timeout=60)
+        proc = transport.run_shell(
+            "touch %s && test -f %s && echo MARKER-OK" % (qm, qm), timeout=60)
     except subprocess.TimeoutExpired:
         log.error("Creating COMPLETE marker timed out")
         return False
     if proc.returncode != 0:
         log.error("Creating COMPLETE marker failed: %s", proc.stderr.strip())
         return False
+    if "MARKER-OK" not in proc.stdout.split():
+        log.error("COMPLETE marker %s is not there after touch said it "
+                  "succeeded: %r", marker, proc.stdout)
+        return False
     return True
 
 
 def write_summary(path, summary):
+    """Write the --json-summary file. Returns False if one was asked for and
+    could not be written: a run that did not produce the artefact it was told
+    to produce has not fully succeeded, and whatever reads that file must not
+    be left with a stale copy from an earlier run instead."""
     if not path:
-        return
-    with open(path, "w") as f:
-        json.dump(summary, f, indent=2, sort_keys=True)
-        f.write("\n")
+        return True
+    try:
+        with open(path, "w") as f:
+            json.dump(summary, f, indent=2, sort_keys=True)
+            f.write("\n")
+    except OSError as exc:
+        log.error("Cannot write the JSON summary %s: %s", path, exc)
+        return False
+    return True
 
 
-def main(argv=None):
-    args = parse_args(argv)
-    logging.basicConfig(
-        level=getattr(logging, args.log_level.upper()),
-        format="%(asctime)s %(levelname)s %(message)s",
-        datefmt="%H:%M:%S")
+def finish(args, summary, rc, reason=None):
+    """Single exit point: fill in the summary, write it, and print the one
+    sentinel line that says how the run ended."""
+    summary["success"] = (rc == 0)
+    if not write_summary(args.json_summary, summary) and rc == 0:
+        summary["success"] = False
+        rc = 1
+        reason = ("the upload itself succeeded but the --json-summary file "
+                  "could not be written")
+    remote = summary.get("remote")
+    line = ("UPLOAD-PACKAGES: %s upload=%s remote=%s remote-dir=%s scanned=%d "
+            "already-present=%d planned=%d uploaded=%d dry-run=%d"
+            % ("SUCCESS" if rc == 0 else "FAILED",
+               summary.get("upload_id", "none"),
+               "(unset)" if remote is None else (remote or "(local)"),
+               summary.get("remote_dir") or "(unset)",
+               summary.get("scanned", 0), summary.get("already_present", 0),
+               summary.get("planned", 0), summary.get("uploaded", 0),
+               1 if args.dry_run else 0))
+    if rc == 0:
+        log.info(line)
+    else:
+        log.error("%s reason=%s", line, reason or "see the errors above")
+    return rc
+
+
+def _run_upload(args):
+    summary = {
+        "deploy_dir_ipk": args.deploy_dir_ipk,
+        "remote": args.remote,
+        "remote_dir": args.remote_dir,
+        "scanned": 0,
+        "already_present": 0,
+        "planned": 0,
+        "uploaded": 0,
+        "dry_run": args.dry_run,
+        "success": False,
+    }
 
     if not resolve_config(args):
-        return 1
+        return finish(args, summary, 1,
+                      "incomplete configuration, nothing was scanned or sent")
+    summary["deploy_dir_ipk"] = str(args.deploy_dir_ipk)
+    summary["remote"] = args.remote
+    summary["remote_dir"] = args.remote_dir
 
     if shutil.which(args.rsync) is None:
         log.error("rsync not found in PATH; inside a bitbake task this needs "
                   "HOSTTOOLS_NONFATAL to include rsync and rsync installed on the host")
-        return 1
+        return finish(args, summary, 1, "rsync not found, nothing was sent")
     if args.remote and shutil.which("ssh") is None:
         log.error("ssh not found in PATH")
-        return 1
+        return finish(args, summary, 1, "ssh not found, nothing was sent")
+
+    transport = Transport(args.remote, args.remote_dir, args.ssh_opt, args.rsync)
+
+    # Before anything creates directories out there: everything from here on
+    # would succeed just as well against a wrong path.
+    parent_ok = remote_parent_exists(transport)
+    if parent_ok is False:
+        return finish(args, summary, 1,
+                      "the parent of %s does not exist on the remote, so this "
+                      "is not an existing feed tree; nothing was sent"
+                      % args.remote_dir)
+    if parent_ok is None:
+        if args.dry_run:
+            log.warning("Continuing dry run without confirming the remote path")
+        else:
+            return finish(args, summary, 2,
+                          "the remote could not be asked whether %s is a real "
+                          "feed tree" % args.remote_dir)
 
     started = time.time()
     files = scan_deploy_dir(args.deploy_dir_ipk, args.exclude)
     if files is None:
-        return 1
+        return finish(args, summary, 1,
+                      "DEPLOY_DIR_IPK could not be scanned, nothing was sent")
+    summary["scanned"] = len(files)
 
     cache_file = args.cache_file or default_cache_file(args.deploy_dir_ipk)
     cache = load_cache(cache_file)
     hashes = hash_files(args.deploy_dir_ipk, files, cache, args.jobs)
+    if hashes is None:
+        return finish(args, summary, 1,
+                      "not every package could be hashed, nothing was sent")
     save_cache(cache_file, cache)
-
-    transport = Transport(args.remote, args.remote_dir, args.ssh_opt, args.rsync)
 
     arch_map = resolve_arch_map(args.arch_map)
     if arch_map is False:
-        return 1
+        return finish(args, summary, 1,
+                      "--arch-map file does not exist, nothing was sent")
 
     known = set()
     if args.skip_remote_check:
@@ -471,30 +779,21 @@ def main(argv=None):
                 log.warning("Continuing dry run as if the server knew nothing")
                 known = set()
             else:
-                return 2
+                return finish(args, summary, 2,
+                              "the server could not be queried for what it "
+                              "already has")
 
     if args.force:
         upload = sorted(files)
     else:
         upload = sorted(rel for rel in files if Path(rel).name not in known)
 
-    summary = {
-        "deploy_dir_ipk": str(args.deploy_dir_ipk),
-        "remote": args.remote,
-        "remote_dir": args.remote_dir,
-        "scanned": len(files),
-        "already_present": len(files) - len(upload),
-        "planned": len(upload),
-        "uploaded": 0,
-        "dry_run": args.dry_run,
-        "success": False,
-    }
+    summary["already_present"] = len(files) - len(upload)
+    summary["planned"] = len(upload)
 
     if not upload:
         log.info("Nothing to upload: all %d packages already on the server", len(files))
-        summary["success"] = True
-        write_summary(args.json_summary, summary)
-        return 0
+        return finish(args, summary, 0)
 
     total_bytes = sum(files[rel][0] for rel in upload)
     upload_id = make_upload_id(upload, hashes)
@@ -506,9 +805,10 @@ def main(argv=None):
     if args.dry_run:
         for rel in upload:
             log.info("would upload: %s", rel)
-        summary["success"] = True
-        write_summary(args.json_summary, summary)
-        return 0
+        report = format_package_report(group_packages_for_report(upload), "would publish")
+        if report:
+            print(report)
+        return finish(args, summary, 0)
 
     dest = transport.rsync_dest("incoming/%s/" % upload_id)
     chunks = balance_chunks(upload, files, args.jobs)
@@ -520,12 +820,15 @@ def main(argv=None):
         "%s/incoming/%s/%s" % (transport.remote_dir, upload_id,
                                os.path.dirname(rel))
         for rel in upload})
-    proc = transport.run_shell(
-        "mkdir -p " + " ".join(shlex.quote(p.rstrip("/")) for p in stage_dirs))
+    try:
+        proc = transport.run_shell(
+            "mkdir -p " + " ".join(shlex.quote(p.rstrip("/")) for p in stage_dirs))
+    except subprocess.TimeoutExpired:
+        log.error("Creating staging directories timed out")
+        return finish(args, summary, 2, "creating the staging directories timed out")
     if proc.returncode != 0:
         log.error("Creating staging directories failed: %s", proc.stderr.strip())
-        write_summary(args.json_summary, summary)
-        return 2
+        return finish(args, summary, 2, "the staging directories could not be created")
 
     ok = True
     with tempfile.TemporaryDirectory(prefix="upload-packages.") as scratch:
@@ -543,22 +846,55 @@ def main(argv=None):
         if not ok:
             log.error("Upload incomplete; staging directory %s is left in place "
                       "and a re-run will resume it", dest)
-            write_summary(args.json_summary, summary)
-            return 2
+            # No COMPLETE marker was created, so the server will not ingest
+            # the half-transferred staging directory.
+            return finish(args, summary, 2,
+                          "%d of %d package(s) transferred; the upload was NOT "
+                          "marked complete and nothing has been published"
+                          % (summary["uploaded"], len(upload)))
 
         if not finalize_upload(transport, scratch, upload, hashes,
                                upload_id, args.retries, arch_map):
             log.error("Upload transferred but could not be finalized; "
                       "re-run to finish publishing %s", upload_id)
-            write_summary(args.json_summary, summary)
-            return 2
+            return finish(args, summary, 2,
+                          "upload %s was not finalised; it is staged but not "
+                          "marked complete, so the server will not ingest it"
+                          % upload_id)
 
-    summary["success"] = True
-    write_summary(args.json_summary, summary)
     log.info("Upload %s complete: %d packages in %.1fs; the server will ingest "
              "it on the next sort run", upload_id, len(upload),
              time.time() - started)
-    return 0
+    report = format_package_report(group_packages_for_report(upload), "published")
+    if report:
+        print(report)
+    return finish(args, summary, 0)
+
+
+def main(argv=None):
+    args = parse_args(argv)
+    logging.basicConfig(
+        level=getattr(logging, args.log_level.upper()),
+        format="%(asctime)s %(levelname)s %(message)s",
+        datefmt="%H:%M:%S")
+
+    try:
+        # Nothing may read an earlier run's summary as this one's result, not
+        # even if this run dies before it can write its own.
+        if args.json_summary:
+            try:
+                os.unlink(args.json_summary)
+            except OSError:
+                pass
+
+        return _run_upload(args)
+    except Exception as exc:
+        # Never let a traceback be the only record: an unexpected failure gets
+        # the same greppable sentinel as an expected one.
+        log.exception("Unhandled error during upload: %s", exc)
+        log.error("UPLOAD-PACKAGES: FAILED remote-dir=%s unhandled error: %s",
+                  args.remote_dir, exc)
+        return 2
 
 
 if __name__ == "__main__":

@@ -29,12 +29,27 @@
 #  - files-sorted gains only names that were actually sorted into a feed.
 #  - Only feeds that actually received files are re-indexed.
 #  - The upload ticker records the feed name, not the literal "unsorted".
+#  - --drop NAME forgets a package (all versions/architectures) from
+#    files-sorted, so the next upload re-delivers it and sorting overwrites
+#    the stale ipk already in the feed tree.
 #
 # Run it from <feed-dir>/unsorted (sort.sh compatible) or point --feed-dir
 # at the feed base.
+#
+# Every run ends with exactly one greppable sentinel line:
+#   SORT-PACKAGES: SUCCESS feed-dir=... ingested=N rejected=N unusable=N
+#                          sorted=N feeds=N unknown=N dry-run=0|1
+#   SORT-PACKAGES: FAILED  <same fields>, preceded by one "reason:" line per
+#                          distinct problem.
+# Exit codes: 0 success, 1 setup/config/lock failure, bad command line
+# included (nothing was attempted),
+# 2 the run did something but not all of it (rejected or un-ingestable
+# uploads, a failed index rebuild, files-sorted not updated, post command
+# failed). Never exits 0 after skipping a step.
 
 import argparse
 import copy
+import fcntl
 import gzip
 import hashlib
 import json
@@ -55,8 +70,20 @@ ALL_ARCHES = ("all", "any", "noarch")
 TICKER_EXCLUDE = re.compile(r"-dbg|-dev|-doc|-static|angstrom-version|locale")
 
 
+class SentinelArgumentParser(argparse.ArgumentParser):
+    """argparse's own usage errors exit 2, but exit 2 is documented above as
+    "the run did something but not all of it" -- a typo'd flag must not look
+    like a partial sort. Usage errors attempt nothing: print the sentinel and
+    exit 1 like the other setup/config failures."""
+
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        print("SORT-PACKAGES: FAILED bad usage: %s" % message, file=sys.stderr)
+        sys.exit(1)
+
+
 def parse_args(argv):
-    p = argparse.ArgumentParser(
+    p = SentinelArgumentParser(
         description="Sort uploaded ipk packages into the Angstrom feed tree")
     p.add_argument("--feed-dir", metavar="DIR",
                    help="feed base directory (default: parent of the current "
@@ -68,8 +95,21 @@ def parse_args(argv):
                    help="opkg-make-index executable (default: from PATH)")
     p.add_argument("--skip-sorted-list", action="store_true",
                    help="do not update the files-sorted duplicate list")
+    p.add_argument("--drop", action="append", default=[], metavar="NAME",
+                   help="remove all files-sorted entries for package NAME "
+                        "(every version/architecture), so the next upload "
+                        "of it is treated as new and sorting overwrites "
+                        "the old ipk in place (repeatable)")
     p.add_argument("--skip-index", action="store_true",
                    help="sort only, do not run opkg-make-index")
+    p.add_argument("--ensure-archs", metavar="ARCH[,ARCH...]",
+                   help="comma/space-separated base arches to guarantee a valid "
+                        "(possibly empty) Packages/Packages.gz index for -- e.g. "
+                        "a machine's full PACKAGE_EXTRA_ARCHS compatibility "
+                        "ladder -- so a client configured to look at a "
+                        "less-specific arch with no content yet gets an empty "
+                        "index instead of a 404. Runs independent of, and "
+                        "before, the normal ingest/sort")
     p.add_argument("--post-command", metavar="CMD",
                    help="shell command to run after a successful sort "
                         "(replaces the old hardcoded repo-updater step)")
@@ -92,10 +132,29 @@ def sha256_file(path):
 
 
 def atomic_write_text(path, text):
+    """Replace path atomically, and only once the new content is really on
+    disk. A short write (ENOSPC on the feed server is a real possibility)
+    must never be renamed over a good files-sorted/Packages/arch map: that
+    would silently truncate state nothing else can reconstruct."""
     path = Path(path)
     tmp = path.parent / (path.name + ".tmp.%d" % os.getpid())
-    tmp.write_text(text)
-    os.replace(str(tmp), str(path))
+    data = text.encode("utf-8")
+    try:
+        with open(str(tmp), "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        written = tmp.stat().st_size
+        if written != len(data):
+            raise IOError("short write to %s: %d of %d bytes"
+                          % (tmp, written, len(data)))
+        os.replace(str(tmp), str(path))
+    except BaseException:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+        raise
 
 
 def resolve_feed_dir(arg):
@@ -105,12 +164,15 @@ def resolve_feed_dir(arg):
             log.error("%s does not contain an unsorted/ directory", feed_dir)
             return None
         return feed_dir.resolve()
-    cwd = Path.cwd()
+    cwd = Path.cwd().resolve()
     if cwd.name == "unsorted":
-        return cwd.parent.resolve()
-    if (cwd / "unsorted").is_dir():
-        return cwd.resolve()
-    log.error("Not in a feed directory (no unsorted/ here); use --feed-dir")
+        return cwd.parent
+    # Walk up so this also works from anywhere under the feed tree (e.g.
+    # incoming/, or a sorted arch subdir), not just the feed base itself.
+    for candidate in (cwd, *cwd.parents):
+        if (candidate / "unsorted").is_dir():
+            return candidate
+    log.error("Not in or under a feed directory (no unsorted/ found); use --feed-dir")
     return None
 
 
@@ -185,13 +247,19 @@ class ArchMap(object):
 def merge_arch_map(target, incoming):
     """Merge a delivered arch map into <feed-dir>/feed-arch-map.json.
     Machine entries and aliases are updated per key; extra_base_archs are
-    unioned. Returns True if the target changed."""
+    unioned. Returns True if the target changed, False if it did not need
+    to, None if the delivered map could not be used at all (the caller
+    counts that as a failed ingest: it passed its checksum, so the client
+    shipped something broken and will not know unless we say so)."""
     try:
         with open(str(incoming)) as f:
             new = json.load(f)
     except (OSError, ValueError) as exc:
-        log.warning("Delivered arch map is unreadable, ignored: %s", exc)
-        return False
+        log.error("Delivered arch map is unreadable, not merged: %s", exc)
+        return None
+    if not isinstance(new, dict):
+        log.error("Delivered arch map is not a JSON object, not merged")
+        return None
     current = {}
     if Path(target).exists():
         try:
@@ -212,8 +280,34 @@ def merge_arch_map(target, incoming):
         log.info("Delivered arch map matches the current one")
         return False
     atomic_write_text(target, json.dumps(merged, indent=2, sort_keys=True) + "\n")
+    # Read the merged map back: everything downstream sorts by it, so an
+    # unparseable result must be reported here, not discovered as "unknown
+    # arch" on every package of the next run.
+    try:
+        with open(str(target)) as f:
+            written = json.load(f)
+    except (OSError, ValueError) as exc:
+        log.error("Arch map %s is unreadable after being written: %s", target, exc)
+        return None
+    if written != merged:
+        log.error("Arch map %s does not match what was written", target)
+        return None
     log.info("Arch map %s updated from upload (%d machines)",
              target, len(merged.get("machines", {})))
+    return True
+
+
+def move_into_pool(src, dest, stage_name):
+    """Move one verified file into unsorted/ and confirm it landed."""
+    try:
+        os.replace(str(src), str(dest))
+    except OSError as exc:
+        log.error("%s: cannot move %s into the pool: %s", stage_name, src.name, exc)
+        return False
+    if not dest.exists():
+        log.error("%s: %s is not in the pool after being moved there",
+                  stage_name, dest.name)
+        return False
     return True
 
 
@@ -235,35 +329,66 @@ def parse_manifest(path):
 
 def ingest_incoming(feed_dir, arch_map_path, dry_run):
     """Verify and absorb completed staged uploads from <feed-dir>/incoming.
-    Returns (ingested, rejected) counts."""
+    Returns (ingested, rejected, unusable) counts: `rejected` is a failed
+    sha256, `unusable` is anything else that stopped a manifested file from
+    reaching the pool. Both are hard failures for the run -- the client is
+    told the upload was consumed, so nothing else would ever notice.
+
+    A consumed staging directory is always removed, even when part of it
+    failed: query_remote_known() on the client counts a COMPLETE stage's
+    manifest as "the server has these", so leaving one behind would
+    permanently suppress the re-upload that fixes the problem."""
     incoming = feed_dir / "incoming"
     unsorted_dir = feed_dir / "unsorted"
     ingested = 0
     rejected = 0
+    unusable = 0
     if not incoming.is_dir():
-        return 0, 0
+        return 0, 0, 0
     for stage in sorted(p for p in incoming.iterdir() if p.is_dir()):
         if not (stage / "COMPLETE").exists():
             log.info("Skipping incomplete upload %s", stage.name)
             continue
         manifest = stage / "MANIFEST.sha256"
         if not manifest.exists():
-            log.warning("Ingesting unverified upload %s (no manifest)", stage.name)
-            if not dry_run:
-                for ipk in sorted(stage.rglob("*.ipk")):
-                    os.replace(str(ipk), str(unsorted_dir / ipk.name))
-                    ingested += 1
-                shutil.rmtree(str(stage))
+            # upload-packages.py always uploads the manifest before creating
+            # COMPLETE, so a marker with no manifest can only be a damaged
+            # stage -- ingesting it would put unverified (possibly truncated)
+            # files in the feed. Left in place for inspection; the client's
+            # query_remote_known() only reads manifests, so leaving it does
+            # not suppress the re-upload.
+            count = sum(1 for _ in stage.rglob("*.ipk"))
+            log.error("%s: COMPLETE marker but no MANIFEST.sha256; %d file(s) "
+                      "NOT ingested, stage left in place", stage.name, count)
+            unusable += max(count, 1)
             continue
         log.info("Ingesting verified upload %s", stage.name)
-        for digest, relpath in parse_manifest(manifest):
+        try:
+            entries = parse_manifest(manifest)
+        except OSError as exc:
+            log.error("%s: cannot read MANIFEST.sha256: %s", stage.name, exc)
+            unusable += 1
+            continue
+        if not entries:
+            log.error("%s: MANIFEST.sha256 has no usable entries, nothing "
+                      "ingested from this upload", stage.name)
+            unusable += 1
+            continue
+        for digest, relpath in entries:
             src = stage / relpath
             name = src.name
             if not src.exists():
-                log.warning("%s: manifest entry missing on disk: %s",
-                            stage.name, relpath)
+                # COMPLETE was set, so the client believes it sent this.
+                log.error("%s: manifest entry missing on disk: %s",
+                          stage.name, relpath)
+                unusable += 1
                 continue
-            actual = sha256_file(src)
+            try:
+                actual = sha256_file(src)
+            except OSError as exc:
+                log.error("%s: cannot read %s: %s", stage.name, relpath, exc)
+                unusable += 1
+                continue
             if actual != digest:
                 rejected += 1
                 log.error("%s: checksum mismatch, rejecting %s", stage.name, relpath)
@@ -273,18 +398,21 @@ def ingest_incoming(feed_dir, arch_map_path, dry_run):
                                 (int(time.time()), relpath, stage.name))
                 continue
             if name == ARCH_MAP_NAME:
-                if not dry_run:
-                    merge_arch_map(arch_map_path, src)
+                if not dry_run and merge_arch_map(arch_map_path, src) is None:
+                    unusable += 1
                 continue
             if not name.endswith(".ipk"):
                 log.warning("%s: ignoring non-package file %s", stage.name, relpath)
                 continue
-            if not dry_run:
-                os.replace(str(src), str(unsorted_dir / name))
-            ingested += 1
+            if dry_run:
+                ingested += 1
+            elif move_into_pool(src, unsorted_dir / name, stage.name):
+                ingested += 1
+            else:
+                unusable += 1
         if not dry_run:
             shutil.rmtree(str(stage))
-    return ingested, rejected
+    return ingested, rejected, unusable
 
 
 def flatten_pool(unsorted_dir, dry_run):
@@ -317,6 +445,36 @@ def read_sorted_list(unsorted_dir):
     if not path.exists():
         return set()
     return set(l.strip() for l in path.read_text().splitlines() if l.strip())
+
+
+PACKAGE_NAME_RE = re.compile(r"^([^_]+)_")
+
+
+def package_name(ipk_filename):
+    m = PACKAGE_NAME_RE.match(ipk_filename)
+    return m.group(1) if m else None
+
+
+def drop_packages(unsorted_dir, names, dry_run):
+    """Remove every files-sorted entry for the given package name(s), across
+    all versions/architectures. Does not touch already-sorted ipks in the
+    feed tree: the next matching upload is treated as new again, and sorting
+    it overwrites the old file in place via the normal os.replace."""
+    names = set(names)
+    sorted_names = read_sorted_list(unsorted_dir)
+    dropped = sorted(n for n in sorted_names if package_name(n) in names)
+    if not dropped:
+        log.info("--drop %s: no files-sorted entries matched",
+                 ", ".join(sorted(names)))
+        return 0
+    log.info("--drop %s: removing %d files-sorted entries",
+             ", ".join(sorted(names)), len(dropped))
+    for n in dropped:
+        log.info("  %s", n)
+    if not dry_run:
+        atomic_write_text(unsorted_dir / "files-sorted",
+                          "".join(n + "\n" for n in sorted(sorted_names - set(dropped))))
+    return len(dropped)
 
 
 def dedupe_pool(unsorted_dir, sorted_names, dry_run):
@@ -359,11 +517,20 @@ def sort_pool(feed_dir, unsorted_dir, archmap, dry_run):
 
 
 def update_sorted_list(unsorted_dir, sorted_names, moved, dry_run):
+    """Rewrite the dedupe list and read it back. Nothing reconstructs this
+    file: if it silently lost entries the next upload would re-deliver
+    packages that are already in the feed. Returns True on success."""
     merged = sorted(sorted_names | set(moved))
     if not dry_run:
         atomic_write_text(unsorted_dir / "files-sorted",
                           "".join(n + "\n" for n in merged))
+        readback = read_sorted_list(unsorted_dir)
+        if readback != set(merged):
+            log.error("files-sorted is wrong after writing it: %d entries on "
+                      "disk, %d expected", len(readback), len(merged))
+            return False
     log.info("files-sorted now lists %d packages", len(merged))
+    return True
 
 
 def update_ticker(feed_dir, moved, dry_run):
@@ -404,22 +571,49 @@ def run_index(tool, directory):
 
 def postprocess_index(directory):
     """Strip Source: lines from Packages, write Packages.gz, touch Packages.sig
-    (same post-treatment sort.sh applied to every index)."""
+    (same post-treatment sort.sh applied to every index). Returns True only if
+    the feed really ends up with a matching Packages/Packages.gz pair -- an
+    index a client cannot read is a failure even though nothing raised."""
     packages = directory / "Packages"
     if not packages.exists():
-        return
-    lines = [l for l in packages.read_text().splitlines()
+        log.error("%s: indexing reported success but wrote no Packages file",
+                  directory)
+        return False
+    lines = [l for l in packages.read_text(encoding="utf-8").splitlines()
              if not l.startswith("Source:")]
     text = "".join(l + "\n" for l in lines)
     atomic_write_text(packages, text)
     gz = directory / "Packages.gz"
     tmp = directory / ("Packages.gz.tmp.%d" % os.getpid())
-    with open(str(tmp), "wb") as f:
-        with gzip.GzipFile(filename="Packages", mode="wb", fileobj=f,
-                           compresslevel=9, mtime=0) as z:
-            z.write(text.encode("utf-8"))
-    os.replace(str(tmp), str(gz))
+    try:
+        with open(str(tmp), "wb") as f:
+            with gzip.GzipFile(filename="Packages", mode="wb", fileobj=f,
+                               compresslevel=9, mtime=0) as z:
+                z.write(text.encode("utf-8"))
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(str(tmp), str(gz))
+    except BaseException:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+        raise
+    # opkg fetches Packages.gz, not Packages: verify it decompresses back to
+    # exactly what we indexed rather than trusting that it was written.
+    try:
+        with gzip.open(str(gz), "rb") as z:
+            roundtrip = z.read().decode("utf-8")
+    except (OSError, ValueError, UnicodeDecodeError) as exc:
+        log.error("%s: Packages.gz is not readable after writing it: %s",
+                  directory, exc)
+        return False
+    if roundtrip != text:
+        log.error("%s: Packages.gz does not match Packages (%d vs %d bytes)",
+                  directory, len(roundtrip), len(text))
+        return False
     (directory / "Packages.sig").touch()
+    return True
 
 
 def index_feeds(feed_dir, touched, tool):
@@ -427,11 +621,171 @@ def index_feeds(feed_dir, touched, tool):
     failures."""
     failures = 0
     for directory in sorted(touched):
-        if run_index(tool, directory):
-            postprocess_index(directory)
-        else:
+        if not run_index(tool, directory):
+            failures += 1
+        elif not postprocess_index(directory):
             failures += 1
     return failures
+
+
+def ensure_placeholder_archs(feed_dir, archs, tool, dry_run):
+    """Guarantee a valid (possibly empty) Packages/Packages.gz under
+    <feed-dir>/<arch>/base/ for every arch in `archs` -- typically a
+    machine's full PACKAGE_EXTRA_ARCHS compatibility ladder, not just its
+    exact tune. A client's opkg.conf can list a less-specific compatible
+    arch (its arch.conf already ranks it at a real priority) long before any
+    package is ever actually built for it; without a placeholder index,
+    `opkg update` 404s on that feed line instead of just seeing zero
+    packages. Once real content lands (normal sort/index path), it
+    overwrites the placeholder the ordinary way -- this only fills a gap
+    that would otherwise 404, never removes or shadows real content.
+    Returns (created, failed): the number of placeholders created (or that
+    dry-run would create) and the number that could not be."""
+    created = 0
+    failed = 0
+    if not dry_run and archs and shutil.which(tool) is None:
+        log.error("%s not found; cannot create placeholder indexes for %s",
+                  tool, ", ".join(archs))
+        return 0, len(archs)
+    for arch in archs:
+        directory = feed_dir / arch / "base"
+        if (directory / "Packages").exists():
+            continue
+        log.info("Placeholder index: %s (no content yet)", directory)
+        if dry_run:
+            created += 1
+            continue
+        directory.mkdir(parents=True, exist_ok=True)
+        if run_index(tool, directory) and postprocess_index(directory):
+            created += 1
+        else:
+            log.error("Failed to create placeholder index at %s", directory)
+            failed += 1
+    return created, failed
+
+
+def report_outcome(feed_dir, args, stats, reasons):
+    """Emit the one line a caller (or a cron mail) should have to read, and
+    turn it into the process exit code. Every terminal state prints exactly
+    one SORT-PACKAGES: SUCCESS / FAILED line -- no run of this script ends
+    without one."""
+    fields = ("feed-dir=%s ingested=%d rejected=%d unusable=%d sorted=%d "
+              "feeds=%d unknown=%d dry-run=%d"
+              % (feed_dir, stats["ingested"], stats["rejected"],
+                 stats["unusable"], stats["sorted"], stats["feeds"],
+                 stats["unknown"], 1 if args.dry_run else 0))
+    if reasons:
+        for reason in reasons:
+            log.error("SORT-PACKAGES: reason: %s", reason)
+        log.error("SORT-PACKAGES: FAILED %s", fields)
+        return 2
+    if stats["unknown"]:
+        # Not a failure (the files stay in unsorted/ and sort once the map
+        # knows their arch) but it must not vanish into the log either.
+        log.warning("SORT-PACKAGES: %d package(s) left unsorted with an "
+                    "unknown arch -- update feed-arch-map.json", stats["unknown"])
+    log.info("SORT-PACKAGES: SUCCESS %s", fields)
+    return 0
+
+
+def _run_sort(args, feed_dir):
+    unsorted_dir = feed_dir / "unsorted"
+    arch_map_path = Path(args.config) if args.config else feed_dir / ARCH_MAP_NAME
+
+    stats = {"ingested": 0, "rejected": 0, "unusable": 0,
+             "sorted": 0, "feeds": 0, "unknown": 0}
+    reasons = []
+
+    if args.drop:
+        drop_packages(unsorted_dir, args.drop, args.dry_run)
+
+    if args.ensure_archs:
+        archs = [a for a in re.split(r"[,\s]+", args.ensure_archs.strip()) if a]
+        created, failed = ensure_placeholder_archs(
+            feed_dir, archs, args.opkg_make_index, args.dry_run)
+        if created:
+            log.info("%s placeholder index(es) for %d arch(es)",
+                     "Would create" if args.dry_run else "Created", created)
+        if failed:
+            reasons.append("%d placeholder index(es) could not be created "
+                           "(--ensure-archs)" % failed)
+
+    ingested, rejected, unusable = ingest_incoming(feed_dir, arch_map_path,
+                                                   args.dry_run)
+    stats["ingested"] = ingested
+    stats["rejected"] = rejected
+    stats["unusable"] = unusable
+    if ingested or rejected:
+        log.info("Ingest: %d files accepted, %d rejected", ingested, rejected)
+    if rejected:
+        reasons.append("%d staged file(s) failed sha256 verification and were "
+                       "rejected" % rejected)
+    if unusable:
+        reasons.append("%d staged file(s) could not be ingested" % unusable)
+
+    flatten_pool(unsorted_dir, args.dry_run)
+
+    pool = sorted(unsorted_dir.glob("*.ipk"))
+    if not pool:
+        log.info("No unsorted packages, nothing to do")
+        return report_outcome(feed_dir, args, stats, reasons)
+
+    archmap = ArchMap.load(arch_map_path)
+    if archmap is None:
+        log.error("No usable arch map at %s; deliver one with "
+                  "upload-packages.py --arch-map or pass --config", arch_map_path)
+        # Configuration failure, not a sorting failure: keep exit 1 for it.
+        log.error("SORT-PACKAGES: FAILED feed-dir=%s no usable arch map at %s",
+                  feed_dir, arch_map_path)
+        return 1
+
+    sorted_names = read_sorted_list(unsorted_dir)
+    dedupe_pool(unsorted_dir, sorted_names, args.dry_run)
+
+    touched, moved, unknown = sort_pool(feed_dir, unsorted_dir, archmap,
+                                        args.dry_run)
+    stats["sorted"] = len(moved)
+    stats["feeds"] = len(touched)
+    stats["unknown"] = len(unknown)
+    log.info("Sorted %d packages into %d feed directories, %d unknown",
+             len(moved), len(touched), len(unknown))
+
+    if args.dry_run:
+        return report_outcome(feed_dir, args, stats, reasons)
+
+    if moved and not args.skip_sorted_list:
+        if not update_sorted_list(unsorted_dir, sorted_names, moved, args.dry_run):
+            reasons.append("files-sorted could not be updated; the next upload "
+                           "would re-deliver packages already in the feed")
+    update_ticker(feed_dir, moved, args.dry_run)
+
+    indexed_ok = True
+    if moved and not args.skip_index:
+        if shutil.which(args.opkg_make_index) is None:
+            log.error("%s not found; indexes not rebuilt (--skip-index to "
+                      "silence)", args.opkg_make_index)
+            reasons.append("%s not found, %d feed index(es) not rebuilt"
+                           % (args.opkg_make_index, len(touched)))
+            indexed_ok = False
+        else:
+            failures = index_feeds(feed_dir, touched, args.opkg_make_index)
+            if failures:
+                reasons.append("%d of %d feed index(es) failed to rebuild; "
+                               "those feeds are stale" % (failures, len(touched)))
+                indexed_ok = False
+
+    # Unchanged rule: the post command only runs on a clean sort+index, so it
+    # never publishes a half-updated feed.
+    if args.post_command and indexed_ok and not reasons and moved:
+        log.info("Running post command: %s", args.post_command)
+        proc = subprocess.run(args.post_command, shell=True, cwd=str(feed_dir))
+        if proc.returncode != 0:
+            log.error("Post command exited %d", proc.returncode)
+            reasons.append("post command exited %d" % proc.returncode)
+    elif args.post_command and moved:
+        log.error("Post command not run: the sort did not complete cleanly")
+
+    return report_outcome(feed_dir, args, stats, reasons)
 
 
 def main(argv=None):
@@ -441,61 +795,54 @@ def main(argv=None):
         format="%(asctime)s %(levelname)s %(message)s",
         datefmt="%H:%M:%S")
 
-    feed_dir = resolve_feed_dir(args.feed_dir)
-    if feed_dir is None:
-        return 1
-    unsorted_dir = feed_dir / "unsorted"
-    arch_map_path = Path(args.config) if args.config else feed_dir / ARCH_MAP_NAME
+    feed_dir = None
+    lock_fh = None
+    try:
+        feed_dir = resolve_feed_dir(args.feed_dir)
+        if feed_dir is None:
+            log.error("SORT-PACKAGES: FAILED no feed directory resolved")
+            return 1
 
-    ingested, rejected = ingest_incoming(feed_dir, arch_map_path, args.dry_run)
-    if ingested or rejected:
-        log.info("Ingest: %d files accepted, %d rejected", ingested, rejected)
+        unsorted_dir = feed_dir / "unsorted"
+        if not unsorted_dir.is_dir():
+            log.error("SORT-PACKAGES: FAILED feed-dir=%s has no unsorted/ "
+                      "directory", feed_dir)
+            return 1
 
-    flatten_pool(unsorted_dir, args.dry_run)
+        # Advisory exclusive lock so two ingest/sort runs against the same
+        # feed dir never race each other -- observed live: a concurrent run
+        # left a just-staged upload partially consumed (files moved
+        # mid-check) with no error from either side. Fail fast instead of
+        # racing.
+        lock_path = feed_dir / ".sort-packages.lock"
+        try:
+            lock_fh = open(str(lock_path), "a")
+        except OSError as exc:
+            log.error("SORT-PACKAGES: FAILED cannot open the lock file %s: %s",
+                      lock_path, exc)
+            return 1
+        try:
+            fcntl.flock(lock_fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            log.error("Another sort-packages.py is already running against %s "
+                      "(holds %s) -- not racing it, try again shortly",
+                      feed_dir, lock_path)
+            log.error("SORT-PACKAGES: FAILED feed-dir=%s locked by another run",
+                      feed_dir)
+            return 1
 
-    pool = sorted(unsorted_dir.glob("*.ipk"))
-    if not pool:
-        log.info("No unsorted packages, nothing to do")
-        return 0
-
-    archmap = ArchMap.load(arch_map_path)
-    if archmap is None:
-        log.error("No usable arch map at %s; deliver one with "
-                  "upload-packages.py --arch-map or pass --config", arch_map_path)
-        return 1
-
-    sorted_names = read_sorted_list(unsorted_dir)
-    dedupe_pool(unsorted_dir, sorted_names, args.dry_run)
-
-    touched, moved, unknown = sort_pool(feed_dir, unsorted_dir, archmap,
-                                        args.dry_run)
-    log.info("Sorted %d packages into %d feed directories, %d unknown",
-             len(moved), len(touched), len(unknown))
-
-    if args.dry_run:
-        return 0
-
-    if moved and not args.skip_sorted_list:
-        update_sorted_list(unsorted_dir, sorted_names, moved, args.dry_run)
-    update_ticker(feed_dir, moved, args.dry_run)
-
-    failures = 0
-    if moved and not args.skip_index:
-        if shutil.which(args.opkg_make_index) is None:
-            log.error("%s not found; indexes not rebuilt (--skip-index to "
-                      "silence)", args.opkg_make_index)
-            failures = 1
-        else:
-            failures = index_feeds(feed_dir, touched, args.opkg_make_index)
-
-    if args.post_command and not failures and moved:
-        log.info("Running post command: %s", args.post_command)
-        proc = subprocess.run(args.post_command, shell=True, cwd=str(feed_dir))
-        if proc.returncode != 0:
-            log.error("Post command exited %d", proc.returncode)
-            failures += 1
-
-    return 2 if failures else 0
+        return _run_sort(args, feed_dir)
+    except Exception as exc:
+        # Never let a traceback be the only record: an unexpected failure
+        # gets the same greppable sentinel as an expected one.
+        log.exception("Unhandled error during sort: %s", exc)
+        log.error("SORT-PACKAGES: FAILED feed-dir=%s unhandled error: %s",
+                  feed_dir if feed_dir is not None else "(unresolved)", exc)
+        return 2
+    finally:
+        if lock_fh is not None:
+            fcntl.flock(lock_fh, fcntl.LOCK_UN)
+            lock_fh.close()
 
 
 if __name__ == "__main__":
